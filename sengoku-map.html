@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#141b26">
+<title>戦国時代 勢力変遷マップ</title>
+<!-- 1ファイル版（自動生成）: 編集は分割版 index.html / css / js 側で -->
+<style>
+/* ============================================================
+   戦国時代 勢力変遷マップ  —  style.css
+   色: 藍(海) / 和紙 / 墨 / 金
+   書体: 明朝(見出し・地図) + ゴシック(操作系)
+   ============================================================ */
+:root{
+  --ink:        #14110d;
+  --ink-2:      #3a3229;
+  --washi:      #f2e7cf;
+  --washi-2:    #e3d4b2;
+  --gold:       #c9a227;
+  --gold-lt:    #f0d67e;
+  --navy:       #141b26;
+  --navy-2:     #1e293a;
+  --line:       rgba(201,162,39,.35);
+  --shadow:     0 10px 34px rgba(0,0,0,.45);
+  --mincho: "Yu Mincho","YuMincho","Hiragino Mincho ProN","Noto Serif JP","Shippori Mincho",serif;
+  --gothic: "Hiragino Sans","Yu Gothic UI","Noto Sans JP",system-ui,sans-serif;
+  --topbar-h: 52px;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  height:100dvh; display:flex; flex-direction:column;
+  font-family:var(--gothic);
+  color:var(--washi);
+  background:var(--navy);
+  overflow:hidden;
+  -webkit-text-size-adjust:100%;
+}
+button{ font-family:inherit; color:inherit; cursor:pointer; }
+
+/* ---------------- 上部バー ---------------- */
+.topbar{
+  height:var(--topbar-h);
+  padding:0 12px 0 max(12px, env(safe-area-inset-left));
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  background:linear-gradient(#1c2432,#141b26);
+  border-bottom:1px solid var(--line);
+  position:relative; z-index:30;
+}
+.brand{
+  margin:0; font-family:var(--mincho); font-size:18px; font-weight:600;
+  letter-spacing:.06em; color:var(--gold-lt);
+  display:flex; align-items:center; gap:8px; white-space:nowrap;
+}
+.brand-mark{ width:20px; height:20px; color:var(--gold); flex:none; }
+.topbar-actions{ display:flex; gap:6px; }
+.tbtn{
+  background:rgba(255,255,255,.05); border:1px solid var(--line); color:var(--washi);
+  border-radius:6px; padding:6px 10px; font-size:12.5px; letter-spacing:.04em;
+}
+.tbtn:hover{ background:rgba(201,162,39,.16); }
+
+/* ---------------- 年代バー ---------------- */
+.yearbar{
+  position:relative; z-index:20;
+  padding:8px 10px;
+  background:linear-gradient(#141b26,#101722);
+  border-bottom:1px solid rgba(201,162,39,.2);
+}
+.yearbar-inner{
+  max-width:760px; margin:0 auto;
+  display:flex; align-items:center; gap:8px;
+  background:linear-gradient(180deg,#f6eeda,#e6d8b8);
+  border:1px solid #b99b4e; border-radius:10px;
+  padding:6px 8px; box-shadow:var(--shadow);
+  color:var(--ink);
+}
+.ybtn{
+  flex:none; width:38px; height:38px; border-radius:8px;
+  border:1px solid #b99b4e; background:#f8f2e2; font-size:20px; line-height:1;
+  color:var(--ink-2);
+}
+.ybtn:disabled{ opacity:.3; cursor:default; }
+.yearcore{ flex:1; min-width:0; }
+.year-head{ text-align:center; font-family:var(--mincho); line-height:1; }
+#year-big{ font-size:26px; font-weight:700; color:#8c2b1f; letter-spacing:.02em; }
+.year-unit{ font-size:14px; margin-left:2px; color:var(--ink-2); }
+#year-range{
+  -webkit-appearance:none; appearance:none; width:100%; height:26px; background:transparent; margin:2px 0 0;
+}
+#year-range::-webkit-slider-runnable-track{
+  height:5px; border-radius:3px; background:linear-gradient(90deg,#8a7440,#c9a227);
+}
+#year-range::-moz-range-track{ height:5px; border-radius:3px; background:linear-gradient(90deg,#8a7440,#c9a227); }
+#year-range::-webkit-slider-thumb{
+  -webkit-appearance:none; width:22px; height:22px; margin-top:-9px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fff6d8, #c9a227 70%);
+  border:1.5px solid #6d5a24; box-shadow:0 1px 4px rgba(0,0,0,.4);
+}
+#year-range::-moz-range-thumb{
+  width:22px; height:22px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fff6d8, #c9a227 70%);
+  border:1.5px solid #6d5a24;
+}
+#year-range:focus-visible{ outline:2px solid #8c2b1f; outline-offset:4px; border-radius:6px; }
+.ticks{ display:flex; justify-content:space-between; margin-top:-2px; }
+.tick{
+  background:none; border:0; padding:2px 3px; font-size:11px; color:#6b5b3e;
+  font-family:var(--mincho); letter-spacing:.02em;
+}
+.tick:hover{ color:#8c2b1f; }
+.year-note{
+  text-align:center; font-family:var(--mincho); font-size:12px; color:#6b5b3e; margin-top:1px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+/* ---------------- 全体レイアウト ---------------- */
+.topbar{ flex:none; }
+.yearbar{ flex:none; }
+.stage{
+  position:relative; flex:1 1 auto; display:flex; min-height:0; overflow:hidden;
+}
+
+/* ---------------- 地図 ---------------- */
+.mapwrap{
+  position:relative; flex:1; min-width:0; overflow:hidden;
+  touch-action:none; -webkit-user-select:none; user-select:none;
+  background:#0d1725;
+}
+#map{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.province{
+  stroke:#3a2c1a; stroke-width:.7; stroke-opacity:.55;
+  transition:fill .55s ease;
+  cursor:pointer;
+}
+.clan-edge{
+  fill:none; stroke:#2a2118; stroke-width:2.2; stroke-linejoin:round; pointer-events:none;
+  transition:stroke .3s ease, stroke-width .3s ease;
+}
+.clan-edge.is-selected{ stroke:var(--gold-lt); stroke-width:3.4; filter:url(#glow); }
+.coast{ fill:none; stroke:#0a0f18; stroke-width:2.6; stroke-opacity:.8; pointer-events:none; }
+.ezo{ fill:#5c5648; stroke:#2a2118; stroke-width:1.6; opacity:.55; }
+
+/* 地図上のラベル（拡大しても大きさは一定） */
+.overlay{ position:absolute; inset:0; pointer-events:none; }
+.map-label{
+  position:absolute; top:0; left:0; pointer-events:auto; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:1px;
+  font-family:var(--mincho); font-size:15px; font-weight:700; color:#fff;
+  text-shadow:0 1px 2px #000, 0 0 6px rgba(0,0,0,.85);
+  letter-spacing:.04em; white-space:nowrap;
+}
+.map-label .kamon{ filter:drop-shadow(0 1px 2px rgba(0,0,0,.9)); }
+.map-label.is-selected{ color:var(--gold-lt); }
+.map-castle{
+  position:absolute; top:0; left:0;
+  display:flex; flex-direction:column; align-items:center;
+  font-size:10.5px; font-family:var(--mincho); color:#fdf6e3;
+  text-shadow:0 1px 2px #000; white-space:nowrap; opacity:.92;
+}
+.castle-icon{ font-size:13px; line-height:1; }
+.map-note{
+  position:absolute; top:0; left:0; font-family:var(--mincho);
+  font-size:12px; color:#cfc7b4; text-shadow:0 1px 2px #000; letter-spacing:.1em;
+}
+
+.hint{
+  position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
+  background:rgba(20,27,38,.82); border:1px solid var(--line); color:var(--washi);
+  border-radius:999px; padding:7px 14px; font-size:11.5px; white-space:nowrap;
+  pointer-events:none; animation:fade 1s 7s forwards;
+}
+@keyframes fade{ to{ opacity:0; visibility:hidden; } }
+
+.zoomctl{ position:absolute; right:10px; bottom:12px; display:flex; gap:6px; }
+.zbtn{
+  min-width:40px; height:40px; border-radius:8px; font-size:18px;
+  background:rgba(20,27,38,.86); border:1px solid var(--line); color:var(--washi-2);
+}
+.zbtn:first-child{ font-size:12px; }
+.zbtn:hover{ background:rgba(201,162,39,.25); }
+
+/* ---------------- 勢力一覧 ---------------- */
+.legend{
+  width:186px; flex:none; padding:10px; overflow:auto;
+  background:linear-gradient(#161d29,#111825); border-right:1px solid rgba(201,162,39,.2);
+}
+.legend h2{
+  margin:0 0 8px; font-family:var(--mincho); font-size:14px; color:var(--gold-lt);
+  letter-spacing:.08em; display:flex; align-items:baseline; gap:6px;
+}
+.legend h2 small{ font-size:10px; color:#9a927f; letter-spacing:0; font-family:var(--gothic); }
+.legend-list{ display:flex; flex-direction:column; gap:2px; }
+.legend-item{
+  display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+  background:none; border:1px solid transparent; border-radius:6px; padding:5px 6px;
+  font-family:var(--mincho); font-size:13.5px; color:var(--washi);
+}
+.legend-item:hover{ background:rgba(255,255,255,.06); }
+.legend-item.is-selected{ border-color:var(--gold); background:rgba(201,162,39,.14); }
+.swatch{ width:13px; height:13px; border-radius:3px; border:1px solid rgba(0,0,0,.5); flex:none; }
+.legend-foot{ margin:10px 2px 0; font-size:10.5px; color:#8b8371; line-height:1.5; }
+
+/* ---------------- 詳細パネル ---------------- */
+.panel{
+  width:326px; flex:none; overflow:auto;
+  background:linear-gradient(180deg,#f7efdb,#e9dcbe);
+  color:var(--ink); border-left:1px solid #b99b4e;
+  display:flex; flex-direction:column;
+}
+.sheet-handle{ display:none; }
+.panel-head{
+  position:sticky; top:0; z-index:2;
+  display:flex; align-items:center; gap:8px; padding:10px 12px;
+  background:linear-gradient(#f7efdb,#f2e7cf); border-bottom:1px solid #cbb27a;
+}
+.panel-title{ display:flex; align-items:center; gap:9px; flex:1; min-width:0; }
+.panel-title .ph{ font-family:var(--mincho); font-size:15px; color:#6b5b3e; }
+.crest{
+  width:34px; height:34px; border-radius:5px; flex:none;
+  display:grid; place-items:center; box-shadow:0 1px 3px rgba(0,0,0,.3);
+}
+.pt-name{ font-family:var(--mincho); font-size:21px; font-weight:700; letter-spacing:.04em; }
+.pt-year{ font-size:11px; color:#7b6a49; margin-left:auto; padding-right:4px; }
+.panel-close{
+  border:1px solid #cbb27a; background:#fdf8ea; border-radius:6px;
+  width:28px; height:28px; font-size:16px; line-height:1; color:#6b5b3e; flex:none;
+}
+.panel-body{ padding:12px; font-size:13.5px; line-height:1.7; }
+.panel-body .empty{ color:#7b6a49; font-family:var(--mincho); margin:6px 2px; }
+.panel-body h4{
+  margin:14px 0 6px; font-family:var(--mincho); font-size:13.5px; color:#6b3b25;
+  border-left:3px solid var(--gold); padding-left:7px; letter-spacing:.05em;
+}
+.portrait-row{ display:flex; gap:10px; }
+.portrait{
+  width:88px; height:112px; flex:none; border:1px solid #b99b4e; border-radius:4px;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,.5), rgba(0,0,0,.06)),
+    repeating-linear-gradient(45deg,#e6d9bb 0 6px,#e1d3b2 6px 12px);
+  display:grid; place-items:center; gap:4px; align-content:center;
+  color:#7b6a49; color:color-mix(in srgb, var(--c) 65%, #5b4b30); font-size:10px; opacity:.92;
+}
+.facts{ margin:0; display:grid; grid-template-columns:auto 1fr; gap:2px 10px; align-content:start; }
+.facts dt{ font-family:var(--mincho); color:#7b6a49; font-size:12px; white-space:nowrap; }
+.facts dd{ margin:0; font-size:13px; }
+.facts dd.head{ font-family:var(--mincho); font-size:18px; font-weight:700; line-height:1.25; }
+.facts dd.stars{ color:#b8860b; letter-spacing:.12em; font-size:13px; }
+.retainers, .events{ margin:0; padding:0; list-style:none; }
+.retainers{ display:grid; grid-template-columns:1fr 1fr; gap:2px 8px; }
+.retainers li::before{ content:"◆"; color:var(--gold); font-size:9px; margin-right:5px; vertical-align:2px; }
+.retainers li{ font-family:var(--mincho); font-size:13.5px; }
+.events li{ position:relative; padding-left:14px; margin-bottom:3px; }
+.events li::before{ content:"・"; position:absolute; left:0; color:#8c2b1f; }
+.more p{ margin:0 0 4px; }
+.provlist{ font-family:var(--mincho); color:var(--ink-2); }
+.btn-more{
+  margin:14px 0 4px; width:100%; padding:11px; border-radius:7px;
+  border:1px solid #6d5a24; background:linear-gradient(#2a2f3c,#1a1f2a); color:var(--gold-lt);
+  font-family:var(--mincho); font-size:14px; letter-spacing:.08em;
+  display:flex; justify-content:center; align-items:center; gap:6px;
+}
+.btn-more .chev{ transition:transform .25s; }
+.btn-more.open .chev{ transform:rotate(90deg); }
+
+/* ---------------- ダイアログ ---------------- */
+dialog#help{
+  border:1px solid #b99b4e; border-radius:10px; padding:18px 20px; max-width:min(440px,88vw);
+  background:linear-gradient(#f7efdb,#eadcbd); color:var(--ink); font-size:13.5px; line-height:1.7;
+}
+dialog#help::backdrop{ background:rgba(6,10,16,.6); }
+dialog#help h3{ margin:0 0 8px; font-family:var(--mincho); font-size:17px; color:#6b3b25; }
+dialog#help ul{ margin:0 0 10px; padding-left:18px; }
+dialog#help .note{ font-size:11.5px; color:#6b5b3e; border-top:1px dashed #b99b4e; padding-top:8px; }
+dialog#help button{
+  margin-top:8px; width:100%; padding:10px; border-radius:7px; border:1px solid #6d5a24;
+  background:#2a2f3c; color:var(--gold-lt); font-family:var(--mincho); letter-spacing:.1em;
+}
+
+/* ============================================================
+   スマートフォン
+   ============================================================ */
+@media (max-width:899px){
+  .brand{ font-size:15.5px; }
+  .tbtn{ padding:6px 8px; font-size:11.5px; }
+
+  /* 勢力一覧 = 引き出し */
+  .legend{
+    position:absolute; z-index:25; left:0; top:0; bottom:0; width:200px;
+    transform:translateX(-102%); transition:transform .28s ease;
+    box-shadow:var(--shadow);
+  }
+  body.legend-open .legend{ transform:none; }
+
+  /* 詳細 = ボトムシート */
+  .panel{
+    position:absolute; z-index:26; left:0; right:0; bottom:0; width:auto;
+    max-height:56%; border-left:0; border-top:1px solid #b99b4e;
+    border-radius:16px 16px 0 0; box-shadow:0 -8px 30px rgba(0,0,0,.5);
+    transform:translateY(102%); transition:transform .3s cubic-bezier(.2,.8,.25,1);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  body.sheet-open .panel{ transform:none; }
+  .sheet-handle{
+    display:block; width:100%; height:20px; border:0; background:none; flex:none;
+    position:relative;
+  }
+  .sheet-handle::before{
+    content:""; position:absolute; left:50%; top:8px; transform:translateX(-50%);
+    width:42px; height:4px; border-radius:2px; background:#b9a677;
+  }
+  .panel-head{ padding-top:2px; }
+  .zoomctl{ bottom:10px; right:8px; }
+  .zbtn{ min-width:38px; height:38px; }
+  .hint{ bottom:60px; font-size:11px; }
+  .map-label{ font-size:14px; }
+  .retainers{ grid-template-columns:1fr 1fr; }
+}
+
+@media (max-width:380px){
+  .brand{ font-size:14px; }
+  #year-big{ font-size:22px; }
+  .tick{ font-size:10px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{ transition-duration:.01ms !important; animation-duration:.01ms !important; }
+}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1 class="brand">
+    <svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><g fill="currentColor">
+      <circle cx="50" cy="50" r="13"/><circle cx="50" cy="20" r="11"/><circle cx="79" cy="41" r="11"/>
+      <circle cx="68" cy="76" r="11"/><circle cx="32" cy="76" r="11"/><circle cx="21" cy="41" r="11"/>
+    </g></svg>
+    戦国時代 勢力変遷マップ
+  </h1>
+  <div class="topbar-actions">
+    <button id="btn-legend" class="tbtn" type="button">勢力一覧</button>
+    <button id="btn-help" class="tbtn" type="button">使い方</button>
+  </div>
+</header>
+
+<div class="yearbar">
+  <div class="yearbar-inner">
+    <button id="btn-prev" class="ybtn" type="button" aria-label="前の年代へ">‹</button>
+    <div class="yearcore">
+      <div class="year-head"><span id="year-big">1575</span><span class="year-unit">年</span></div>
+      <input id="year-range" type="range" aria-label="年代を選ぶ">
+      <div id="year-ticks" class="ticks"></div>
+      <div id="year-note" class="year-note"></div>
+    </div>
+    <button id="btn-next" class="ybtn" type="button" aria-label="次の年代へ">›</button>
+  </div>
+</div>
+
+<main class="stage">
+
+  <aside class="legend" id="legend">
+    <h2>勢力一覧<small>この年代の主要大名</small></h2>
+    <div id="legend-list" class="legend-list"></div>
+    <p class="legend-foot">地図をタップすると詳細を表示します</p>
+  </aside>
+
+  <div class="mapwrap" id="mapwrap">
+    <svg id="map" viewBox="0 0 1000 830" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="sea" cx="50%" cy="45%" r="75%">
+          <stop offset="0%" stop-color="#20364d"/>
+          <stop offset="60%" stop-color="#152435"/>
+          <stop offset="100%" stop-color="#0d1725"/>
+        </radialGradient>
+        <pattern id="wave" width="60" height="60" patternUnits="userSpaceOnUse">
+          <path d="M0 30 Q15 20 30 30 T60 30" fill="none" stroke="#7fa8c9" stroke-width="1" opacity="0.14"/>
+          <path d="M0 52 Q15 42 30 52 T60 52" fill="none" stroke="#7fa8c9" stroke-width="1" opacity="0.08"/>
+        </pattern>
+        <pattern id="washi" width="14" height="14" patternUnits="userSpaceOnUse">
+          <rect width="14" height="14" fill="none"/>
+          <circle cx="3" cy="4" r="0.7" fill="#3a2c1a" opacity="0.16"/>
+          <circle cx="10" cy="9" r="0.6" fill="#3a2c1a" opacity="0.13"/>
+          <path d="M0 13 H14" stroke="#3a2c1a" stroke-width="0.4" opacity="0.07"/>
+        </pattern>
+        <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#ffe08a" flood-opacity="0.95"/>
+        </filter>
+        <clipPath id="landclip"><use href="#coast"/></clipPath>
+      </defs>
+
+      <rect class="sea" x="-2000" y="-2000" width="5000" height="5000" fill="url(#sea)"/>
+      <rect class="sea-wave" x="-2000" y="-2000" width="5000" height="5000" fill="url(#wave)"/>
+      <g class="clouds" fill="#c9a227" opacity="0.09">
+        <path d="M60 90 q60-40 140-20 q70 18 130-6 q-40 60-140 54 q-90-6-130-28Z"/>
+        <path d="M600 700 q70-46 160-22 q80 22 150-8 q-46 68-160 60 q-100-8-150-30Z"/>
+      </g>
+
+      <g id="world">
+        <path id="ezo" class="ezo"/>
+        <g id="provinces"></g>
+        <rect x="0" y="0" width="1000" height="830" fill="url(#washi)" clip-path="url(#landclip)" pointer-events="none"/>
+        <g id="clan-edges"></g>
+        <path id="coast" class="coast"/>
+      </g>
+    </svg>
+
+    <div id="overlay" class="overlay"></div>
+
+    <div class="hint">地図をドラッグして移動／ピンチイン・アウトで拡大縮小</div>
+
+    <div class="zoomctl">
+      <button id="btn-reset" class="zbtn" type="button" aria-label="全体表示に戻す">全体</button>
+      <button id="btn-zoom-out" class="zbtn" type="button" aria-label="縮小">−</button>
+      <button id="btn-zoom-in" class="zbtn" type="button" aria-label="拡大">＋</button>
+    </div>
+  </div>
+
+  <aside class="panel" id="panel">
+    <button id="sheet-handle" class="sheet-handle" type="button" aria-label="詳細を閉じる"></button>
+    <div class="panel-head">
+      <div id="panel-title" class="panel-title"><span class="ph">勢力の詳細</span></div>
+      <button id="panel-close" class="panel-close" type="button" aria-label="閉じる">×</button>
+    </div>
+    <div id="panel-body" class="panel-body"></div>
+  </aside>
+
+</main>
+
+<dialog id="help">
+  <h3>使い方</h3>
+  <ul>
+    <li>上部のスライダーで年代を切り替えると、勢力範囲・当主・出来事が変わります。</li>
+    <li>地図の色のついた領域をタップすると、その勢力の詳細が開きます。</li>
+    <li>ドラッグで移動、ピンチまたはダブルタップで拡大できます。</li>
+    <li>「全体」ボタンで最初の表示に戻ります。</li>
+  </ul>
+  <p class="note">勢力範囲は旧国（甲斐・信濃など）単位で管理した簡略表示です。国境や実効支配は史実と厳密には一致しません。</p>
+  <button id="help-close" type="button">閉じる</button>
+</dialog>
+
+<script>
+/* ============================================================
+   geo.js  —  日本列島と旧国のジオメトリ生成
+   ------------------------------------------------------------
+   ・海岸線 : 経緯度の粗いポリゴン（本州/四国/九州/佐渡/淡路/蝦夷地）
+   ・旧国   : 「代表点(経緯度)」のみを持つ
+   ・build(): 陸地をグリッド化 → 最寄り代表点で塗り分け → 輪郭抽出
+              → 平滑化 → 旧国ごとのSVGパスを生成
+   ・正式な旧国GeoJSONに差し替える場合は build() の戻り値
+     { paths:{国ID:d}, ... } の形式だけ守れば他は無改修で動く
+   ============================================================ */
+window.GEO = (function () {
+  'use strict';
+
+  // ---- 投影（線形・縦をやや圧縮した古地図風スタイライズ） ----
+  var LON0 = 129.0, LAT0 = 42.6, SX = 76, SY = 70;
+  var MAP_W = 1000, MAP_H = 830;
+  function P(lon, lat) { return [(lon - LON0) * SX, (LAT0 - lat) * SY]; }
+
+  // ---- 海岸線（[経度, 緯度] の配列。時計回り・粗い） ----
+  var COAST = {
+    honshu: [
+      [140.90,41.50],[141.40,41.00],[141.50,40.60],[141.90,39.90],[142.00,39.50],
+      [141.90,39.00],[141.50,38.40],[141.05,38.30],[141.00,37.80],[141.05,37.00],
+      [140.80,36.40],[140.60,36.20],[140.85,35.75],[140.40,35.50],[140.05,35.05],
+      [139.85,34.90],[139.75,35.30],[139.90,35.65],[139.60,35.45],[139.60,35.15],
+      [139.30,35.25],[139.07,35.10],[139.15,34.90],[138.85,34.60],[138.78,34.90],
+      [138.85,35.10],[138.50,35.00],[138.23,34.60],[137.70,34.65],[137.05,34.60],
+      [136.90,35.10],[136.60,34.75],[136.85,34.50],[136.90,34.30],[136.20,34.20],
+      [135.95,33.85],[135.80,33.45],[135.40,33.70],[135.10,34.20],[135.35,34.55],
+      [135.40,34.70],[135.20,34.68],[134.99,34.65],[134.70,34.78],[133.90,34.60],
+      [133.40,34.45],[132.45,34.35],[132.20,34.15],[132.10,33.95],[131.80,34.05],
+      [131.25,33.95],[130.95,33.95],[131.20,34.40],[131.40,34.42],[131.85,34.68],
+      [132.08,34.90],[132.60,35.40],[133.35,35.55],[134.20,35.55],[134.60,35.65],
+      [135.10,35.75],[135.35,35.55],[135.75,35.50],[136.05,35.65],[136.20,36.10],
+      [136.60,36.60],[136.75,37.15],[136.90,37.50],[137.35,37.50],[137.15,36.95],
+      [137.20,36.80],[137.85,37.05],[138.25,37.20],[138.55,37.35],[139.05,37.90],
+      [139.50,38.25],[139.85,38.90],[140.05,39.75],[139.70,39.90],[140.00,40.05],
+      [140.00,40.20],[140.05,40.55],[140.20,40.80],[140.35,41.15],[140.60,41.25]
+    ],
+    shikoku: [
+      [133.70,34.35],[134.35,34.25],[134.60,34.10],[134.75,33.85],[134.60,33.55],
+      [134.30,33.35],[134.18,33.25],[133.70,33.50],[133.30,33.35],[133.00,32.75],
+      [132.70,32.95],[132.45,33.25],[132.60,33.45],[132.05,33.35],[132.35,33.60],
+      [132.60,33.90],[133.00,34.05],[133.35,34.25]
+    ],
+    kyushu: [
+      [130.95,33.93],[131.35,33.60],[131.70,33.35],[131.65,32.90],[131.75,32.60],
+      [131.50,32.05],[131.35,31.55],[131.05,31.40],[130.68,30.98],[130.60,31.60],
+      [130.50,31.25],[130.20,31.18],[130.15,31.60],[130.25,31.95],[130.40,32.20],
+      [130.50,32.55],[130.35,32.90],[129.85,32.72],[129.75,33.05],[129.70,33.30],
+      [130.00,33.45],[130.35,33.60],[130.50,33.90]
+    ],
+    sado:  [[138.20,38.25],[138.50,38.30],[138.55,38.00],[138.30,37.85]],
+    awaji: [[134.70,34.55],[134.95,34.60],[135.00,34.35],[134.75,34.25]]
+  };
+
+  // 蝦夷地（当時の勢力外。装飾として描画するだけ）
+  var EZO = [[139.90,42.60],[141.60,42.60],[141.20,42.00],[140.70,41.75],
+             [140.20,41.40],[139.90,41.80],[140.40,42.10]];
+
+  // ---- 旧国（id, 表示名, 所属する島, 代表点） ----
+  var PROVINCES = [
+    // 東北・北陸
+    { id:'mutsu',    name:'陸奥',        island:'honshu', lon:141.30, lat:39.60 },
+    { id:'nanou',    name:'岩代・磐城',  island:'honshu', lon:140.50, lat:36.90 },
+    { id:'dewa',     name:'出羽',        island:'honshu', lon:140.10, lat:39.40 },
+    { id:'echigo',   name:'越後',        island:'honshu', lon:138.80, lat:37.40 },
+    { id:'sado',     name:'佐渡',        island:'sado',   lon:138.40, lat:38.05 },
+    { id:'etchu',    name:'越中',        island:'honshu', lon:137.20, lat:36.70 },
+    { id:'noto',     name:'能登',        island:'honshu', lon:136.95, lat:37.15 },
+    { id:'kaga',     name:'加賀',        island:'honshu', lon:136.60, lat:36.40 },
+    { id:'echizen',  name:'越前',        island:'honshu', lon:136.30, lat:35.95 },
+    { id:'wakasa',   name:'若狭',        island:'honshu', lon:135.65, lat:35.45 },
+    // 関東・甲信
+    { id:'shinano',  name:'信濃',        island:'honshu', lon:138.00, lat:36.15 },
+    { id:'hida',     name:'飛騨',        island:'honshu', lon:137.20, lat:36.15 },
+    { id:'kai',      name:'甲斐',        island:'honshu', lon:138.60, lat:35.60 },
+    { id:'kozuke',   name:'上野',        island:'honshu', lon:138.95, lat:36.50 },
+    { id:'shimotsuke',name:'下野',       island:'honshu', lon:139.80, lat:36.70 },
+    { id:'hitachi',  name:'常陸',        island:'honshu', lon:140.40, lat:36.35 },
+    { id:'shimousa', name:'下総',        island:'honshu', lon:140.25, lat:35.85 },
+    { id:'kazusa',   name:'上総',        island:'honshu', lon:140.15, lat:35.40 },
+    { id:'awa_b',    name:'安房',        island:'honshu', lon:139.90, lat:35.05 },
+    { id:'musashi',  name:'武蔵',        island:'honshu', lon:139.40, lat:35.85 },
+    { id:'sagami',   name:'相模',        island:'honshu', lon:139.25, lat:35.40 },
+    { id:'izu',      name:'伊豆',        island:'honshu', lon:138.95, lat:34.85 },
+    // 東海
+    { id:'suruga',   name:'駿河',        island:'honshu', lon:138.45, lat:35.15 },
+    { id:'totomi',   name:'遠江',        island:'honshu', lon:137.85, lat:34.90 },
+    { id:'mikawa',   name:'三河',        island:'honshu', lon:137.40, lat:34.90 },
+    { id:'owari',    name:'尾張',        island:'honshu', lon:136.98, lat:35.18 },
+    { id:'mino',     name:'美濃',        island:'honshu', lon:136.90, lat:35.55 },
+    { id:'omi',      name:'近江',        island:'honshu', lon:136.15, lat:35.20 },
+    { id:'ise',      name:'伊勢',        island:'honshu', lon:136.55, lat:34.60 },
+    { id:'shima',    name:'志摩',        island:'honshu', lon:136.85, lat:34.35 },
+    { id:'iga',      name:'伊賀',        island:'honshu', lon:136.15, lat:34.75 },
+    // 畿内
+    { id:'yamashiro',name:'山城',        island:'honshu', lon:135.80, lat:34.95 },
+    { id:'yamato',   name:'大和',        island:'honshu', lon:135.85, lat:34.50 },
+    { id:'kawachi',  name:'河内',        island:'honshu', lon:135.60, lat:34.55 },
+    { id:'izumi',    name:'和泉',        island:'honshu', lon:135.40, lat:34.40 },
+    { id:'settsu',   name:'摂津',        island:'honshu', lon:135.40, lat:34.80 },
+    { id:'kii',      name:'紀伊',        island:'honshu', lon:135.60, lat:34.00 },
+    // 山陰・山陽
+    { id:'tanba',    name:'丹波',        island:'honshu', lon:135.30, lat:35.20 },
+    { id:'tango',    name:'丹後',        island:'honshu', lon:135.15, lat:35.60 },
+    { id:'tajima',   name:'但馬',        island:'honshu', lon:134.80, lat:35.40 },
+    { id:'inaba',    name:'因幡',        island:'honshu', lon:134.20, lat:35.40 },
+    { id:'hoki',     name:'伯耆',        island:'honshu', lon:133.60, lat:35.40 },
+    { id:'izumo',    name:'出雲',        island:'honshu', lon:132.85, lat:35.30 },
+    { id:'iwami',    name:'石見',        island:'honshu', lon:132.20, lat:34.85 },
+    { id:'harima',   name:'播磨',        island:'honshu', lon:134.65, lat:35.00 },
+    { id:'mimasaka', name:'美作',        island:'honshu', lon:134.05, lat:35.15 },
+    { id:'bizen',    name:'備前',        island:'honshu', lon:134.00, lat:34.75 },
+    { id:'bicchu',   name:'備中',        island:'honshu', lon:133.55, lat:34.80 },
+    { id:'bingo',    name:'備後',        island:'honshu', lon:133.10, lat:34.70 },
+    { id:'aki',      name:'安芸',        island:'honshu', lon:132.55, lat:34.50 },
+    { id:'suo',      name:'周防',        island:'honshu', lon:131.90, lat:34.15 },
+    { id:'nagato',   name:'長門',        island:'honshu', lon:131.20, lat:34.30 },
+    // 南海
+    { id:'awaji',    name:'淡路',        island:'awaji',  lon:134.85, lat:34.42 },
+    { id:'awa_s',    name:'阿波',        island:'shikoku',lon:134.25, lat:33.95 },
+    { id:'sanuki',   name:'讃岐',        island:'shikoku',lon:134.00, lat:34.25 },
+    { id:'iyo',      name:'伊予',        island:'shikoku',lon:132.85, lat:33.60 },
+    { id:'tosa',     name:'土佐',        island:'shikoku',lon:133.40, lat:33.40 },
+    // 西海
+    { id:'chikuzen', name:'筑前',        island:'kyushu', lon:130.50, lat:33.60 },
+    { id:'chikugo',  name:'筑後',        island:'kyushu', lon:130.65, lat:33.25 },
+    { id:'buzen',    name:'豊前',        island:'kyushu', lon:131.05, lat:33.60 },
+    { id:'bungo',    name:'豊後',        island:'kyushu', lon:131.50, lat:33.10 },
+    { id:'hizen',    name:'肥前',        island:'kyushu', lon:130.00, lat:33.20 },
+    { id:'higo',     name:'肥後',        island:'kyushu', lon:130.75, lat:32.60 },
+    { id:'hyuga',    name:'日向',        island:'kyushu', lon:131.40, lat:32.20 },
+    { id:'osumi',    name:'大隅',        island:'kyushu', lon:130.95, lat:31.50 },
+    { id:'satsuma',  name:'薩摩',        island:'kyushu', lon:130.40, lat:31.75 }
+  ];
+
+  // ================= 幾何ユーティリティ =================
+  function toXYRing(ring) { return ring.map(function (p) { return P(p[0], p[1]); }); }
+
+  function pointInRing(x, y, ring) {
+    var inside = false, n = ring.length;
+    for (var i = 0, j = n - 1; i < n; j = i++) {
+      var xi = ring[i][0], yi = ring[i][1], xj = ring[j][0], yj = ring[j][1];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  }
+
+  // 閉ループのチャイキン平滑化
+  function chaikin(pts, iter) {
+    for (var t = 0; t < iter; t++) {
+      var out = [];
+      for (var i = 0; i < pts.length; i++) {
+        var a = pts[i], b = pts[(i + 1) % pts.length];
+        out.push([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25]);
+        out.push([a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]);
+      }
+      pts = out;
+    }
+    return pts;
+  }
+
+  function ringArea(pts) {
+    var s = 0;
+    for (var i = 0; i < pts.length; i++) {
+      var a = pts[i], b = pts[(i + 1) % pts.length];
+      s += a[0] * b[1] - b[0] * a[1];
+    }
+    return Math.abs(s) / 2;
+  }
+
+  function toPathD(loops) {
+    var d = '';
+    for (var i = 0; i < loops.length; i++) {
+      var pts = loops[i];
+      d += 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+      for (var j = 1; j < pts.length; j++) d += 'L' + pts[j][0].toFixed(1) + ' ' + pts[j][1].toFixed(1);
+      d += 'Z';
+    }
+    return d;
+  }
+
+  // ================= グリッド構築 =================
+  var STEP = 2.5;
+  var COLS = Math.ceil(MAP_W / STEP), ROWS = Math.ceil(MAP_H / STEP);
+  var labels = null;          // Int16Array : 旧国index / -1=海
+  var provIndex = {};         // id -> index
+
+  function buildGrid() {
+    var ringsXY = {}, k;
+    for (k in COAST) ringsXY[k] = toXYRing(COAST[k]);
+
+    var seeds = PROVINCES.map(function (p, i) {
+      var xy = P(p.lon, p.lat);
+      provIndex[p.id] = i;
+      return { x: xy[0], y: xy[1], island: p.island };
+    });
+
+    labels = new Int16Array(COLS * ROWS).fill(-1);
+    for (var r = 0; r < ROWS; r++) {
+      var y = (r + 0.5) * STEP;
+      for (var c = 0; c < COLS; c++) {
+        var x = (c + 0.5) * STEP, island = null;
+        for (k in ringsXY) { if (pointInRing(x, y, ringsXY[k])) { island = k; break; } }
+        if (!island) continue;
+        var best = -1, bd = Infinity;
+        for (var s = 0; s < seeds.length; s++) {
+          if (seeds[s].island !== island) continue;
+          var dx = seeds[s].x - x, dy = seeds[s].y - y, d = dx * dx + dy * dy;
+          if (d < bd) { bd = d; best = s; }
+        }
+        if (best >= 0) labels[r * COLS + c] = best;
+      }
+    }
+  }
+
+  /* ラベルグリッドから領域ごとの輪郭ループを抽出する。
+     cellId(index) が同じセルの外周を、セル辺の集合 → ループ結合 で取り出す。
+     隣接領域は同じセル辺を共有するため、境界に隙間ができない。 */
+  function traceRegions(cellId, groupCount) {
+    var segs = [];                       // group -> [[startCorner, endCorner], ...]
+    for (var g = 0; g < groupCount; g++) segs.push([]);
+    var CH = ROWS + 2;
+    function corner(ci, ri) { return ci * CH + ri; }
+
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
+        var g = cellId(labels[r * COLS + c]);
+        if (g < 0) continue;
+        var up    = r > 0        ? cellId(labels[(r - 1) * COLS + c]) : -1;
+        var down  = r < ROWS - 1 ? cellId(labels[(r + 1) * COLS + c]) : -1;
+        var left  = c > 0        ? cellId(labels[r * COLS + c - 1])   : -1;
+        var right = c < COLS - 1 ? cellId(labels[r * COLS + c + 1])   : -1;
+        var S = segs[g];
+        if (up    !== g) S.push([corner(c, r),         corner(c + 1, r)]);
+        if (right !== g) S.push([corner(c + 1, r),     corner(c + 1, r + 1)]);
+        if (down  !== g) S.push([corner(c + 1, r + 1), corner(c, r + 1)]);
+        if (left  !== g) S.push([corner(c, r + 1),     corner(c, r)]);
+      }
+    }
+
+    var result = [];
+    for (var gi = 0; gi < groupCount; gi++) {
+      var list = segs[gi], loops = [];
+      if (!list.length) { result.push(loops); continue; }
+      var map = new Map(), used = new Uint8Array(list.length);
+      for (var i = 0; i < list.length; i++) {
+        var a = list[i][0];
+        if (!map.has(a)) map.set(a, []);
+        map.get(a).push(i);
+      }
+      for (var st = 0; st < list.length; st++) {
+        if (used[st]) continue;
+        var loop = [], cur = st, guard = 0;
+        while (cur !== undefined && !used[cur] && guard++ < 200000) {
+          used[cur] = 1;
+          loop.push(list[cur][0]);
+          var nexts = map.get(list[cur][1]), nxt;
+          if (nexts) for (var n = 0; n < nexts.length; n++) if (!used[nexts[n]]) { nxt = nexts[n]; break; }
+          cur = nxt;
+        }
+        if (loop.length < 4) continue;
+        var pts = loop.map(function (key) {
+          return [Math.floor(key / CH) * STEP, (key % CH) * STEP];
+        });
+        if (ringArea(pts) < STEP * STEP * 6) continue;
+        loops.push(chaikin(pts, 2));
+      }
+      result.push(loops);
+    }
+    return result;
+  }
+
+  // ================= 公開API =================
+  function build() {
+    if (!labels) buildGrid();
+    var loops = traceRegions(function (v) { return v; }, PROVINCES.length);
+    var paths = {};
+    PROVINCES.forEach(function (p, i) { paths[p.id] = toPathD(loops[i]); });
+
+    // 海岸線（陸地全体の外形）
+    var land = traceRegions(function (v) { return v >= 0 ? 0 : -1; }, 1);
+    var coastD = toPathD(land[0]);
+
+    return { paths: paths, coast: coastD, ezo: toPathD([chaikin(toXYRing(EZO), 1)]) };
+  }
+
+  /* 年代ごとの「勢力ごとの外形」と「重心・面積」を返す
+     owners: {国ID: 勢力ID}  */
+  function clanShapes(owners) {
+    if (!labels) buildGrid();
+    var ids = [], idx = {};
+    PROVINCES.forEach(function (p) {
+      var c = owners[p.id] || 'other';
+      if (!(c in idx)) { idx[c] = ids.length; ids.push(c); }
+    });
+    var provToClan = new Int16Array(PROVINCES.length);
+    PROVINCES.forEach(function (p, i) { provToClan[i] = idx[owners[p.id] || 'other']; });
+
+    var loops = traceRegions(function (v) { return v < 0 ? -1 : provToClan[v]; }, ids.length);
+
+    // 重心と面積（セル数ベース）
+    var sx = new Float64Array(ids.length), sy = new Float64Array(ids.length), cnt = new Float64Array(ids.length);
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
+      var v = labels[r * COLS + c];
+      if (v < 0) continue;
+      var g = provToClan[v];
+      sx[g] += (c + 0.5) * STEP; sy[g] += (r + 0.5) * STEP; cnt[g]++;
+    }
+    // 重心が他家の領内に落ちる場合があるので、自領のセルへスナップする
+    var gx = new Float64Array(ids.length), gy = new Float64Array(ids.length);
+    for (var i2 = 0; i2 < ids.length; i2++) {
+      gx[i2] = cnt[i2] ? sx[i2] / cnt[i2] : 0;
+      gy[i2] = cnt[i2] ? sy[i2] / cnt[i2] : 0;
+    }
+    var bx = new Float64Array(ids.length), by = new Float64Array(ids.length);
+    var bd = new Float64Array(ids.length).fill(Infinity);
+    for (var r2 = 0; r2 < ROWS; r2++) for (var c2 = 0; c2 < COLS; c2++) {
+      var v2 = labels[r2 * COLS + c2];
+      if (v2 < 0) continue;
+      var g2 = provToClan[v2];
+      var x2 = (c2 + 0.5) * STEP, y2 = (r2 + 0.5) * STEP;
+      var dd = (x2 - gx[g2]) * (x2 - gx[g2]) + (y2 - gy[g2]) * (y2 - gy[g2]);
+      if (dd < bd[g2]) { bd[g2] = dd; bx[g2] = x2; by[g2] = y2; }
+    }
+
+    var out = {};
+    ids.forEach(function (id, i) {
+      out[id] = {
+        d: toPathD(loops[i]),
+        cx: cnt[i] ? bx[i] : 0,
+        cy: cnt[i] ? by[i] : 0,
+        area: cnt[i] * STEP * STEP
+      };
+    });
+    return out;
+  }
+
+  function provinceAt(id) { return PROVINCES[provIndex[id]]; }
+
+  return {
+    MAP_W: MAP_W, MAP_H: MAP_H,
+    PROVINCES: PROVINCES,
+    project: P,
+    build: build,
+    clanShapes: clanShapes,
+    provinceAt: provinceAt
+  };
+})();
+
+</script>
+<script>
+/* ============================================================
+   kamon.js — 家紋（簡略図案）
+   ------------------------------------------------------------
+   100×100 の座標系で描いた単色シルエット。currentColor で塗る。
+   実物の家紋は複雑なため、識別できる程度に単純化しています。
+   画像に差し替える場合は KAMON.svg() の戻り値を <img> に変えるだけ。
+   ============================================================ */
+window.KAMON = (function () {
+  'use strict';
+
+  function dots(list, r) {
+    return list.map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + r + '"/>'; }).join('');
+  }
+  function diamond(cx, cy, w, h) {
+    return '<path d="M' + cx + ' ' + (cy - h) + 'L' + (cx + w) + ' ' + cy + 'L' + cx + ' ' + (cy + h) + 'L' + (cx - w) + ' ' + cy + 'Z"/>';
+  }
+  function ring(cx, cy, r, t) {
+    return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="currentColor" stroke-width="' + t + '"/>';
+  }
+
+  var S = {
+    // 武田菱（四つ割菱）
+    takeda: diamond(50, 26, 17, 19) + diamond(50, 74, 17, 19) + diamond(26, 50, 17, 19) + diamond(74, 50, 17, 19),
+    // 上杉（竹に雀を簡略化：輪に二枚笹）
+    uesugi: ring(50, 50, 38, 7) +
+      '<path d="M50 22 C34 34 30 54 40 74 C44 58 46 38 50 22Z"/>' +
+      '<path d="M50 22 C66 34 70 54 60 74 C56 58 54 38 50 22Z"/>' +
+      '<circle cx="50" cy="78" r="6"/>',
+    // 北条鱗（三つ鱗）
+    hojo: '<path d="M50 16 L74 58 L26 58Z"/><path d="M28 62 L46 92 L10 92Z"/><path d="M72 62 L90 92 L54 92Z"/>',
+    // 伊達（九曜）
+    date: dots([[50, 50]], 15) + dots([[50, 20], [50, 80], [20, 50], [80, 50], [29, 29], [71, 29], [29, 71], [71, 71]], 9),
+    // 徳川（三つ葉葵を簡略化）
+    tokugawa: ring(50, 50, 40, 6) +
+      '<ellipse cx="50" cy="28" rx="15" ry="12"/><ellipse cx="31" cy="63" rx="15" ry="12" transform="rotate(-30 31 63)"/>' +
+      '<ellipse cx="69" cy="63" rx="15" ry="12" transform="rotate(30 69 63)"/><circle cx="50" cy="50" r="6"/>',
+    // 織田（木瓜を簡略化）
+    oda: '<path fill-rule="evenodd" d="M50 8 C76 8 92 26 92 50 C92 74 76 92 50 92 C24 92 8 74 8 50 C8 26 24 8 50 8 Z' +
+      'M50 26 C64 26 74 36 74 50 C74 64 64 74 50 74 C36 74 26 64 26 50 C26 36 36 26 50 26 Z"/>' +
+      dots([[50, 50]], 8) + dots([[50, 35], [63, 45], [58, 61], [42, 61], [37, 45]], 6),
+    // 毛利（一文字三星）
+    mori: '<rect x="14" y="24" width="72" height="11" rx="5"/>' + dots([[50, 60], [26, 78], [74, 78]], 11),
+    // 長宗我部（七つ酢漿草を簡略化）
+    chosokabe: '<ellipse cx="50" cy="27" rx="12" ry="16"/><ellipse cx="29" cy="63" rx="12" ry="16" transform="rotate(-60 29 63)"/>' +
+      '<ellipse cx="71" cy="63" rx="12" ry="16" transform="rotate(60 71 63)"/>' + dots([[50, 55], [30, 30], [70, 30], [50, 86]], 5),
+    // 島津（丸に十文字）
+    shimazu: ring(50, 50, 38, 8) + '<rect x="45" y="12" width="10" height="76"/><rect x="12" y="45" width="76" height="10"/>',
+    // 今川（足利二つ引両）
+    imagawa: ring(50, 50, 40, 6) + '<rect x="16" y="34" width="68" height="10"/><rect x="16" y="56" width="68" height="10"/>',
+    // 斎藤（撫子）
+    saito: dots([[50, 22], [78, 40], [68, 76], [32, 76], [22, 40]], 15) + '<circle cx="50" cy="52" r="8"/>',
+    // 三好（三階菱）
+    miyoshi: '<path d="M50 14 L82 30 L50 46 L18 30Z"/><path d="M50 40 L82 56 L50 72 L18 56Z"/><path d="M50 66 L82 82 L50 98 L18 82Z"/>',
+    // 大内（大内菱）
+    ouchi: diamond(50, 50, 34, 42) + '<path d="M50 26 L67 50 L50 74 L33 50Z" fill="#3a2c1a"/>',
+    // 尼子（四つ目結）
+    amago: '<rect x="16" y="16" width="30" height="30"/><rect x="54" y="16" width="30" height="30"/>' +
+      '<rect x="16" y="54" width="30" height="30"/><rect x="54" y="54" width="30" height="30"/>',
+    // 大友（抱き杏葉を簡略化）
+    otomo: '<path d="M50 88 C18 70 16 32 40 12 C40 44 44 62 50 88Z"/><path d="M50 88 C82 70 84 32 60 12 C60 44 56 62 50 88Z"/><circle cx="50" cy="44" r="9"/>',
+    // 龍造寺（十二日足）
+    ryuzoji: '<circle cx="50" cy="50" r="16"/>' +
+      (function () {
+        var s = '';
+        for (var i = 0; i < 12; i++) {
+          var a = i * 30 * Math.PI / 180;
+          s += '<path d="M' + (50 + 20 * Math.cos(a)) + ' ' + (50 + 20 * Math.sin(a)) +
+            ' L' + (50 + 44 * Math.cos(a - 0.1)) + ' ' + (50 + 44 * Math.sin(a - 0.1)) +
+            ' L' + (50 + 44 * Math.cos(a + 0.1)) + ' ' + (50 + 44 * Math.sin(a + 0.1)) + 'Z"/>';
+        }
+        return s;
+      })(),
+    // 豊臣（五七桐を簡略化）
+    toyotomi: '<rect x="46" y="10" width="8" height="30" rx="4"/><rect x="30" y="16" width="7" height="24" rx="3.5"/>' +
+      '<rect x="63" y="16" width="7" height="24" rx="3.5"/>' +
+      '<path d="M50 92 C24 76 22 52 34 42 C42 58 46 74 50 92Z"/><path d="M50 92 C76 76 78 52 66 42 C58 58 54 74 50 92Z"/>',
+    // 前田（梅鉢）
+    maeda: '<circle cx="50" cy="50" r="13"/>' + dots([[50, 22], [76, 41], [66, 76], [34, 76], [24, 41]], 11),
+    // 南部（向鶴を簡略化）
+    nanbu: ring(50, 50, 38, 6) + '<path d="M50 30 C34 38 30 58 42 72 C40 56 44 40 50 30Z"/>' +
+      '<path d="M50 30 C66 38 70 58 58 72 C60 56 56 40 50 30Z"/><circle cx="50" cy="26" r="7"/>',
+    // 最上（丸に二引両）
+    mogami: ring(50, 50, 40, 6) + '<rect x="18" y="36" width="64" height="9"/><rect x="18" y="56" width="64" height="9"/>',
+    // 佐竹（五本骨扇）
+    satake: '<path d="M50 86 L14 34 A46 46 0 0 1 86 34 Z"/>' +
+      '<g stroke="#3a2c1a" stroke-width="3"><line x1="50" y1="86" x2="50" y2="24"/>' +
+      '<line x1="50" y1="86" x2="22" y2="42"/><line x1="50" y1="86" x2="78" y2="42"/></g>',
+    // 朝倉（三つ盛木瓜）
+    asakura: '<ellipse cx="50" cy="28" rx="20" ry="16"/><ellipse cx="28" cy="66" rx="20" ry="16"/><ellipse cx="72" cy="66" rx="20" ry="16"/>',
+    // 六角（隅立四つ目結）
+    rokkaku: '<g transform="rotate(45 50 50)"><rect x="20" y="20" width="26" height="26"/><rect x="54" y="20" width="26" height="26"/>' +
+      '<rect x="20" y="54" width="26" height="26"/><rect x="54" y="54" width="26" height="26"/></g>',
+    // 一向一揆（下がり藤を簡略化）
+    ikko: '<rect x="24" y="14" width="52" height="8" rx="4"/>' +
+      '<path d="M28 20 C18 40 22 64 34 80 C30 58 28 38 28 20Z"/><path d="M72 20 C82 40 78 64 66 80 C70 58 72 38 72 20Z"/>' +
+      dots([[42, 52], [58, 52], [50, 70]], 7),
+    // その他
+    other: ring(50, 50, 36, 7) + '<circle cx="50" cy="50" r="12"/>'
+  };
+
+  return {
+    /** 家紋のSVG文字列を返す。size=px, color=CSS色 */
+    svg: function (id, size, color) {
+      var body = S[id] || S.other;
+      return '<svg class="kamon" viewBox="0 0 100 100" width="' + size + '" height="' + size +
+        '" style="color:' + (color || 'currentColor') + '" aria-hidden="true"><g fill="currentColor">' + body + '</g></svg>';
+    }
+  };
+})();
+
+</script>
+<script>
+/* ============================================================
+   data.js  —  勢力・年代データ（画面処理から独立）
+   ------------------------------------------------------------
+   ここだけ編集すれば内容を増やせます。
+   ・CLANS : 勢力の静的情報（名前・色・家紋）
+   ・YEARS : 年代ごとの「国→勢力」と勢力の当時の情報
+   owners に書かれていない国は自動的に 'other'（その他の諸勢力）
+   ============================================================ */
+
+window.SENGOKU_CLANS = {
+  takeda:    { name: '武田家',    color: '#c0392b', kamon: 'takeda' },
+  uesugi:    { name: '上杉家',    color: '#2f9e8f', kamon: 'uesugi' },
+  hojo:      { name: '北条家',    color: '#8296cc', kamon: 'hojo' },
+  date:      { name: '伊達家',    color: '#3f6ea8', kamon: 'date' },
+  tokugawa:  { name: '徳川家',    color: '#d9b13b', kamon: 'tokugawa' },
+  oda:       { name: '織田家',    color: '#e07b2c', kamon: 'oda' },
+  mori:      { name: '毛利家',    color: '#7b52a8', kamon: 'mori' },
+  chosokabe: { name: '長宗我部家',color: '#6f9e46', kamon: 'chosokabe' },
+  shimazu:   { name: '島津家',    color: '#b34a3a', kamon: 'shimazu' },
+  imagawa:   { name: '今川家',    color: '#46a8b5', kamon: 'imagawa' },
+  saito:     { name: '斎藤家',    color: '#8f9b3a', kamon: 'saito' },
+  miyoshi:   { name: '三好家',    color: '#c05f8c', kamon: 'miyoshi' },
+  ouchi:     { name: '大内家',    color: '#8c6239', kamon: 'ouchi' },
+  amago:     { name: '尼子家',    color: '#5a5fa8', kamon: 'amago' },
+  otomo:     { name: '大友家',    color: '#2f7a4f', kamon: 'otomo' },
+  ryuzoji:   { name: '龍造寺家',  color: '#b58c5a', kamon: 'ryuzoji' },
+  toyotomi:  { name: '豊臣家',    color: '#9b2d5e', kamon: 'toyotomi' },
+  maeda:     { name: '前田家',    color: '#c46a9e', kamon: 'maeda' },
+  nanbu:     { name: '南部家',    color: '#4f4f7a', kamon: 'nanbu' },
+  mogami:    { name: '最上家',    color: '#5b8fa8', kamon: 'mogami' },
+  satake:    { name: '佐竹家',    color: '#7d9a35', kamon: 'satake' },
+  asakura:   { name: '朝倉家',    color: '#4f7d8f', kamon: 'asakura' },
+  rokkaku:   { name: '六角家',    color: '#9c6b4f', kamon: 'rokkaku' },
+  ikko:      { name: '加賀一向一揆', color: '#8e5572', kamon: 'ikko' },
+  other:     { name: 'その他の諸勢力', color: '#8d8778', kamon: 'other' }
+};
+
+/* 共通で使う城の座標（経度・緯度） */
+var C = {
+  sanpe:   { name: '三戸城',      lon: 141.15, lat: 40.38 },
+  morioka: { name: '盛岡城',      lon: 141.15, lat: 39.70 },
+  yonezawa:{ name: '米沢城',      lon: 140.12, lat: 37.91 },
+  sendai:  { name: '仙台城',      lon: 140.87, lat: 38.27 },
+  yamagata:{ name: '山形城',      lon: 140.34, lat: 38.25 },
+  kasugayama:{ name: '春日山城',  lon: 138.24, lat: 37.15 },
+  aizu:    { name: '会津若松城',  lon: 139.93, lat: 37.49 },
+  tsutsuji:{ name: '躑躅ヶ崎館',  lon: 138.57, lat: 35.66 },
+  odawara: { name: '小田原城',    lon: 139.15, lat: 35.25 },
+  okazaki: { name: '岡崎城',      lon: 137.16, lat: 34.95 },
+  hamamatsu:{ name: '浜松城',     lon: 137.73, lat: 34.71 },
+  edo:     { name: '江戸城',      lon: 139.76, lat: 35.68 },
+  kiyosu:  { name: '清洲城',      lon: 136.85, lat: 35.20 },
+  azuchi:  { name: '安土城',      lon: 136.14, lat: 35.15 },
+  inabayama:{ name: '稲葉山城',   lon: 136.78, lat: 35.43 },
+  kannonji:{ name: '観音寺城',    lon: 136.15, lat: 35.13 },
+  ichijodani:{ name: '一乗谷',    lon: 136.31, lat: 35.98 },
+  oyama:   { name: '尾山御坊',    lon: 136.66, lat: 36.56 },
+  kanazawa:{ name: '金沢城',      lon: 136.66, lat: 36.56 },
+  iimoriyama:{ name: '飯盛山城',  lon: 135.64, lat: 34.72 },
+  osaka:   { name: '大坂城',      lon: 135.50, lat: 34.69 },
+  sunpu:   { name: '駿府館',      lon: 138.38, lat: 34.98 },
+  yamaguchi:{ name: '山口館',     lon: 131.47, lat: 34.18 },
+  gassan:  { name: '月山富田城',  lon: 133.20, lat: 35.28 },
+  koriyama:{ name: '吉田郡山城',  lon: 132.70, lat: 34.67 },
+  hiroshima:{ name: '広島城',     lon: 132.46, lat: 34.40 },
+  oko:     { name: '岡豊城',      lon: 133.62, lat: 33.60 },
+  uchijo:  { name: '内城(鹿児島)',lon: 130.55, lat: 31.60 },
+  funai:   { name: '府内館',      lon: 131.61, lat: 33.24 },
+  muranaka:{ name: '村中城(佐賀)',lon: 130.30, lat: 33.25 },
+  ota:     { name: '太田城',      lon: 140.53, lat: 36.54 }
+};
+
+window.SENGOKU_YEARS = [
+  /* ========================= 1550年 ========================= */
+  {
+    year: 1550, era: '天文19年', note: '三好長慶が畿内を握った頃',
+    owners: {
+      mutsu:'nanbu', nanou:'date', dewa:'mogami',
+      echigo:'uesugi', sado:'uesugi', echizen:'asakura', kaga:'ikko',
+      kai:'takeda', hitachi:'satake',
+      musashi:'hojo', sagami:'hojo', izu:'hojo', shimousa:'hojo',
+      suruga:'imagawa', totomi:'imagawa', mikawa:'imagawa',
+      owari:'oda', mino:'saito', omi:'rokkaku',
+      yamashiro:'miyoshi', kawachi:'miyoshi', izumi:'miyoshi', settsu:'miyoshi',
+      awaji:'miyoshi', awa_s:'miyoshi', sanuki:'miyoshi',
+      hoki:'amago', izumo:'amago', iwami:'amago', mimasaka:'amago',
+      aki:'mori', bingo:'ouchi', suo:'ouchi', nagato:'ouchi',
+      chikuzen:'ouchi', buzen:'ouchi',
+      chikugo:'otomo', bungo:'otomo', hizen:'ryuzoji',
+      tosa:'chosokabe', osumi:'shimazu', satsuma:'shimazu'
+    },
+    clans: {
+      nanbu:   { head:'南部晴政', castle:C.sanpe, lands:'陸奥北部', retainers:['北信愛','南部政康','石川高信'], power:2,
+                 events:['三戸を本拠に糠部一帯を支配'], desc:'陸奥北端の名族。九戸氏ら一族との緊張を抱えつつ北奥州に君臨した。' },
+      date:    { head:'伊達晴宗', castle:C.yonezawa, lands:'出羽置賜・南奥州', retainers:['中野宗時','牧野久仲','桑折景長'], power:3,
+                 events:['天文の乱の後、米沢を本拠に家中を再編'], desc:'父・稙宗との内乱(天文の乱)を制し、米沢に本拠を移した。' },
+      mogami:  { head:'最上義守', castle:C.yamagata, lands:'出羽村山・最上', retainers:['氏家定直','中野義時'], power:2,
+                 events:['伊達氏の影響下で家勢を保つ'], desc:'出羽の内陸を押さえる名門斯波氏の分流。' },
+      uesugi:  { head:'長尾景虎(のちの上杉謙信)', castle:C.kasugayama, lands:'越後・佐渡', retainers:['直江実綱','柿崎景家','本庄実乃'], power:3,
+                 events:['守護代として越後の内乱を鎮めつつある'], desc:'21歳の景虎が越後統一へ向けて動き出した頃。' },
+      asakura: { head:'朝倉義景', castle:C.ichijodani, lands:'越前', retainers:['朝倉景鏡','朝倉宗滴'], power:3,
+                 events:['一乗谷に京風の文化が花開く'], desc:'一向一揆と対峙しつつ北陸に独自の文化圏を築いた。' },
+      ikko:    { head:'本願寺証如(門徒衆)', castle:C.oyama, lands:'加賀', retainers:['七里頼周','超勝寺'], power:2,
+                 events:['「百姓の持ちたる国」として加賀を自治'], desc:'守護富樫氏を倒した門徒による自治が続いていた。' },
+      takeda:  { head:'武田晴信(信玄)', castle:C.tsutsuji, lands:'甲斐・信濃の一部', retainers:['板垣信方','甘利虎泰','飯富虎昌'], power:3,
+                 events:['砥石崩れで村上義清に大敗'], desc:'信濃侵攻の途上。生涯屈指の敗戦を喫した年。' },
+      hojo:    { head:'北条氏康', castle:C.odawara, lands:'相模・伊豆・武蔵・下総の一部', retainers:['北条綱成','大道寺政繁','松田憲秀'], power:4,
+                 events:['河越夜戦の勝利を経て関東の覇権を固める'], desc:'検地と税制改革で知られる関東の実力者。' },
+      imagawa: { head:'今川義元', castle:C.sunpu, lands:'駿河・遠江・三河', retainers:['太原雪斎','朝比奈泰能','岡部元信'], power:4,
+                 events:['三河を制圧し、松平氏を従属させる'], desc:'東海一の弓取り。軍師・太原雪斎を擁し全盛期を迎える。' },
+      oda:     { head:'織田信秀', castle:C.kiyosu, lands:'尾張の一部', retainers:['平手政秀','林秀貞','織田信長'], power:2,
+                 events:['信秀の病が篤く、尾張は分裂状態'], desc:'尾張下四郡の実力者。翌年に信秀が没し信長が家督を継ぐ。' },
+      saito:   { head:'斎藤道三', castle:C.inabayama, lands:'美濃', retainers:['斎藤義龍','日根野弘就'], power:3,
+                 events:['娘・帰蝶を織田信長に嫁がせ同盟'], desc:'油商人から国主に成り上がったとされる「美濃の蝮」。' },
+      rokkaku: { head:'六角定頼', castle:C.kannonji, lands:'近江南部', retainers:['蒲生定秀','後藤賢豊'], power:3,
+                 events:['楽市を布き、幕政にも影響力を持つ'], desc:'南近江の守護。楽市の先駆けとされる。' },
+      miyoshi: { head:'三好長慶', castle:C.iimoriyama, lands:'摂津・河内・和泉・山城・阿波・讃岐・淡路', retainers:['松永久秀','三好長逸','安宅冬康'], power:5,
+                 events:['江口の戦いに勝ち、将軍を京から追う'], desc:'幕府を凌ぐ実権を握った、事実上最初の「天下人」。' },
+      amago:   { head:'尼子晴久', castle:C.gassan, lands:'出雲・伯耆・石見・美作', retainers:['尼子国久','宇山久兼'], power:4,
+                 events:['新宮党を擁し山陰に覇を唱える'], desc:'月山富田城を拠点に山陰8か国の守護を号した。' },
+      mori:    { head:'毛利元就', castle:C.koriyama, lands:'安芸', retainers:['福原貞俊','児玉就忠','桂元澄'], power:2,
+                 events:['井上党を粛清し家中の統制を確立'], desc:'まだ安芸一国の国人領主。大内・尼子の間で力を蓄えていた。' },
+      ouchi:   { head:'大内義隆', castle:C.yamaguchi, lands:'周防・長門・備後・筑前・豊前', retainers:['陶隆房','杉重矩','相良武任'], power:4,
+                 events:['山口に西国一の文化が栄えるが家中は不穏'], desc:'翌年、陶隆房の謀反で滅ぶことになる西国の名門。' },
+      otomo:   { head:'大友義鎮(宗麟)', castle:C.funai, lands:'豊後・筑後', retainers:['立花道雪','臼杵鑑速','吉岡長増'], power:3,
+                 events:['二階崩れの変で家督を継ぐ'], desc:'南蛮貿易とキリスト教で知られる豊後の太守。この年に当主となった。' },
+      ryuzoji: { head:'龍造寺胤栄', castle:C.muranaka, lands:'肥前の一部', retainers:['龍造寺隆信','鍋島清房'], power:1,
+                 events:['少弐氏の圧迫を受け苦境にある'], desc:'肥前の国人。後に隆信のもとで急拡大する。' },
+      chosokabe:{ head:'長宗我部国親', castle:C.oko, lands:'土佐岡豊周辺', retainers:['長宗我部元親','吉田重俊'], power:1,
+                 events:['岡豊城を回復し土佐中央部へ勢力を伸ばす'], desc:'一度は没落した家を再興した。息子が元親。' },
+      shimazu: { head:'島津貴久', castle:C.uchijo, lands:'薩摩・大隅の一部', retainers:['島津義久','伊集院忠朗'], power:2,
+                 events:['薩摩をほぼ統一し、鉄砲を導入'], desc:'種子島に伝来した鉄砲をいち早く実戦投入した。' },
+      satake:  { head:'佐竹義昭', castle:C.ota, lands:'常陸', retainers:['和田昭為','小野崎義昌'], power:2,
+                 events:['常陸統一へ向け江戸氏らと抗争'], desc:'源氏の名門。北条・伊達に挟まれ苦しい舵取りが続く。' },
+      other:   { head:'—', castle:null, lands:'各地', retainers:[], power:1,
+                 events:['大小の国人・寺社勢力が割拠'], desc:'この地図で個別に色分けしていない国人・一揆・寺社などの勢力。' }
+    }
+  },
+
+  /* ========================= 1560年 ========================= */
+  {
+    year: 1560, era: '永禄3年', note: '桶狭間の戦いの年',
+    owners: {
+      mutsu:'nanbu', nanou:'date', dewa:'mogami',
+      echigo:'uesugi', sado:'uesugi', kozuke:'uesugi',
+      echizen:'asakura', kaga:'ikko',
+      kai:'takeda', shinano:'takeda',
+      hitachi:'satake',
+      musashi:'hojo', sagami:'hojo', izu:'hojo', shimousa:'hojo',
+      suruga:'imagawa', totomi:'imagawa', mikawa:'tokugawa',
+      owari:'oda', mino:'saito', omi:'rokkaku',
+      yamashiro:'miyoshi', yamato:'miyoshi', kawachi:'miyoshi', izumi:'miyoshi',
+      settsu:'miyoshi', awaji:'miyoshi', awa_s:'miyoshi', sanuki:'miyoshi',
+      hoki:'amago', izumo:'amago', mimasaka:'amago',
+      iwami:'mori', bingo:'mori', aki:'mori', suo:'mori', nagato:'mori',
+      chikuzen:'otomo', buzen:'otomo', chikugo:'otomo', bungo:'otomo',
+      hizen:'ryuzoji', tosa:'chosokabe', osumi:'shimazu', satsuma:'shimazu'
+    },
+    clans: {
+      nanbu:   { head:'南部晴政', castle:C.sanpe, lands:'陸奥北部', retainers:['北信愛','石川高信'], power:2,
+                 events:['安東氏と鹿角をめぐり争う'], desc:'北奥州最大の勢力。' },
+      date:    { head:'伊達晴宗', castle:C.yonezawa, lands:'出羽置賜・南奥州', retainers:['中野宗時','伊達輝宗'], power:3,
+                 events:['奥州探題に任じられる'], desc:'南奥州の盟主として周辺大名と縁組を重ねた。' },
+      mogami:  { head:'最上義守', castle:C.yamagata, lands:'出羽村山', retainers:['氏家定直'], power:2,
+                 events:['伊達氏との関係を保ちつつ自立を模索'], desc:'のちの義光の父。' },
+      uesugi:  { head:'長尾景虎', castle:C.kasugayama, lands:'越後・佐渡・上野', retainers:['直江実綱','柿崎景家','斎藤朝信'], power:4,
+                 events:['関東へ出兵し、北条方の諸城を落とす'], desc:'関東管領・上杉憲政を擁して関東へ大遠征。翌年に上杉姓を継ぐ。' },
+      asakura: { head:'朝倉義景', castle:C.ichijodani, lands:'越前', retainers:['朝倉景鏡','山崎吉家'], power:3,
+                 events:['加賀一向一揆と和睦'], desc:'北陸の名門。' },
+      ikko:    { head:'本願寺門徒衆', castle:C.oyama, lands:'加賀', retainers:['七里頼周'], power:2,
+                 events:['朝倉氏と一時的に和睦'], desc:'本願寺の指導下にある自治勢力。' },
+      takeda:  { head:'武田信玄', castle:C.tsutsuji, lands:'甲斐・信濃', retainers:['馬場信春','山県昌景','高坂昌信'], power:4,
+                 events:['信濃をほぼ平定し、川中島で上杉と対峙'], desc:'翌年に第四次川中島の戦いを迎える。' },
+      hojo:    { head:'北条氏康', castle:C.odawara, lands:'相模・伊豆・武蔵・下総の一部', retainers:['北条綱成','北条氏政'], power:4,
+                 events:['上杉軍の関東侵攻を受け小田原に籠城の構え'], desc:'関東の覇者としての正念場。' },
+      imagawa: { head:'今川義元 → 氏真', castle:C.sunpu, lands:'駿河・遠江', retainers:['朝比奈泰朝','岡部元信'], power:3,
+                 events:['桶狭間の戦いで義元が討死','氏真が家督を継ぐも動揺広がる'], desc:'上洛を目指した大軍が尾張で崩れ、名門が傾いた年。' },
+      tokugawa:{ head:'松平元康(のちの徳川家康)', castle:C.okazaki, lands:'三河', retainers:['酒井忠次','石川数正','本多忠勝'], power:2,
+                 events:['桶狭間の後、岡崎城に帰還し今川から自立'], desc:'19歳。人質生活を脱し、独立への一歩を踏み出す。' },
+      oda:     { head:'織田信長', castle:C.kiyosu, lands:'尾張', retainers:['柴田勝家','丹羽長秀','佐久間信盛'], power:3,
+                 events:['桶狭間の戦いで今川義元を討ち取る'], desc:'兵力差を覆した奇襲で、一躍その名を天下に知らしめた。' },
+      saito:   { head:'斎藤義龍', castle:C.inabayama, lands:'美濃', retainers:['竹中重元','日根野弘就'], power:3,
+                 events:['父・道三を倒し美濃を掌握、織田と対立'], desc:'翌年に急死し、斎藤氏は急速に傾く。' },
+      rokkaku: { head:'六角義賢', castle:C.kannonji, lands:'近江南部', retainers:['蒲生賢秀','後藤賢豊'], power:3,
+                 events:['浅井氏の離反に直面'], desc:'南近江の守護。' },
+      miyoshi: { head:'三好長慶', castle:C.iimoriyama, lands:'畿内・阿波・讃岐・淡路', retainers:['松永久秀','三好義興','安宅冬康'], power:5,
+                 events:['幕府の実権を握り、畿内に強大な政権を築く'], desc:'三好政権の絶頂期。' },
+      amago:   { head:'尼子晴久', castle:C.gassan, lands:'出雲・伯耆・美作', retainers:['宇山久兼','本城常光'], power:3,
+                 events:['石見銀山をめぐり毛利と争う中、晴久が急死'], desc:'当主の死により尼子は毛利の攻勢に晒される。' },
+      mori:    { head:'毛利元就', castle:C.koriyama, lands:'安芸・周防・長門・備後・石見', retainers:['吉川元春','小早川隆景','福原貞俊'], power:5,
+                 events:['大内氏を滅ぼし、中国地方の覇者となる'], desc:'厳島の戦いから防長経略へ。両川体制が完成した。' },
+      otomo:   { head:'大友宗麟', castle:C.funai, lands:'豊後・筑後・筑前・豊前', retainers:['立花道雪','角隈石宗'], power:4,
+                 events:['九州探題に任じられ、北九州を支配'], desc:'大内氏滅亡の後、北九州の権益を継承した。' },
+      ryuzoji: { head:'龍造寺隆信', castle:C.muranaka, lands:'肥前の一部', retainers:['鍋島直茂','納富信景'], power:2,
+                 events:['一時追放されるも肥前に復帰'], desc:'「肥前の熊」と呼ばれる猛将。' },
+      chosokabe:{ head:'長宗我部元親', castle:C.oko, lands:'土佐中部', retainers:['吉良親貞','香宗我部親泰'], power:1,
+                 events:['長浜の戦いで初陣を飾る','父・国親が没し家督を継ぐ'], desc:'「姫若子」と侮られた元親の飛躍が始まる。' },
+      shimazu: { head:'島津貴久', castle:C.uchijo, lands:'薩摩・大隅の一部', retainers:['島津義久','島津義弘'], power:3,
+                 events:['大隅の肝付氏と激しく争う'], desc:'四兄弟が育ちつつあった。' },
+      satake:  { head:'佐竹義昭', castle:C.ota, lands:'常陸', retainers:['和田昭為'], power:2,
+                 events:['上杉方につき北条と対立'], desc:'常陸の名門。' },
+      other:   { head:'—', castle:null, lands:'各地', retainers:[], power:1,
+                 events:['国人・一揆勢が各地に割拠'], desc:'個別に色分けしていない諸勢力。' }
+    }
+  },
+
+  /* ========================= 1575年 ========================= */
+  {
+    year: 1575, era: '天正3年', note: '長篠の戦いの頃',
+    owners: {
+      mutsu:'nanbu', nanou:'date', dewa:'mogami',
+      echigo:'uesugi', sado:'uesugi', etchu:'uesugi',
+      kaga:'ikko', echizen:'oda', wakasa:'oda',
+      kai:'takeda', shinano:'takeda', kozuke:'takeda', suruga:'takeda',
+      hitachi:'satake',
+      musashi:'hojo', sagami:'hojo', izu:'hojo', shimousa:'hojo',
+      totomi:'tokugawa', mikawa:'tokugawa',
+      owari:'oda', mino:'oda', omi:'oda', ise:'oda', shima:'oda',
+      yamashiro:'oda', yamato:'oda', kawachi:'oda', izumi:'oda', settsu:'oda',
+      hoki:'mori', izumo:'mori', iwami:'mori', mimasaka:'mori', bizen:'mori',
+      bicchu:'mori', bingo:'mori', aki:'mori', suo:'mori', nagato:'mori',
+      awa_s:'miyoshi', sanuki:'miyoshi', tosa:'chosokabe',
+      chikuzen:'otomo', buzen:'otomo', chikugo:'otomo', bungo:'otomo',
+      hizen:'ryuzoji', osumi:'shimazu', satsuma:'shimazu'
+    },
+    clans: {
+      takeda:  { head:'武田勝頼', castle:C.tsutsuji, lands:'甲斐・信濃・駿河・上野の一部', retainers:['山県昌景','馬場信春','内藤昌豊','真田昌幸'], power:4,
+                 events:['長篠の戦いで織田・徳川連合軍に大敗','宿老の多くを一挙に失う'], desc:'父・信玄の版図を継ぎ最大領国を得たが、長篠で屋台骨を折られた。' },
+      uesugi:  { head:'上杉謙信', castle:C.kasugayama, lands:'越後・佐渡・越中', retainers:['直江景綱','柿崎景家','斎藤朝信'], power:4,
+                 events:['越中を平定し、能登・加賀へ進む構え'], desc:'信長包囲網の一角として西へ目を向け始める。' },
+      hojo:    { head:'北条氏政', castle:C.odawara, lands:'相模・伊豆・武蔵・下総の一部', retainers:['北条氏照','北条氏邦','松田憲秀'], power:4,
+                 events:['武田と同盟し、関東で佐竹・里見と争う'], desc:'甲相同盟のもと関東経営に専念した。' },
+      date:    { head:'伊達輝宗', castle:C.yonezawa, lands:'出羽置賜・南奥州', retainers:['遠藤基信','鬼庭良直'], power:3,
+                 events:['相馬氏と伊具郡をめぐり抗争'], desc:'政宗の父。織田信長とも音信を通じた外交巧者。' },
+      nanbu:   { head:'南部晴政', castle:C.sanpe, lands:'陸奥北部', retainers:['北信愛','九戸政実'], power:2,
+                 events:['家督をめぐり一族が対立'], desc:'北奥州の雄。' },
+      mogami:  { head:'最上義光', castle:C.yamagata, lands:'出羽村山', retainers:['氏家守棟','鮭延秀綱'], power:2,
+                 events:['父・義守と対立し家中が二分'], desc:'謀略に長けた「出羽の驍将」。政宗の伯父にあたる。' },
+      tokugawa:{ head:'徳川家康', castle:C.hamamatsu, lands:'三河・遠江', retainers:['酒井忠次','本多忠勝','榊原康政'], power:3,
+                 events:['長篠の戦いで織田と共に武田を破る','長篠城の攻防で奥平信昌が奮戦'], desc:'武田の圧迫を耐え抜き、反攻に転じた年。' },
+      oda:     { head:'織田信長', castle:C.azuchi, lands:'尾張・美濃・近江・伊勢・畿内・越前', retainers:['柴田勝家','羽柴秀吉','明智光秀','丹羽長秀'], power:5,
+                 events:['長篠の戦いで鉄砲を活用し武田軍を撃破','越前一向一揆を平定','家督を信忠に譲る'], desc:'畿内を制圧し、天下布武が現実味を帯びた。翌年から安土築城。' },
+      mori:    { head:'毛利輝元', castle:C.koriyama, lands:'安芸・備後・周防・長門・出雲・石見・伯耆ほか', retainers:['吉川元春','小早川隆景','福原貞俊'], power:5,
+                 events:['備中・備前へ影響力を広げ、織田と接触'], desc:'祖父・元就の遺産を両川が支える中国地方の巨人。' },
+      chosokabe:{ head:'長宗我部元親', castle:C.oko, lands:'土佐', retainers:['吉良親貞','香宗我部親泰','谷忠澄'], power:3,
+                 events:['四万十川の戦いで一条氏を破り土佐を統一'], desc:'一領具足を擁し、四国統一へ動き出す。' },
+      shimazu: { head:'島津義久', castle:C.uchijo, lands:'薩摩・大隅', retainers:['島津義弘','島津歳久','新納忠元'], power:3,
+                 events:['大隅を平定し、三州統一に王手'], desc:'四兄弟の結束で九州南部を制していく。' },
+      ikko:    { head:'本願寺門徒衆', castle:C.oyama, lands:'加賀', retainers:['七里頼周'], power:2,
+                 events:['越前の一揆が織田軍に壊滅させられる'], desc:'石山本願寺と連動して織田に抵抗を続けた。' },
+      satake:  { head:'佐竹義重', castle:C.ota, lands:'常陸', retainers:['和田昭為','梶原政景'], power:3,
+                 events:['北条氏と関東で角逐'], desc:'「鬼義重」と恐れられた常陸の当主。' },
+      miyoshi: { head:'三好長治', castle:{ name:'勝瑞城', lon:134.53, lat:34.10 }, lands:'阿波・讃岐', retainers:['篠原長房(故)','三好存保'], power:2,
+                 events:['家中の内訌が続き、長宗我部の圧力が強まる'], desc:'畿内を失った三好の残存勢力。' },
+      otomo:   { head:'大友宗麟', castle:C.funai, lands:'豊後・筑後・筑前・豊前', retainers:['立花道雪','高橋紹運'], power:4,
+                 events:['北九州六か国に号令'], desc:'九州最大の勢力として全盛期にあった。' },
+      ryuzoji: { head:'龍造寺隆信', castle:C.muranaka, lands:'肥前', retainers:['鍋島直茂','龍造寺四天王'], power:3,
+                 events:['肥前をほぼ統一し、筑後へ進出'], desc:'大友の勢力圏を侵食し始める。' },
+      other:   { head:'—', castle:null, lands:'各地', retainers:[], power:1,
+                 events:['本願寺・雑賀衆・国人らが各地に割拠'], desc:'個別に色分けしていない諸勢力。' }
+    }
+  },
+
+  /* ========================= 1582年 ========================= */
+  {
+    year: 1582, era: '天正10年', note: '本能寺の変の年',
+    owners: {
+      mutsu:'nanbu', nanou:'date', dewa:'mogami',
+      echigo:'uesugi', sado:'uesugi',
+      etchu:'oda', noto:'oda', kaga:'oda', echizen:'oda', wakasa:'oda',
+      shinano:'oda', kai:'oda', hida:'oda', kozuke:'oda',
+      omi:'oda', mino:'oda', owari:'oda', ise:'oda', shima:'oda', iga:'oda',
+      yamashiro:'oda', yamato:'oda', kawachi:'oda', izumi:'oda', settsu:'oda',
+      tanba:'oda', tango:'oda', tajima:'oda', inaba:'oda',
+      harima:'oda', bizen:'oda', awaji:'oda',
+      suruga:'tokugawa', totomi:'tokugawa', mikawa:'tokugawa',
+      hitachi:'satake',
+      musashi:'hojo', sagami:'hojo', izu:'hojo', shimousa:'hojo', kazusa:'hojo',
+      hoki:'mori', izumo:'mori', iwami:'mori', mimasaka:'mori',
+      bicchu:'mori', bingo:'mori', aki:'mori', suo:'mori', nagato:'mori',
+      awa_s:'chosokabe', sanuki:'chosokabe', tosa:'chosokabe',
+      chikuzen:'otomo', buzen:'otomo', bungo:'otomo',
+      chikugo:'ryuzoji', hizen:'ryuzoji',
+      higo:'shimazu', hyuga:'shimazu', osumi:'shimazu', satsuma:'shimazu'
+    },
+    clans: {
+      oda:     { head:'織田信長', castle:C.azuchi, lands:'東海・畿内・北陸・山陰・甲信', retainers:['柴田勝家','羽柴秀吉','明智光秀','滝川一益'], power:5,
+                 events:['武田氏を滅ぼす(天目山)','本能寺の変で信長・信忠が横死','山崎の戦いで明智光秀が敗死'], desc:'天下統一目前で家臣の謀反により斃れた。図はその直前の版図。' },
+      tokugawa:{ head:'徳川家康', castle:C.hamamatsu, lands:'三河・遠江・駿河', retainers:['酒井忠次','本多忠勝','井伊直政'], power:3,
+                 events:['武田攻めの功で駿河を得る','伊賀越えで堺から三河へ逃げ帰る','甲斐・信濃へ進出'], desc:'本能寺の報せに窮地へ陥るも、直後に旧武田領へ手を伸ばす。' },
+      uesugi:  { head:'上杉景勝', castle:C.kasugayama, lands:'越後・佐渡', retainers:['直江兼続','須田満親'], power:2,
+                 events:['魚津城が落城し滅亡寸前','本能寺の変で織田の攻勢が止み九死に一生'], desc:'御館の乱を経て当主となった直後の苦境。' },
+      hojo:    { head:'北条氏直', castle:C.odawara, lands:'関東6か国', retainers:['北条氏照','北条氏邦','松田憲秀'], power:4,
+                 events:['本能寺の後、滝川一益を神流川で破り上野へ進出'], desc:'関東最大の勢力。氏政が後見。' },
+      date:    { head:'伊達輝宗', castle:C.yonezawa, lands:'出羽置賜・南奥州', retainers:['遠藤基信','鬼庭良直','伊達政宗'], power:3,
+                 events:['嫡男・政宗が元服し家中を固める'], desc:'翌々年に政宗へ家督を譲る。' },
+      nanbu:   { head:'南部信直', castle:C.sanpe, lands:'陸奥北部', retainers:['北信愛','八戸政栄'], power:2,
+                 events:['家督を継ぐが九戸政実と対立'], desc:'南部氏の内訌が深まる。' },
+      mogami:  { head:'最上義光', castle:C.yamagata, lands:'出羽村山・最上', retainers:['氏家守棟','志村光安'], power:2,
+                 events:['庄内・大宝寺氏と争う'], desc:'出羽の切れ者。' },
+      mori:    { head:'毛利輝元', castle:C.koriyama, lands:'中国地方西部', retainers:['吉川元春','小早川隆景','清水宗治'], power:4,
+                 events:['備中高松城を羽柴秀吉に水攻めされる','本能寺の報を受け秀吉と即時講和'], desc:'織田との決戦寸前に天下が引っくり返った。' },
+      chosokabe:{ head:'長宗我部元親', castle:C.oko, lands:'土佐・阿波・讃岐', retainers:['香宗我部親泰','谷忠澄','久武親信'], power:3,
+                 events:['中富川の戦いで十河存保を破り阿波を制圧','織田の四国征伐が本能寺で中止となる'], desc:'四国統一に王手。信長の死に救われた。' },
+      shimazu: { head:'島津義久', castle:C.uchijo, lands:'薩摩・大隅・日向・肥後', retainers:['島津義弘','島津家久','新納忠元'], power:4,
+                 events:['肥後の相良氏を降し、北上を続ける'], desc:'耳川で大友を破って以来、九州制覇へ突き進む。' },
+      otomo:   { head:'大友義統', castle:C.funai, lands:'豊後・豊前・筑前の一部', retainers:['立花道雪','高橋紹運'], power:2,
+                 events:['島津・龍造寺の圧迫で勢力が縮む'], desc:'耳川の大敗以来、退勢が続く。' },
+      ryuzoji: { head:'龍造寺隆信', castle:C.muranaka, lands:'肥前・筑後', retainers:['鍋島直茂','龍造寺政家'], power:3,
+                 events:['五州二島の太守を称する'], desc:'九州三強の一角に伸し上がった。' },
+      satake:  { head:'佐竹義重', castle:C.ota, lands:'常陸', retainers:['和田昭為','梶原政景'], power:3,
+                 events:['北条氏と下野で対峙'], desc:'関東で北条に抗し続けた。' },
+      other:   { head:'—', castle:null, lands:'各地', retainers:[], power:1,
+                 events:['里見・雑賀衆・国人らが割拠'], desc:'個別に色分けしていない諸勢力。' }
+    }
+  },
+
+  /* ========================= 1590年 ========================= */
+  {
+    year: 1590, era: '天正18年', note: '小田原征伐・天下統一',
+    owners: {
+      mutsu:'nanbu', nanou:'date', dewa:'mogami',
+      echigo:'uesugi', sado:'uesugi',
+      etchu:'maeda', noto:'maeda', kaga:'maeda',
+      musashi:'tokugawa', sagami:'tokugawa', izu:'tokugawa',
+      shimousa:'tokugawa', kazusa:'tokugawa', kozuke:'tokugawa',
+      hitachi:'satake',
+      hoki:'mori', izumo:'mori', iwami:'mori', bingo:'mori',
+      aki:'mori', suo:'mori', nagato:'mori', chikuzen:'mori',
+      tosa:'chosokabe', bungo:'otomo', hizen:'ryuzoji',
+      osumi:'shimazu', satsuma:'shimazu',
+      echizen:'toyotomi', wakasa:'toyotomi', shinano:'toyotomi', kai:'toyotomi',
+      hida:'toyotomi', shimotsuke:'toyotomi', suruga:'toyotomi', totomi:'toyotomi',
+      mikawa:'toyotomi', owari:'toyotomi', mino:'toyotomi', omi:'toyotomi',
+      ise:'toyotomi', shima:'toyotomi', iga:'toyotomi',
+      yamashiro:'toyotomi', yamato:'toyotomi', kawachi:'toyotomi', izumi:'toyotomi',
+      settsu:'toyotomi', kii:'toyotomi', tanba:'toyotomi', tango:'toyotomi',
+      tajima:'toyotomi', inaba:'toyotomi', harima:'toyotomi', mimasaka:'toyotomi',
+      bizen:'toyotomi', bicchu:'toyotomi', awaji:'toyotomi', awa_s:'toyotomi',
+      sanuki:'toyotomi', iyo:'toyotomi', chikugo:'toyotomi', buzen:'toyotomi',
+      higo:'toyotomi', hyuga:'toyotomi'
+    },
+    clans: {
+      toyotomi:{ head:'豊臣秀吉', castle:C.osaka, lands:'畿内を中心に全国の蔵入地', retainers:['石田三成','増田長盛','浅野長政','加藤清正'], power:5,
+                 events:['小田原征伐で北条氏を滅ぼす','奥州仕置を行い天下統一を完成'], desc:'関白として全国の大名を臣従させ、太閤検地と刀狩を進めた。' },
+      tokugawa:{ head:'徳川家康', castle:C.edo, lands:'武蔵・相模・伊豆・上野・上総・下総', retainers:['本多忠勝','井伊直政','榊原康政','本多正信'], power:5,
+                 events:['小田原征伐に参陣','旧北条領へ移封され、江戸を本拠とする'], desc:'東海5か国から関東250万石へ。江戸の町づくりが始まった。' },
+      date:    { head:'伊達政宗', castle:C.yonezawa, lands:'出羽置賜・南奥州', retainers:['片倉景綱','伊達成実','鬼庭綱元'], power:3,
+                 events:['小田原に遅参し秀吉に謝罪','会津を没収され版図が縮む'], desc:'摺上原で蘆名を破り奥州を制した矢先、天下人の登場に屈した。' },
+      uesugi:  { head:'上杉景勝', castle:C.kasugayama, lands:'越後・佐渡・出羽庄内', retainers:['直江兼続','須田満親'], power:3,
+                 events:['小田原征伐・奥州仕置に従軍'], desc:'豊臣政権の重鎮として遇された。' },
+      maeda:   { head:'前田利家', castle:C.kanazawa, lands:'加賀・能登・越中', retainers:['前田利長','村井長頼'], power:4,
+                 events:['小田原征伐に従軍','北陸の抑えとして加賀百万石を築く'], desc:'秀吉の盟友。のちの五大老。' },
+      mogami:  { head:'最上義光', castle:C.yamagata, lands:'出羽村山・最上', retainers:['氏家守棟','志村光安'], power:2,
+                 events:['小田原に参陣し所領を安堵される'], desc:'政宗の伯父。庄内をめぐり上杉と対立していく。' },
+      nanbu:   { head:'南部信直', castle:C.sanpe, lands:'陸奥北部', retainers:['北信愛','八戸政栄'], power:2,
+                 events:['小田原に参陣し所領を安堵','翌年に九戸政実の乱が起こる'], desc:'豊臣大名として存続。' },
+      satake:  { head:'佐竹義宣', castle:C.ota, lands:'常陸', retainers:['和田昭為','梶原政景'], power:3,
+                 events:['小田原に参陣し常陸54万石を安堵される'], desc:'石田三成と親しく、のちの関ヶ原で苦境に立つ。' },
+      mori:    { head:'毛利輝元', castle:C.hiroshima, lands:'安芸ほか中国8か国', retainers:['吉川広家','小早川隆景','安国寺恵瓊'], power:5,
+                 events:['広島城の築城を開始','小早川隆景が筑前を治める'], desc:'五大老の一人。112万石の大身。' },
+      chosokabe:{ head:'長宗我部元親', castle:{ name:'浦戸城', lon:133.55, lat:33.50 }, lands:'土佐', retainers:['香宗我部親泰','谷忠澄'], power:2,
+                 events:['小田原征伐に水軍を率いて従軍'], desc:'四国平定で土佐一国に減らされ、豊臣大名となった。' },
+      shimazu: { head:'島津義久', castle:C.uchijo, lands:'薩摩・大隅', retainers:['島津義弘','伊集院忠棟'], power:3,
+                 events:['豊臣政権下で薩摩・大隅を安堵される'], desc:'九州平定で降伏し、南九州に押し戻された。' },
+      otomo:   { head:'大友義統', castle:C.funai, lands:'豊後', retainers:['吉弘統幸'], power:1,
+                 events:['豊後一国のみを安堵される'], desc:'かつての九州探題も豊臣大名の一人となった。' },
+      ryuzoji: { head:'龍造寺政家(鍋島直茂が実権)', castle:C.muranaka, lands:'肥前', retainers:['鍋島直茂','鍋島勝茂'], power:2,
+                 events:['実権が鍋島氏へ移っていく'], desc:'沖田畷で隆信が討死して以来、鍋島氏が家政を主導。' },
+      other:   { head:'—', castle:null, lands:'安房ほか', retainers:[], power:1,
+                 events:['里見氏らが豊臣大名として存続'], desc:'個別に色分けしていない諸勢力。' }
+    }
+  },
+
+  /* ========================= 1600年 ========================= */
+  {
+    year: 1600, era: '慶長5年', note: '関ヶ原の戦いの年',
+    owners: {
+      mutsu:'date', nanou:'uesugi', dewa:'mogami',
+      musashi:'tokugawa', sagami:'tokugawa', izu:'tokugawa', kai:'tokugawa',
+      shimousa:'tokugawa', kazusa:'tokugawa', kozuke:'tokugawa', shimotsuke:'tokugawa',
+      hitachi:'satake',
+      etchu:'maeda', noto:'maeda', kaga:'maeda',
+      hoki:'mori', izumo:'mori', iwami:'mori', bingo:'mori',
+      aki:'mori', suo:'mori', nagato:'mori',
+      tosa:'chosokabe', hizen:'ryuzoji',
+      hyuga:'shimazu', osumi:'shimazu', satsuma:'shimazu',
+      echigo:'toyotomi', sado:'toyotomi', echizen:'toyotomi', wakasa:'toyotomi',
+      shinano:'toyotomi', hida:'toyotomi', suruga:'toyotomi', totomi:'toyotomi',
+      mikawa:'toyotomi', owari:'toyotomi', mino:'toyotomi', omi:'toyotomi',
+      ise:'toyotomi', shima:'toyotomi', iga:'toyotomi',
+      yamashiro:'toyotomi', yamato:'toyotomi', kawachi:'toyotomi', izumi:'toyotomi',
+      settsu:'toyotomi', kii:'toyotomi', tanba:'toyotomi', tango:'toyotomi',
+      tajima:'toyotomi', inaba:'toyotomi', harima:'toyotomi', mimasaka:'toyotomi',
+      bizen:'toyotomi', bicchu:'toyotomi', awaji:'toyotomi', awa_s:'toyotomi',
+      sanuki:'toyotomi', iyo:'toyotomi', chikuzen:'toyotomi', chikugo:'toyotomi',
+      buzen:'toyotomi', bungo:'toyotomi', higo:'toyotomi'
+    },
+    clans: {
+      tokugawa:{ head:'徳川家康', castle:C.edo, lands:'関東・甲斐', retainers:['本多忠勝','井伊直政','榊原康政','本多正信'], power:5,
+                 events:['会津征伐に出陣','関ヶ原の戦いで西軍を破り、天下の実権を握る'], desc:'五大老筆頭。この年の勝利が江戸幕府へ直結する。' },
+      toyotomi:{ head:'豊臣秀頼(石田三成ら西軍)', castle:C.osaka, lands:'畿内・西国の豊臣系大名領', retainers:['石田三成','大谷吉継','宇喜多秀家','小西行長'], power:4,
+                 events:['三成らが家康弾劾の挙兵','関ヶ原で西軍が敗北し、豊臣の力が大きく削がれる'], desc:'秀吉没後、秀頼は幼く政権は分裂した。図は西軍寄りの大名領をまとめて表示。' },
+      uesugi:  { head:'上杉景勝', castle:C.aizu, lands:'会津・出羽の一部(120万石)', retainers:['直江兼続','甘粕景継'], power:4,
+                 events:['直江状で家康を挑発','長谷堂城で最上・伊達と戦う','戦後、米沢30万石へ減封'], desc:'会津へ移り西軍の東の柱となった。' },
+      date:    { head:'伊達政宗', castle:C.sendai, lands:'陸奥', retainers:['片倉景綱','伊達成実'], power:3,
+                 events:['東軍につき上杉領へ侵攻','白石城を攻略'], desc:'翌年、仙台に本拠を移し仙台藩の礎を築く。' },
+      mogami:  { head:'最上義光', castle:C.yamagata, lands:'出羽', retainers:['志村光安','鮭延秀綱'], power:3,
+                 events:['長谷堂城の戦いで上杉軍を防ぎきる','戦後、57万石に加増'], desc:'東軍として奮戦し、大幅に加増された。' },
+      maeda:   { head:'前田利長', castle:C.kanazawa, lands:'加賀・能登・越中', retainers:['前田利政','村井長次'], power:4,
+                 events:['東軍につき北陸の西軍勢力を制圧'], desc:'加賀百万石を確定させた。' },
+      mori:    { head:'毛利輝元', castle:C.hiroshima, lands:'中国地方8か国', retainers:['吉川広家','安国寺恵瓊'], power:4,
+                 events:['西軍の総大将に担がれ大坂城に入る','戦後、周防・長門2か国へ減封'], desc:'大坂を動かぬまま敗軍の将となった。' },
+      satake:  { head:'佐竹義宣', castle:C.ota, lands:'常陸', retainers:['和田昭為','梶原政景'], power:3,
+                 events:['旗幟を鮮明にせず、戦後に出羽秋田へ減転封'], desc:'三成との友誼と家中の事情に挟まれた。' },
+      chosokabe:{ head:'長宗我部盛親', castle:{ name:'浦戸城', lon:133.55, lat:33.50 }, lands:'土佐', retainers:['久武親直','吉田政重'], power:2,
+                 events:['西軍に属し、戦後に改易される'], desc:'関ヶ原ではほとんど戦わずに敗軍となり、家は取り潰された。' },
+      shimazu: { head:'島津義弘', castle:C.uchijo, lands:'薩摩・大隅・日向の一部', retainers:['島津豊久','長寿院盛淳'], power:3,
+                 events:['西軍として関ヶ原に布陣','敵中突破で戦場を離脱','所領は安堵される'], desc:'「島津の退き口」で名を上げ、本領を守り抜いた。' },
+      ryuzoji: { head:'鍋島直茂・勝茂', castle:C.muranaka, lands:'肥前', retainers:['鍋島茂里'], power:2,
+                 events:['西軍から東軍へ転じ、本領を安堵される'], desc:'実権は完全に鍋島氏へ移っていた。' },
+      other:   { head:'—', castle:null, lands:'安房ほか', retainers:[], power:1,
+                 events:['里見氏らが東軍に属す'], desc:'個別に色分けしていない諸勢力。' }
+    }
+  }
+];
+
+</script>
+<script>
+/* ============================================================
+   app.js — 画面の組み立てと操作
+   ============================================================ */
+(function () {
+  'use strict';
+
+  var CLANS = window.SENGOKU_CLANS;
+  var YEARS = window.SENGOKU_YEARS;
+
+  var svg      = document.getElementById('map');
+  var gWorld   = document.getElementById('world');
+  var gProv    = document.getElementById('provinces');
+  var gClanEdge= document.getElementById('clan-edges');
+  var gCoast   = document.getElementById('coast');
+  var gEzo     = document.getElementById('ezo');
+  var overlay  = document.getElementById('overlay');
+  var mapwrap  = document.getElementById('mapwrap');
+  var legendList = document.getElementById('legend-list');
+  var panel    = document.getElementById('panel');
+  var range    = document.getElementById('year-range');
+
+  var state = {
+    yearIdx: 2,               // 初期表示は1575年
+    selected: null,
+    k: 1, tx: 0, ty: 0,
+    shapes: null
+  };
+
+  var provPaths = {};   // 国ID -> <path>
+  var edgePaths = {};   // 勢力ID -> <path>
+  var overlayItems = [];
+
+  /* ---------------- 地図の生成 ---------------- */
+  function buildMap() {
+    var g = GEO.build();
+    gEzo.setAttribute('d', g.ezo);
+    gCoast.setAttribute('d', g.coast);
+    GEO.PROVINCES.forEach(function (p) {
+      var el = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      el.setAttribute('d', g.paths[p.id]);
+      el.setAttribute('class', 'province');
+      el.dataset.prov = p.id;
+      gProv.appendChild(el);
+      provPaths[p.id] = el;
+    });
+  }
+
+  /* ---------------- 年代の反映 ---------------- */
+  function ownerOf(provId, y) { return (y.owners[provId] || 'other'); }
+
+  function renderYear() {
+    var y = YEARS[state.yearIdx];
+
+    document.getElementById('year-big').textContent = y.year;
+    document.getElementById('year-note').textContent = '（' + y.era + '）' + y.note;
+    range.value = state.yearIdx;
+    document.getElementById('btn-prev').disabled = state.yearIdx === 0;
+    document.getElementById('btn-next').disabled = state.yearIdx === YEARS.length - 1;
+
+    // 国の塗り分け（CSS transition で自然に切り替わる）
+    GEO.PROVINCES.forEach(function (p) {
+      var c = CLANS[ownerOf(p.id, y)] || CLANS.other;
+      provPaths[p.id].style.fill = c.color;
+      provPaths[p.id].dataset.clan = ownerOf(p.id, y);
+    });
+
+    // 勢力ごとの外形線
+    state.shapes = GEO.clanShapes(y.owners);
+    Object.keys(edgePaths).forEach(function (id) { edgePaths[id].setAttribute('d', ''); });
+    Object.keys(state.shapes).forEach(function (id) {
+      var el = edgePaths[id];
+      if (!el) {
+        el = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        el.setAttribute('class', 'clan-edge');
+        el.dataset.clan = id;
+        gClanEdge.appendChild(el);
+        edgePaths[id] = el;
+      }
+      el.setAttribute('d', state.shapes[id].d);
+    });
+
+    if (state.selected && !(state.selected in state.shapes)) state.selected = null;
+
+    buildLegend(y);
+    buildOverlay(y);
+    highlight();
+    renderPanel();
+  }
+
+  /* ---------------- 勢力一覧 ---------------- */
+  function clansOfYear(y) {
+    var ids = Object.keys(state.shapes).filter(function (id) { return y.clans[id]; });
+    ids.sort(function (a, b) { return state.shapes[b].area - state.shapes[a].area; });
+    return ids;
+  }
+
+  function buildLegend(y) {
+    legendList.innerHTML = '';
+    clansOfYear(y).forEach(function (id) {
+      var c = CLANS[id];
+      var li = document.createElement('button');
+      li.className = 'legend-item';
+      li.dataset.clan = id;
+      li.innerHTML = '<span class="swatch" style="background:' + c.color + '"></span>' +
+        '<span class="legend-name">' + c.name + '</span>';
+      li.addEventListener('click', function () { select(id); });
+      legendList.appendChild(li);
+    });
+  }
+
+  /* ---------------- 地図上のラベル・城 ---------------- */
+  function buildOverlay(y) {
+    overlay.innerHTML = '';
+    overlayItems = [];
+
+    clansOfYear(y).forEach(function (id) {
+      var s = state.shapes[id], c = CLANS[id];
+      if (s.area < 900 || id === 'other') return;
+      var el = document.createElement('div');
+      el.className = 'map-label';
+      el.dataset.clan = id;
+      el.innerHTML = KAMON.svg(c.kamon, 22, '#fff') + '<span>' + c.name + '</span>';
+      el.addEventListener('click', function (e) { e.stopPropagation(); select(id); });
+      overlay.appendChild(el);
+      overlayItems.push({ el: el, x: s.cx, y: s.cy, clan: id, rank: 0 });
+    });
+
+    clansOfYear(y).forEach(function (id) {
+      var info = y.clans[id];
+      if (!info || !info.castle) return;
+      var xy = GEO.project(info.castle.lon, info.castle.lat);
+      var el = document.createElement('div');
+      el.className = 'map-castle';
+      el.innerHTML = '<span class="castle-icon">🏯</span><span class="castle-name">' + info.castle.name + '</span>';
+      overlay.appendChild(el);
+      overlayItems.push({ el: el, x: xy[0], y: xy[1], rank: 1 });
+    });
+
+    var ezoXY = GEO.project(140.6, 42.1);
+    var ez = document.createElement('div');
+    ez.className = 'map-note';
+    ez.textContent = '蝦夷地';
+    overlay.appendChild(ez);
+    overlayItems.push({ el: ez, x: ezoXY[0], y: ezoXY[1], rank: 2 });
+
+    // 重なり判定用に大きさを一度だけ測っておく
+    overlayItems.forEach(function (it) {
+      it.w = it.el.offsetWidth || 48;
+      it.h = it.el.offsetHeight || 18;
+    });
+    syncOverlay();
+  }
+
+  /* 画面座標へ反映しつつ、重なったラベルは間引く（拡大すると出てくる） */
+  function syncOverlay() {
+    var ctm = gWorld.getScreenCTM();
+    if (!ctm) return;
+    var r = mapwrap.getBoundingClientRect();
+
+    var order = overlayItems.slice().sort(function (a, b) {
+      var as = a.clan === state.selected ? -1 : a.rank;
+      var bs = b.clan === state.selected ? -1 : b.rank;
+      return as - bs;
+    });
+    var placed = [];
+    order.forEach(function (it) {
+      var sx = ctm.a * it.x + ctm.c * it.y + ctm.e - r.left;
+      var sy = ctm.b * it.x + ctm.d * it.y + ctm.f - r.top;
+      it.el.style.transform = 'translate(-50%,-50%) translate(' + sx.toFixed(1) + 'px,' + sy.toFixed(1) + 'px)';
+
+      var vis = sx > -60 && sy > -40 && sx < r.width + 60 && sy < r.height + 40;
+      if (vis) {
+        var box = { l: sx - it.w / 2 - 3, t: sy - it.h / 2 - 2, r: sx + it.w / 2 + 3, b: sy + it.h / 2 + 2 };
+        for (var i = 0; i < placed.length; i++) {
+          var q = placed[i];
+          if (box.l < q.r && box.r > q.l && box.t < q.b && box.b > q.t) { vis = false; break; }
+        }
+        if (vis) placed.push(box);
+      }
+      it.el.style.visibility = vis ? 'visible' : 'hidden';
+      it.el.style.pointerEvents = vis ? '' : 'none';
+    });
+  }
+
+  /* ---------------- 選択と強調 ---------------- */
+  function highlight() {
+    Object.keys(edgePaths).forEach(function (id) {
+      edgePaths[id].classList.toggle('is-selected', id === state.selected);
+    });
+    Array.prototype.forEach.call(overlay.querySelectorAll('.map-label'), function (el) {
+      el.classList.toggle('is-selected', el.dataset.clan === state.selected);
+    });
+    Array.prototype.forEach.call(legendList.children, function (el) {
+      el.classList.toggle('is-selected', el.dataset.clan === state.selected);
+    });
+    syncOverlay();
+  }
+
+  function select(clanId) {
+    state.selected = clanId;
+    document.body.classList.remove('legend-open');
+    highlight();
+    renderPanel();
+    openSheet();
+  }
+
+  /* ---------------- 詳細パネル / ボトムシート ---------------- */
+  function stars(n) {
+    var s = '';
+    for (var i = 1; i <= 5; i++) s += (i <= n ? '★' : '☆');
+    return s;
+  }
+
+  function renderPanel() {
+    var body = document.getElementById('panel-body');
+    var y = YEARS[state.yearIdx];
+    if (!state.selected) {
+      body.innerHTML = '<p class="empty">地図の勢力をタップすると、その年の当主・本拠地・出来事を表示します。</p>';
+      document.getElementById('panel-title').innerHTML = '<span class="ph">勢力の詳細</span>';
+      return;
+    }
+    var id = state.selected, c = CLANS[id], info = y.clans[id];
+    if (!info) { body.innerHTML = '<p class="empty">この年代のデータがありません。</p>'; return; }
+
+    document.getElementById('panel-title').innerHTML =
+      '<span class="crest" style="background:' + c.color + '">' + KAMON.svg(c.kamon, 26, '#fff') + '</span>' +
+      '<span class="pt-name" style="color:' + c.color + '">' + c.name + '</span>' +
+      '<span class="pt-year">' + y.year + '年</span>';
+
+    var provs = GEO.PROVINCES.filter(function (p) { return ownerOf(p.id, y) === id; })
+      .map(function (p) { return p.name; });
+
+    var html = '';
+    html += '<div class="portrait-row">' +
+      '<div class="portrait" style="--c:' + c.color + '">' + KAMON.svg(c.kamon, 64, c.color) +
+      '<span>肖像画</span></div>' +
+      '<dl class="facts">' +
+      '<dt>当主</dt><dd class="head">' + info.head + '</dd>' +
+      '<dt>本拠地</dt><dd>' + (info.castle ? info.castle.name : '—') + '</dd>' +
+      '<dt>主な領土</dt><dd>' + info.lands + '</dd>' +
+      '<dt>勢力の強さ</dt><dd class="stars">' + stars(info.power) + '</dd>' +
+      '</dl></div>';
+
+    if (info.retainers && info.retainers.length) {
+      html += '<h4>主な家臣</h4><ul class="retainers">' +
+        info.retainers.map(function (r) { return '<li>' + r + '</li>'; }).join('') + '</ul>';
+    }
+    html += '<h4>' + y.year + '年の主な出来事</h4><ul class="events">' +
+      info.events.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
+
+    html += '<div class="more" hidden><h4>解説</h4><p>' + info.desc + '</p>' +
+      '<h4>この年の領国（' + provs.length + 'か国）</h4><p class="provlist">' + (provs.join('・') || '—') + '</p></div>';
+    html += '<button class="btn-more" type="button">詳細を見る<span class="chev">›</span></button>';
+
+    body.innerHTML = html;
+    var btn = body.querySelector('.btn-more');
+    btn.addEventListener('click', function () {
+      var m = body.querySelector('.more');
+      var open = !m.hidden;
+      m.hidden = open;
+      btn.firstChild.textContent = open ? '詳細を見る' : '詳細を閉じる';
+      btn.classList.toggle('open', !open);
+    });
+  }
+
+  function openSheet() { document.body.classList.add('sheet-open'); }
+  function closeSheet() { document.body.classList.remove('sheet-open'); }
+
+  /* ---------------- 変形（ズーム・パン） ---------------- */
+  function applyTransform() {
+    gWorld.setAttribute('transform', 'translate(' + state.tx + ' ' + state.ty + ') scale(' + state.k + ')');
+    syncOverlay();
+  }
+  function clientToUser(cx, cy) {
+    var ctm = svg.getScreenCTM().inverse();
+    var p = svg.createSVGPoint(); p.x = cx; p.y = cy;
+    return p.matrixTransform(ctm);
+  }
+  function clamp() {
+    state.k = Math.min(8, Math.max(0.7, state.k));
+    var w = GEO.MAP_W * state.k, h = GEO.MAP_H * state.k;
+    var mx = GEO.MAP_W * 0.5, my = GEO.MAP_H * 0.5;
+    state.tx = Math.min(mx, Math.max(GEO.MAP_W - w - mx, state.tx));
+    state.ty = Math.min(my, Math.max(GEO.MAP_H - h - my, state.ty));
+  }
+  function zoomAt(u, ratio) {
+    var wx = (u.x - state.tx) / state.k, wy = (u.y - state.ty) / state.k;
+    state.k *= ratio;
+    state.k = Math.min(8, Math.max(0.7, state.k));
+    state.tx = u.x - wx * state.k;
+    state.ty = u.y - wy * state.k;
+    clamp(); applyTransform();
+  }
+  function zoomCenter(ratio) {
+    var r = mapwrap.getBoundingClientRect();
+    zoomAt(clientToUser(r.left + r.width / 2, r.top + r.height / 2), ratio);
+  }
+  function resetView() {
+    state.k = 1; state.tx = 0; state.ty = 0; applyTransform();
+  }
+
+  /* ---------------- ポインタ操作 ---------------- */
+  var pts = new Map(), prevDist = 0, prevMid = null, moved = 0, downAt = 0, downTarget = null;
+  var lastTap = 0, lastTapPos = null;
+
+  mapwrap.addEventListener('pointerdown', function (e) {
+    mapwrap.setPointerCapture(e.pointerId);
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 1) { moved = 0; downAt = Date.now(); downTarget = e.target; }
+    prevDist = 0; prevMid = null;
+  });
+
+  mapwrap.addEventListener('pointermove', function (e) {
+    if (!pts.has(e.pointerId)) return;
+    var prev = pts.get(e.pointerId);
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pts.size === 1) {
+      var du = clientToUser(e.clientX, e.clientY), dp = clientToUser(prev.x, prev.y);
+      state.tx += du.x - dp.x; state.ty += du.y - dp.y;
+      moved += Math.abs(e.clientX - prev.x) + Math.abs(e.clientY - prev.y);
+      clamp(); applyTransform();
+    } else if (pts.size === 2) {
+      var a = Array.from(pts.values());
+      var dist = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
+      var mid = clientToUser((a[0].x + a[1].x) / 2, (a[0].y + a[1].y) / 2);
+      if (prevDist && prevMid) {
+        state.tx += mid.x - prevMid.x; state.ty += mid.y - prevMid.y;
+        zoomAt(mid, dist / prevDist);
+      }
+      prevDist = dist; prevMid = mid;
+      moved += 50;
+    }
+  });
+
+  function endPointer(e) {
+    if (!pts.has(e.pointerId)) return;
+    var single = pts.size === 1;
+    pts.delete(e.pointerId);
+    prevDist = 0; prevMid = null;
+    if (!single) return;
+
+    if (moved < 10 && Date.now() - downAt < 500) {
+      // ダブルタップ判定
+      var now = Date.now();
+      if (lastTapPos && now - lastTap < 320 &&
+          Math.hypot(e.clientX - lastTapPos.x, e.clientY - lastTapPos.y) < 30) {
+        zoomAt(clientToUser(e.clientX, e.clientY), 1.9);
+        lastTap = 0; lastTapPos = null;
+        return;
+      }
+      lastTap = now; lastTapPos = { x: e.clientX, y: e.clientY };
+
+      var t = downTarget && downTarget.closest ? downTarget.closest('[data-prov]') : null;
+      if (t) {
+        select(YEARS[state.yearIdx].owners[t.dataset.prov] || 'other');
+      }
+    }
+  }
+  mapwrap.addEventListener('pointerup', endPointer);
+  mapwrap.addEventListener('pointercancel', endPointer);
+
+  mapwrap.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    zoomAt(clientToUser(e.clientX, e.clientY), Math.exp(-e.deltaY * 0.0016));
+  }, { passive: false });
+
+  /* ---------------- UI配線 ---------------- */
+  function setYear(i) {
+    state.yearIdx = Math.min(YEARS.length - 1, Math.max(0, i));
+    renderYear();
+  }
+
+  function init() {
+    buildMap();
+
+    range.min = 0; range.max = YEARS.length - 1; range.step = 1;
+    var ticks = document.getElementById('year-ticks');
+    YEARS.forEach(function (y, i) {
+      var s = document.createElement('button');
+      s.type = 'button';
+      s.className = 'tick';
+      s.textContent = y.year;
+      s.addEventListener('click', function () { setYear(i); });
+      ticks.appendChild(s);
+    });
+
+    range.addEventListener('input', function () { setYear(+range.value); });
+    document.getElementById('btn-prev').addEventListener('click', function () { setYear(state.yearIdx - 1); });
+    document.getElementById('btn-next').addEventListener('click', function () { setYear(state.yearIdx + 1); });
+    document.getElementById('btn-zoom-in').addEventListener('click', function () { zoomCenter(1.4); });
+    document.getElementById('btn-zoom-out').addEventListener('click', function () { zoomCenter(1 / 1.4); });
+    document.getElementById('btn-reset').addEventListener('click', resetView);
+    document.getElementById('sheet-handle').addEventListener('click', closeSheet);
+    document.getElementById('panel-close').addEventListener('click', closeSheet);
+    document.getElementById('btn-legend').addEventListener('click', function () {
+      document.body.classList.toggle('legend-open');
+    });
+    document.getElementById('btn-help').addEventListener('click', function () {
+      document.getElementById('help').showModal();
+    });
+    document.getElementById('help-close').addEventListener('click', function () {
+      document.getElementById('help').close();
+    });
+
+    window.addEventListener('resize', syncOverlay);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') setYear(state.yearIdx + 1);
+      if (e.key === 'ArrowLeft') setYear(state.yearIdx - 1);
+      if (e.key === 'Escape') closeSheet();
+    });
+
+    renderYear();
+    applyTransform();
+    setTimeout(syncOverlay, 60);
+  }
+
+  init();
+})();
+
+</script>
+</body>
+</html>
