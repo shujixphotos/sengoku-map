@@ -186,6 +186,22 @@ button{ font-family:inherit; color:inherit; cursor:pointer; }
 }
 @keyframes fade{ to{ opacity:0; visibility:hidden; } }
 
+/* マウスhover／指でなぞった時に追従する簡易ラベル */
+.hover-label{
+  position:fixed; top:0; left:0; z-index:40;
+  transform:translate(-50%,-130%);
+  display:flex; align-items:center; gap:6px;
+  background:rgba(20,16,10,.92); border:1px solid rgba(201,162,39,.55);
+  border-radius:8px; padding:6px 10px;
+  font-family:var(--mincho); font-size:13px; color:#fdf6e3; white-space:nowrap;
+  pointer-events:none; box-shadow:0 4px 14px rgba(0,0,0,.4);
+  transition:opacity .1s ease;
+}
+.hover-label[hidden]{ display:none; }
+.hover-label .hl-swatch{ width:10px; height:10px; border-radius:3px; flex:none; }
+.hover-label .hl-prov{ color:#cfc7b4; font-size:11.5px; }
+.hover-label .hl-clan{ font-weight:700; }
+
 .zoomctl{ position:absolute; right:10px; bottom:12px; display:flex; gap:6px; }
 .zbtn{
   min-width:40px; height:40px; border-radius:8px; font-size:18px;
@@ -296,9 +312,15 @@ dialog#chronicle{
   border:1px solid #b99b4e; border-radius:10px; padding:18px 20px;
   max-width:min(520px,90vw); width:100%;
   height:min(78vh,640px); max-height:calc(100vh - 40px);
+  background:linear-gradient(#f7efdb,#eadcbd); color:var(--ink);
+}
+/* display/position は [open] の時だけ指定する。
+   ここを無条件の dialog#chronicle{display:flex;...} にすると、
+   IDセレクタの詳細度がブラウザ標準の dialog:not([open]){display:none} より強くなり、
+   閉じた（open属性が外れた）後も画面に表示され続けてしまう。 */
+dialog#chronicle[open]{
   position:fixed; top:50%; left:50%; margin:0; transform:translate(-50%,-50%);
   display:flex; flex-direction:column; min-height:0;
-  background:linear-gradient(#f7efdb,#eadcbd); color:var(--ink);
 }
 dialog#chronicle::backdrop{ background:rgba(6,10,16,.6); }
 .chr-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex:none; }
@@ -463,6 +485,7 @@ dialog#chronicle button#chronicle-close-bottom{
     </svg>
 
     <div id="overlay" class="overlay"></div>
+    <div id="hover-label" class="hover-label" hidden></div>
 
     <div class="hint">地図をドラッグして移動／ピンチイン・アウトで拡大縮小</div>
 
@@ -4086,6 +4109,7 @@ window.SENGOKU_TIMELINE = [
   var legendList = document.getElementById('legend-list');
   var panel    = document.getElementById('panel');
   var range    = document.getElementById('year-range');
+  var hoverLabel = document.getElementById('hover-label');
 
   var YEAR_MIN = TIMELINE[0].year;
   var YEAR_MAX = TIMELINE[TIMELINE.length - 1].year;
@@ -4309,6 +4333,7 @@ window.SENGOKU_TIMELINE = [
   }
 
   function select(clanId) {
+    hideHoverLabel();
     state.selected = clanId;
     document.body.classList.remove('legend-open');
     highlight();
@@ -4383,6 +4408,41 @@ window.SENGOKU_TIMELINE = [
 
   function openSheet() { document.body.classList.add('sheet-open'); }
   function closeSheet() { document.body.classList.remove('sheet-open'); }
+
+  /* ---------------- 追従ラベル（マウスhover／指でなぞった時） ---------------- */
+  var hoverLabelProv = null;
+  function showHoverLabel(clientX, clientY, provId) {
+    var clanId = ownerOf(provId);
+    var prov = GEO.provinceAt(provId);
+    var clan = CLANS[clanId];
+    if (hoverLabelProv !== provId) {
+      hoverLabel.innerHTML =
+        '<span class="hl-swatch" style="background:' + clan.color + '"></span>' +
+        '<span class="hl-clan">' + clan.name + '</span>' +
+        '<span class="hl-prov">' + prov.name + '</span>';
+      hoverLabelProv = provId;
+    }
+    hoverLabel.style.transform = 'translate(-50%,-130%) translate(' + clientX + 'px,' + clientY + 'px)';
+    hoverLabel.hidden = false;
+  }
+  function hideHoverLabel() {
+    hoverLabel.hidden = true;
+    hoverLabelProv = null;
+  }
+
+  // マウスは触れていなくても(hover)追従。タッチは指が触れている間だけ追従する
+  function updateHoverLabel(e) {
+    if (e.pointerType === 'mouse') {
+      // 何かをドラッグでパン中はラベルを隠す（地図移動の邪魔をしない）
+      if (pts.size >= 1) { hideHoverLabel(); return; }
+    } else {
+      if (pts.size !== 1) { hideHoverLabel(); return; } // 2本指ピンチ中や非タッチ中は出さない
+    }
+    var el = document.elementFromPoint(e.clientX, e.clientY);
+    var provEl = el && el.closest ? el.closest('[data-prov]') : null;
+    if (!provEl) { hideHoverLabel(); return; }
+    showHoverLabel(e.clientX, e.clientY, provEl.dataset.prov);
+  }
 
   /* ---------------- 年表（通し年表） ---------------- */
   function buildChronicle() {
@@ -4465,6 +4525,7 @@ window.SENGOKU_TIMELINE = [
   });
 
   mapwrap.addEventListener('pointermove', function (e) {
+    updateHoverLabel(e);
     if (!pts.has(e.pointerId)) return;
     var prev = pts.get(e.pointerId);
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -4488,6 +4549,7 @@ window.SENGOKU_TIMELINE = [
   });
 
   function endPointer(e) {
+    if (e.pointerType !== 'mouse') hideHoverLabel();
     if (!pts.has(e.pointerId)) return;
     var single = pts.size === 1;
     pts.delete(e.pointerId);
@@ -4520,6 +4582,13 @@ window.SENGOKU_TIMELINE = [
     e.preventDefault();
     zoomAt(clientToUser(e.clientX, e.clientY), Math.exp(-e.deltaY * 0.0016));
   }, { passive: false });
+
+  mapwrap.addEventListener('pointerleave', function (e) {
+    if (e.pointerType === 'mouse') hideHoverLabel();
+  });
+  mapwrap.addEventListener('pointercancel', function (e) {
+    hideHoverLabel();
+  });
 
   /* ---------------- UI配線 ---------------- */
 
