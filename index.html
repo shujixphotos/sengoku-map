@@ -669,6 +669,298 @@ window.GEO = (function () {
     { id:'satsuma',  name:'薩摩',        island:'kyushu', lon:130.40, lat:31.75 }
   ];
 
+  // ---- 郡（旧国よりさらに細かい単位。id, 表示名, 所属する旧国, 島, 代表点） ----
+  // 座標は史実の正確な郡域ではなく、郡名と国内の相対位置から機械的に配置した近似値です。
+  // 実際の郡境データに差し替える場合は、この配列の座標だけ更新すれば地図は自動生成し直されます。
+  var DISTRICTS = [
+    // mutsu
+    { id:'mutsu_1', name:'糠部郡', province:'mutsu', island:'honshu', lon:141.484, lat:39.666 },
+    { id:'mutsu_2', name:'閉伊郡', province:'mutsu', island:'honshu', lon:141.222, lat:39.757 },
+    { id:'mutsu_3', name:'気仙郡', province:'mutsu', island:'honshu', lon:141.116, lat:39.534 },
+    { id:'mutsu_4', name:'岩手郡', province:'mutsu', island:'honshu', lon:141.378, lat:39.443 },
+    // nanou
+    { id:'nanou_1', name:'安達郡', province:'nanou', island:'honshu', lon:140.62, lat:36.943 },
+    { id:'nanou_2', name:'信夫郡', province:'nanou', island:'honshu', lon:140.449, lat:37.002 },
+    { id:'nanou_3', name:'会津郡', province:'nanou', island:'honshu', lon:140.38, lat:36.857 },
+    { id:'nanou_4', name:'磐城郡', province:'nanou', island:'honshu', lon:140.551, lat:36.798 },
+    // dewa
+    { id:'dewa_1', name:'村山郡', province:'dewa', island:'honshu', lon:140.284, lat:39.466 },
+    { id:'dewa_2', name:'最上郡', province:'dewa', island:'honshu', lon:140.022, lat:39.557 },
+    { id:'dewa_3', name:'由利郡', province:'dewa', island:'honshu', lon:139.916, lat:39.334 },
+    { id:'dewa_4', name:'秋田郡', province:'dewa', island:'honshu', lon:140.178, lat:39.243 },
+    // echigo
+    { id:'echigo_1', name:'頸城郡', province:'echigo', island:'honshu', lon:138.984, lat:37.466 },
+    { id:'echigo_2', name:'魚沼郡', province:'echigo', island:'honshu', lon:138.722, lat:37.557 },
+    { id:'echigo_3', name:'蒲原郡', province:'echigo', island:'honshu', lon:138.616, lat:37.334 },
+    { id:'echigo_4', name:'岩船郡', province:'echigo', island:'honshu', lon:138.878, lat:37.243 },
+    // sado
+    { id:'sado_1', name:'雑太郡', province:'sado', island:'sado', lon:138.469, lat:38.075 },
+    { id:'sado_2', name:'羽茂郡', province:'sado', island:'sado', lon:138.331, lat:38.025 },
+    // etchu
+    { id:'etchu_1', name:'婦負郡', province:'etchu', island:'honshu', lon:137.32, lat:36.743 },
+    { id:'etchu_2', name:'射水郡', province:'etchu', island:'honshu', lon:137.149, lat:36.802 },
+    { id:'etchu_3', name:'砺波郡', province:'etchu', island:'honshu', lon:137.08, lat:36.657 },
+    { id:'etchu_4', name:'新川郡', province:'etchu', island:'honshu', lon:137.251, lat:36.598 },
+    // noto
+    { id:'noto_1', name:'羽咋郡', province:'noto', island:'honshu', lon:137.019, lat:37.175 },
+    { id:'noto_2', name:'鳳至郡', province:'noto', island:'honshu', lon:136.89, lat:37.188 },
+    { id:'noto_3', name:'珠洲郡', province:'noto', island:'honshu', lon:136.941, lat:37.087 },
+    // kaga
+    { id:'kaga_1', name:'石川郡', province:'kaga', island:'honshu', lon:136.72, lat:36.443 },
+    { id:'kaga_2', name:'江沼郡', province:'kaga', island:'honshu', lon:136.496, lat:36.467 },
+    { id:'kaga_3', name:'能美郡', province:'kaga', island:'honshu', lon:136.584, lat:36.29 },
+    // echizen
+    { id:'echizen_1', name:'足羽郡', province:'echizen', island:'honshu', lon:136.42, lat:35.993 },
+    { id:'echizen_2', name:'丹生郡', province:'echizen', island:'honshu', lon:136.249, lat:36.052 },
+    { id:'echizen_3', name:'敦賀郡', province:'echizen', island:'honshu', lon:136.18, lat:35.907 },
+    { id:'echizen_4', name:'大野郡', province:'echizen', island:'honshu', lon:136.351, lat:35.848 },
+    // wakasa
+    { id:'wakasa_1', name:'遠敷郡', province:'wakasa', island:'honshu', lon:135.719, lat:35.475 },
+    { id:'wakasa_2', name:'三方郡', province:'wakasa', island:'honshu', lon:135.581, lat:35.425 },
+    // shinano
+    { id:'shinano_1', name:'佐久郡', province:'shinano', island:'honshu', lon:138.184, lat:36.216 },
+    { id:'shinano_2', name:'小県郡', province:'shinano', island:'honshu', lon:137.983, lat:36.319 },
+    { id:'shinano_3', name:'諏訪郡', province:'shinano', island:'honshu', lon:137.805, lat:36.188 },
+    { id:'shinano_4', name:'筑摩郡', province:'shinano', island:'honshu', lon:137.897, lat:36.004 },
+    { id:'shinano_5', name:'水内郡', province:'shinano', island:'honshu', lon:138.131, lat:36.022 },
+    // hida
+    { id:'hida_1', name:'大野郡', province:'hida', island:'honshu', lon:137.269, lat:36.175 },
+    { id:'hida_2', name:'吉城郡', province:'hida', island:'honshu', lon:137.131, lat:36.125 },
+    // kai
+    { id:'kai_1', name:'山梨郡', province:'kai', island:'honshu', lon:138.72, lat:35.643 },
+    { id:'kai_2', name:'八代郡', province:'kai', island:'honshu', lon:138.549, lat:35.702 },
+    { id:'kai_3', name:'巨摩郡', province:'kai', island:'honshu', lon:138.48, lat:35.557 },
+    { id:'kai_4', name:'都留郡', province:'kai', island:'honshu', lon:138.651, lat:35.498 },
+    // kozuke
+    { id:'kozuke_1', name:'群馬郡', province:'kozuke', island:'honshu', lon:139.07, lat:36.543 },
+    { id:'kozuke_2', name:'勢多郡', province:'kozuke', island:'honshu', lon:138.899, lat:36.602 },
+    { id:'kozuke_3', name:'新田郡', province:'kozuke', island:'honshu', lon:138.83, lat:36.457 },
+    { id:'kozuke_4', name:'甘楽郡', province:'kozuke', island:'honshu', lon:139.001, lat:36.398 },
+    // shimotsuke
+    { id:'shimotsuke_1', name:'都賀郡', province:'shimotsuke', island:'honshu', lon:139.92, lat:36.743 },
+    { id:'shimotsuke_2', name:'河内郡', province:'shimotsuke', island:'honshu', lon:139.749, lat:36.802 },
+    { id:'shimotsuke_3', name:'那須郡', province:'shimotsuke', island:'honshu', lon:139.68, lat:36.657 },
+    { id:'shimotsuke_4', name:'足利郡', province:'shimotsuke', island:'honshu', lon:139.851, lat:36.598 },
+    // hitachi
+    { id:'hitachi_1', name:'那珂郡', province:'hitachi', island:'honshu', lon:140.52, lat:36.393 },
+    { id:'hitachi_2', name:'久慈郡', province:'hitachi', island:'honshu', lon:140.349, lat:36.452 },
+    { id:'hitachi_3', name:'筑波郡', province:'hitachi', island:'honshu', lon:140.28, lat:36.307 },
+    { id:'hitachi_4', name:'行方郡', province:'hitachi', island:'honshu', lon:140.451, lat:36.248 },
+    // shimousa
+    { id:'shimousa_1', name:'葛飾郡', province:'shimousa', island:'honshu', lon:140.37, lat:35.893 },
+    { id:'shimousa_2', name:'千葉郡', province:'shimousa', island:'honshu', lon:140.146, lat:35.917 },
+    { id:'shimousa_3', name:'匝瑳郡', province:'shimousa', island:'honshu', lon:140.234, lat:35.74 },
+    // kazusa
+    { id:'kazusa_1', name:'市原郡', province:'kazusa', island:'honshu', lon:140.27, lat:35.443 },
+    { id:'kazusa_2', name:'望陀郡', province:'kazusa', island:'honshu', lon:140.046, lat:35.467 },
+    { id:'kazusa_3', name:'夷隅郡', province:'kazusa', island:'honshu', lon:140.134, lat:35.29 },
+    // awa_b
+    { id:'awa_b_1', name:'安房郡', province:'awa_b', island:'honshu', lon:139.969, lat:35.075 },
+    { id:'awa_b_2', name:'平群郡', province:'awa_b', island:'honshu', lon:139.831, lat:35.025 },
+    // musashi
+    { id:'musashi_1', name:'豊島郡', province:'musashi', island:'honshu', lon:139.584, lat:35.916 },
+    { id:'musashi_2', name:'多摩郡', province:'musashi', island:'honshu', lon:139.383, lat:36.019 },
+    { id:'musashi_3', name:'秩父郡', province:'musashi', island:'honshu', lon:139.205, lat:35.888 },
+    { id:'musashi_4', name:'埼玉郡', province:'musashi', island:'honshu', lon:139.297, lat:35.704 },
+    { id:'musashi_5', name:'男衾郡', province:'musashi', island:'honshu', lon:139.531, lat:35.722 },
+    // sagami
+    { id:'sagami_1', name:'足柄郡', province:'sagami', island:'honshu', lon:139.37, lat:35.443 },
+    { id:'sagami_2', name:'大住郡', province:'sagami', island:'honshu', lon:139.199, lat:35.502 },
+    { id:'sagami_3', name:'鎌倉郡', province:'sagami', island:'honshu', lon:139.13, lat:35.357 },
+    { id:'sagami_4', name:'三浦郡', province:'sagami', island:'honshu', lon:139.301, lat:35.298 },
+    // izu
+    { id:'izu_1', name:'田方郡', province:'izu', island:'honshu', lon:139.019, lat:34.875 },
+    { id:'izu_2', name:'賀茂郡', province:'izu', island:'honshu', lon:138.881, lat:34.825 },
+    // suruga
+    { id:'suruga_1', name:'有渡郡', province:'suruga', island:'honshu', lon:138.57, lat:35.193 },
+    { id:'suruga_2', name:'富士郡', province:'suruga', island:'honshu', lon:138.346, lat:35.217 },
+    { id:'suruga_3', name:'駿東郡', province:'suruga', island:'honshu', lon:138.434, lat:35.04 },
+    // totomi
+    { id:'totomi_1', name:'敷智郡', province:'totomi', island:'honshu', lon:137.97, lat:34.943 },
+    { id:'totomi_2', name:'引佐郡', province:'totomi', island:'honshu', lon:137.799, lat:35.002 },
+    { id:'totomi_3', name:'山名郡', province:'totomi', island:'honshu', lon:137.73, lat:34.857 },
+    { id:'totomi_4', name:'城飼郡', province:'totomi', island:'honshu', lon:137.901, lat:34.798 },
+    // mikawa
+    { id:'mikawa_1', name:'額田郡', province:'mikawa', island:'honshu', lon:137.52, lat:34.943 },
+    { id:'mikawa_2', name:'碧海郡', province:'mikawa', island:'honshu', lon:137.349, lat:35.002 },
+    { id:'mikawa_3', name:'宝飯郡', province:'mikawa', island:'honshu', lon:137.28, lat:34.857 },
+    { id:'mikawa_4', name:'渥美郡', province:'mikawa', island:'honshu', lon:137.451, lat:34.798 },
+    // owari
+    { id:'owari_1', name:'愛知郡', province:'owari', island:'honshu', lon:137.1, lat:35.223 },
+    { id:'owari_2', name:'中島郡', province:'owari', island:'honshu', lon:136.969, lat:35.29 },
+    { id:'owari_3', name:'春日井郡', province:'owari', island:'honshu', lon:136.853, lat:35.205 },
+    { id:'owari_4', name:'知多郡', province:'owari', island:'honshu', lon:136.913, lat:35.085 },
+    { id:'owari_5', name:'丹羽郡', province:'owari', island:'honshu', lon:137.065, lat:35.097 },
+    // mino
+    { id:'mino_1', name:'厚見郡', province:'mino', island:'honshu', lon:137.02, lat:35.593 },
+    { id:'mino_2', name:'安八郡', province:'mino', island:'honshu', lon:136.849, lat:35.652 },
+    { id:'mino_3', name:'恵那郡', province:'mino', island:'honshu', lon:136.78, lat:35.507 },
+    { id:'mino_4', name:'可児郡', province:'mino', island:'honshu', lon:136.951, lat:35.448 },
+    // omi
+    { id:'omi_1', name:'志賀郡', province:'omi', island:'honshu', lon:136.27, lat:35.243 },
+    { id:'omi_2', name:'栗太郡', province:'omi', island:'honshu', lon:136.139, lat:35.31 },
+    { id:'omi_3', name:'蒲生郡', province:'omi', island:'honshu', lon:136.023, lat:35.225 },
+    { id:'omi_4', name:'坂田郡', province:'omi', island:'honshu', lon:136.083, lat:35.105 },
+    { id:'omi_5', name:'高島郡', province:'omi', island:'honshu', lon:136.235, lat:35.117 },
+    // ise
+    { id:'ise_1', name:'桑名郡', province:'ise', island:'honshu', lon:136.67, lat:34.643 },
+    { id:'ise_2', name:'安濃郡', province:'ise', island:'honshu', lon:136.499, lat:34.702 },
+    { id:'ise_3', name:'度会郡', province:'ise', island:'honshu', lon:136.43, lat:34.557 },
+    { id:'ise_4', name:'飯高郡', province:'ise', island:'honshu', lon:136.601, lat:34.498 },
+    // shima
+    { id:'shima_1', name:'答志郡', province:'shima', island:'honshu', lon:136.919, lat:34.375 },
+    { id:'shima_2', name:'英虞郡', province:'shima', island:'honshu', lon:136.781, lat:34.325 },
+    // iga
+    { id:'iga_1', name:'阿拝郡', province:'iga', island:'honshu', lon:136.219, lat:34.775 },
+    { id:'iga_2', name:'名張郡', province:'iga', island:'honshu', lon:136.081, lat:34.725 },
+    // yamashiro
+    { id:'yamashiro_1', name:'愛宕郡', province:'yamashiro', island:'honshu', lon:135.92, lat:34.993 },
+    { id:'yamashiro_2', name:'葛野郡', province:'yamashiro', island:'honshu', lon:135.749, lat:35.052 },
+    { id:'yamashiro_3', name:'紀伊郡', province:'yamashiro', island:'honshu', lon:135.68, lat:34.907 },
+    { id:'yamashiro_4', name:'相楽郡', province:'yamashiro', island:'honshu', lon:135.851, lat:34.848 },
+    // yamato
+    { id:'yamato_1', name:'添上郡', province:'yamato', island:'honshu', lon:135.97, lat:34.543 },
+    { id:'yamato_2', name:'添下郡', province:'yamato', island:'honshu', lon:135.839, lat:34.61 },
+    { id:'yamato_3', name:'十市郡', province:'yamato', island:'honshu', lon:135.723, lat:34.525 },
+    { id:'yamato_4', name:'宇陀郡', province:'yamato', island:'honshu', lon:135.783, lat:34.405 },
+    { id:'yamato_5', name:'吉野郡', province:'yamato', island:'honshu', lon:135.935, lat:34.417 },
+    // kawachi
+    { id:'kawachi_1', name:'讃良郡', province:'kawachi', island:'honshu', lon:135.72, lat:34.593 },
+    { id:'kawachi_2', name:'河内郡', province:'kawachi', island:'honshu', lon:135.496, lat:34.617 },
+    { id:'kawachi_3', name:'石川郡', province:'kawachi', island:'honshu', lon:135.584, lat:34.44 },
+    // izumi
+    { id:'izumi_1', name:'大鳥郡', province:'izumi', island:'honshu', lon:135.52, lat:34.443 },
+    { id:'izumi_2', name:'泉郡', province:'izumi', island:'honshu', lon:135.296, lat:34.467 },
+    { id:'izumi_3', name:'日根郡', province:'izumi', island:'honshu', lon:135.384, lat:34.29 },
+    // settsu
+    { id:'settsu_1', name:'西成郡', province:'settsu', island:'honshu', lon:135.52, lat:34.843 },
+    { id:'settsu_2', name:'東成郡', province:'settsu', island:'honshu', lon:135.349, lat:34.902 },
+    { id:'settsu_3', name:'川辺郡', province:'settsu', island:'honshu', lon:135.28, lat:34.757 },
+    { id:'settsu_4', name:'有馬郡', province:'settsu', island:'honshu', lon:135.451, lat:34.698 },
+    // kii
+    { id:'kii_1', name:'名草郡', province:'kii', island:'honshu', lon:135.72, lat:34.043 },
+    { id:'kii_2', name:'那賀郡', province:'kii', island:'honshu', lon:135.549, lat:34.102 },
+    { id:'kii_3', name:'牟婁郡', province:'kii', island:'honshu', lon:135.48, lat:33.957 },
+    { id:'kii_4', name:'有田郡', province:'kii', island:'honshu', lon:135.651, lat:33.898 },
+    // tanba
+    { id:'tanba_1', name:'桑田郡', province:'tanba', island:'honshu', lon:135.42, lat:35.243 },
+    { id:'tanba_2', name:'天田郡', province:'tanba', island:'honshu', lon:135.196, lat:35.267 },
+    { id:'tanba_3', name:'何鹿郡', province:'tanba', island:'honshu', lon:135.284, lat:35.09 },
+    // tango
+    { id:'tango_1', name:'加佐郡', province:'tango', island:'honshu', lon:135.27, lat:35.643 },
+    { id:'tango_2', name:'与謝郡', province:'tango', island:'honshu', lon:135.046, lat:35.667 },
+    { id:'tango_3', name:'竹野郡', province:'tango', island:'honshu', lon:135.134, lat:35.49 },
+    // tajima
+    { id:'tajima_1', name:'気多郡', province:'tajima', island:'honshu', lon:134.92, lat:35.443 },
+    { id:'tajima_2', name:'城崎郡', province:'tajima', island:'honshu', lon:134.696, lat:35.467 },
+    { id:'tajima_3', name:'朝来郡', province:'tajima', island:'honshu', lon:134.784, lat:35.29 },
+    // inaba
+    { id:'inaba_1', name:'岩美郡', province:'inaba', island:'honshu', lon:134.32, lat:35.443 },
+    { id:'inaba_2', name:'八上郡', province:'inaba', island:'honshu', lon:134.096, lat:35.467 },
+    { id:'inaba_3', name:'高草郡', province:'inaba', island:'honshu', lon:134.184, lat:35.29 },
+    // hoki
+    { id:'hoki_1', name:'会見郡', province:'hoki', island:'honshu', lon:133.72, lat:35.443 },
+    { id:'hoki_2', name:'汗入郡', province:'hoki', island:'honshu', lon:133.496, lat:35.467 },
+    { id:'hoki_3', name:'河村郡', province:'hoki', island:'honshu', lon:133.584, lat:35.29 },
+    // izumo
+    { id:'izumo_1', name:'意宇郡', province:'izumo', island:'honshu', lon:132.97, lat:35.343 },
+    { id:'izumo_2', name:'出雲郡', province:'izumo', island:'honshu', lon:132.799, lat:35.402 },
+    { id:'izumo_3', name:'神門郡', province:'izumo', island:'honshu', lon:132.73, lat:35.257 },
+    { id:'izumo_4', name:'大原郡', province:'izumo', island:'honshu', lon:132.901, lat:35.198 },
+    // iwami
+    { id:'iwami_1', name:'邇摩郡', province:'iwami', island:'honshu', lon:132.32, lat:34.893 },
+    { id:'iwami_2', name:'邑智郡', province:'iwami', island:'honshu', lon:132.096, lat:34.917 },
+    { id:'iwami_3', name:'那賀郡', province:'iwami', island:'honshu', lon:132.184, lat:34.74 },
+    // harima
+    { id:'harima_1', name:'明石郡', province:'harima', island:'honshu', lon:134.77, lat:35.043 },
+    { id:'harima_2', name:'加古郡', province:'harima', island:'honshu', lon:134.599, lat:35.102 },
+    { id:'harima_3', name:'飾磨郡', province:'harima', island:'honshu', lon:134.53, lat:34.957 },
+    { id:'harima_4', name:'揖保郡', province:'harima', island:'honshu', lon:134.701, lat:34.898 },
+    // mimasaka
+    { id:'mimasaka_1', name:'英田郡', province:'mimasaka', island:'honshu', lon:134.17, lat:35.193 },
+    { id:'mimasaka_2', name:'勝田郡', province:'mimasaka', island:'honshu', lon:133.946, lat:35.217 },
+    { id:'mimasaka_3', name:'久米郡', province:'mimasaka', island:'honshu', lon:134.034, lat:35.04 },
+    // bizen
+    { id:'bizen_1', name:'邑久郡', province:'bizen', island:'honshu', lon:134.12, lat:34.793 },
+    { id:'bizen_2', name:'上道郡', province:'bizen', island:'honshu', lon:133.896, lat:34.817 },
+    { id:'bizen_3', name:'御野郡', province:'bizen', island:'honshu', lon:133.984, lat:34.64 },
+    // bicchu
+    { id:'bicchu_1', name:'賀陽郡', province:'bicchu', island:'honshu', lon:133.67, lat:34.843 },
+    { id:'bicchu_2', name:'都宇郡', province:'bicchu', island:'honshu', lon:133.446, lat:34.867 },
+    { id:'bicchu_3', name:'浅口郡', province:'bicchu', island:'honshu', lon:133.534, lat:34.69 },
+    // bingo
+    { id:'bingo_1', name:'深津郡', province:'bingo', island:'honshu', lon:133.22, lat:34.743 },
+    { id:'bingo_2', name:'世羅郡', province:'bingo', island:'honshu', lon:132.996, lat:34.767 },
+    { id:'bingo_3', name:'甲奴郡', province:'bingo', island:'honshu', lon:133.084, lat:34.59 },
+    // aki
+    { id:'aki_1', name:'賀茂郡', province:'aki', island:'honshu', lon:132.67, lat:34.543 },
+    { id:'aki_2', name:'高田郡', province:'aki', island:'honshu', lon:132.446, lat:34.567 },
+    { id:'aki_3', name:'佐伯郡', province:'aki', island:'honshu', lon:132.534, lat:34.39 },
+    // suo
+    { id:'suo_1', name:'熊毛郡', province:'suo', island:'honshu', lon:132.02, lat:34.193 },
+    { id:'suo_2', name:'都濃郡', province:'suo', island:'honshu', lon:131.796, lat:34.217 },
+    { id:'suo_3', name:'佐波郡', province:'suo', island:'honshu', lon:131.884, lat:34.04 },
+    // nagato
+    { id:'nagato_1', name:'豊浦郡', province:'nagato', island:'honshu', lon:131.32, lat:34.343 },
+    { id:'nagato_2', name:'美祢郡', province:'nagato', island:'honshu', lon:131.17, lat:34.32 },
+    { id:'nagato_3', name:'大津郡', province:'nagato', island:'honshu', lon:131.184, lat:34.19 },
+    // awaji
+    { id:'awaji_1', name:'津名郡', province:'awaji', island:'awaji', lon:134.919, lat:34.445 },
+    { id:'awaji_2', name:'三原郡', province:'awaji', island:'awaji', lon:134.781, lat:34.395 },
+    // awa_s
+    { id:'awa_s_1', name:'板野郡', province:'awa_s', island:'shikoku', lon:134.37, lat:33.993 },
+    { id:'awa_s_2', name:'名西郡', province:'awa_s', island:'shikoku', lon:134.146, lat:34.017 },
+    { id:'awa_s_3', name:'那賀郡', province:'awa_s', island:'shikoku', lon:134.234, lat:33.84 },
+    // sanuki
+    { id:'sanuki_1', name:'大内郡', province:'sanuki', island:'shikoku', lon:134.12, lat:34.293 },
+    { id:'sanuki_2', name:'香川郡', province:'sanuki', island:'shikoku', lon:133.896, lat:34.317 },
+    { id:'sanuki_3', name:'那珂郡', province:'sanuki', island:'shikoku', lon:133.984, lat:34.14 },
+    // iyo
+    { id:'iyo_1', name:'宇摩郡', province:'iyo', island:'shikoku', lon:132.97, lat:33.643 },
+    { id:'iyo_2', name:'温泉郡', province:'iyo', island:'shikoku', lon:132.746, lat:33.667 },
+    { id:'iyo_3', name:'喜多郡', province:'iyo', island:'shikoku', lon:132.834, lat:33.49 },
+    // tosa
+    { id:'tosa_1', name:'長岡郡', province:'tosa', island:'shikoku', lon:133.52, lat:33.443 },
+    { id:'tosa_2', name:'香美郡', province:'tosa', island:'shikoku', lon:133.296, lat:33.467 },
+    { id:'tosa_3', name:'幡多郡', province:'tosa', island:'shikoku', lon:133.384, lat:33.29 },
+    // chikuzen
+    { id:'chikuzen_1', name:'那珂郡', province:'chikuzen', island:'kyushu', lon:130.62, lat:33.643 },
+    { id:'chikuzen_2', name:'早良郡', province:'chikuzen', island:'kyushu', lon:130.396, lat:33.667 },
+    { id:'chikuzen_3', name:'御笠郡', province:'chikuzen', island:'kyushu', lon:130.484, lat:33.49 },
+    // chikugo
+    { id:'chikugo_1', name:'御井郡', province:'chikugo', island:'kyushu', lon:130.77, lat:33.293 },
+    { id:'chikugo_2', name:'三潴郡', province:'chikugo', island:'kyushu', lon:130.546, lat:33.317 },
+    { id:'chikugo_3', name:'山門郡', province:'chikugo', island:'kyushu', lon:130.634, lat:33.14 },
+    // buzen
+    { id:'buzen_1', name:'京都郡', province:'buzen', island:'kyushu', lon:131.17, lat:33.643 },
+    { id:'buzen_2', name:'仲津郡', province:'buzen', island:'kyushu', lon:130.946, lat:33.667 },
+    { id:'buzen_3', name:'田川郡', province:'buzen', island:'kyushu', lon:131.034, lat:33.49 },
+    // bungo
+    { id:'bungo_1', name:'大分郡', province:'bungo', island:'kyushu', lon:131.62, lat:33.143 },
+    { id:'bungo_2', name:'速見郡', province:'bungo', island:'kyushu', lon:131.396, lat:33.167 },
+    { id:'bungo_3', name:'直入郡', province:'bungo', island:'kyushu', lon:131.484, lat:32.99 },
+    // hizen
+    { id:'hizen_1', name:'佐賀郡', province:'hizen', island:'kyushu', lon:130.12, lat:33.243 },
+    { id:'hizen_2', name:'松浦郡', province:'hizen', island:'kyushu', lon:129.896, lat:33.267 },
+    { id:'hizen_3', name:'神埼郡', province:'hizen', island:'kyushu', lon:129.984, lat:33.09 },
+    // higo
+    { id:'higo_1', name:'玉名郡', province:'higo', island:'kyushu', lon:130.87, lat:32.643 },
+    { id:'higo_2', name:'飽田郡', province:'higo', island:'kyushu', lon:130.646, lat:32.667 },
+    { id:'higo_3', name:'球磨郡', province:'higo', island:'kyushu', lon:130.734, lat:32.49 },
+    // hyuga
+    { id:'hyuga_1', name:'児湯郡', province:'hyuga', island:'kyushu', lon:131.52, lat:32.243 },
+    { id:'hyuga_2', name:'諸県郡', province:'hyuga', island:'kyushu', lon:131.296, lat:32.267 },
+    { id:'hyuga_3', name:'宮崎郡', province:'hyuga', island:'kyushu', lon:131.384, lat:32.09 },
+    // osumi
+    { id:'osumi_1', name:'桑原郡', province:'osumi', island:'kyushu', lon:131.07, lat:31.543 },
+    { id:'osumi_2', name:'大隅郡', province:'osumi', island:'kyushu', lon:130.846, lat:31.567 },
+    { id:'osumi_3', name:'姶良郡', province:'osumi', island:'kyushu', lon:130.934, lat:31.39 },
+    // satsuma
+    { id:'satsuma_1', name:'薩摩郡', province:'satsuma', island:'kyushu', lon:130.52, lat:31.793 },
+    { id:'satsuma_2', name:'出水郡', province:'satsuma', island:'kyushu', lon:130.296, lat:31.817 },
+    { id:'satsuma_3', name:'阿多郡', province:'satsuma', island:'kyushu', lon:130.384, lat:31.64 }
+  ];
+
   // ================= 幾何ユーティリティ =================
   function toXYRing(ring) { return ring.map(function (p) { return P(p[0], p[1]); }); }
 
@@ -756,17 +1048,20 @@ window.GEO = (function () {
   // ================= グリッド構築 =================
   var STEP = 1.8;
   var COLS = Math.ceil(MAP_W / STEP), ROWS = Math.ceil(MAP_H / STEP);
-  var labels = null;          // Int16Array : 旧国index / -1=海
-  var provIndex = {};         // id -> index
+  var labels = null;          // Int16Array : 郡index / -1=海
+  var provIndex = {};         // 旧国id -> 旧国配列index（名称参照用）
+  var distIndex = {};         // 郡id -> 郡配列index
 
   function buildGrid() {
     var ringsXY = {}, k;
     for (k in COAST) ringsXY[k] = toXYRing(COAST[k]);
 
-    var seeds = PROVINCES.map(function (p, i) {
-      var xy = P(p.lon, p.lat);
-      provIndex[p.id] = i;
-      return { x: xy[0], y: xy[1], island: p.island };
+    PROVINCES.forEach(function (p, i) { provIndex[p.id] = i; });
+
+    var seeds = DISTRICTS.map(function (d, i) {
+      var xy = P(d.lon, d.lat);
+      distIndex[d.id] = i;
+      return { x: xy[0], y: xy[1], island: d.island };
     });
 
     labels = new Int16Array(COLS * ROWS).fill(-1);
@@ -779,8 +1074,8 @@ window.GEO = (function () {
         var best = -1, bd = Infinity;
         for (var s = 0; s < seeds.length; s++) {
           if (seeds[s].island !== island) continue;
-          var dx = seeds[s].x - x, dy = seeds[s].y - y, d = dx * dx + dy * dy;
-          if (d < bd) { bd = d; best = s; }
+          var dx = seeds[s].x - x, dy = seeds[s].y - y, d2 = dx * dx + dy * dy;
+          if (d2 < bd) { bd = d2; best = s; }
         }
         if (best >= 0) labels[r * COLS + c] = best;
       }
@@ -847,9 +1142,9 @@ window.GEO = (function () {
   // ================= 公開API =================
   function build() {
     if (!labels) buildGrid();
-    var loops = traceRegions(function (v) { return v; }, PROVINCES.length);
+    var loops = traceRegions(function (v) { return v; }, DISTRICTS.length);
     var paths = {};
-    PROVINCES.forEach(function (p, i) { paths[p.id] = toPathD(loops[i]); });
+    DISTRICTS.forEach(function (d, i) { paths[d.id] = toPathD(loops[i]); });
 
     // 海岸線（陸地全体の外形）
     var land = traceRegions(function (v) { return v >= 0 ? 0 : -1; }, 1);
@@ -859,25 +1154,25 @@ window.GEO = (function () {
   }
 
   /* 年代ごとの「勢力ごとの外形」と「重心・面積」を返す
-     owners: {国ID: 勢力ID}  */
+     owners: {旧国ID: 勢力ID}  郡→旧国→勢力 の順で解決する */
   function clanShapes(owners) {
     if (!labels) buildGrid();
     var ids = [], idx = {};
-    PROVINCES.forEach(function (p) {
-      var c = owners[p.id] || 'other';
+    DISTRICTS.forEach(function (d) {
+      var c = owners[d.province] || 'other';
       if (!(c in idx)) { idx[c] = ids.length; ids.push(c); }
     });
-    var provToClan = new Int16Array(PROVINCES.length);
-    PROVINCES.forEach(function (p, i) { provToClan[i] = idx[owners[p.id] || 'other']; });
+    var distToClan = new Int16Array(DISTRICTS.length);
+    DISTRICTS.forEach(function (d, i) { distToClan[i] = idx[owners[d.province] || 'other']; });
 
-    var loops = traceRegions(function (v) { return v < 0 ? -1 : provToClan[v]; }, ids.length);
+    var loops = traceRegions(function (v) { return v < 0 ? -1 : distToClan[v]; }, ids.length);
 
     // 重心と面積（セル数ベース）
     var sx = new Float64Array(ids.length), sy = new Float64Array(ids.length), cnt = new Float64Array(ids.length);
     for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
       var v = labels[r * COLS + c];
       if (v < 0) continue;
-      var g = provToClan[v];
+      var g = distToClan[v];
       sx[g] += (c + 0.5) * STEP; sy[g] += (r + 0.5) * STEP; cnt[g]++;
     }
     // 重心が他家の領内に落ちる場合があるので、自領のセルへスナップする
@@ -891,7 +1186,7 @@ window.GEO = (function () {
     for (var r2 = 0; r2 < ROWS; r2++) for (var c2 = 0; c2 < COLS; c2++) {
       var v2 = labels[r2 * COLS + c2];
       if (v2 < 0) continue;
-      var g2 = provToClan[v2];
+      var g2 = distToClan[v2];
       var x2 = (c2 + 0.5) * STEP, y2 = (r2 + 0.5) * STEP;
       var dd = (x2 - gx[g2]) * (x2 - gx[g2]) + (y2 - gy[g2]) * (y2 - gy[g2]);
       if (dd < bd[g2]) { bd[g2] = dd; bx[g2] = x2; by[g2] = y2; }
@@ -910,14 +1205,17 @@ window.GEO = (function () {
   }
 
   function provinceAt(id) { return PROVINCES[provIndex[id]]; }
+  function districtAt(id) { return DISTRICTS[distIndex[id]]; }
 
   return {
     MAP_W: MAP_W, MAP_H: MAP_H,
     PROVINCES: PROVINCES,
+    DISTRICTS: DISTRICTS,
     project: P,
     build: build,
     clanShapes: clanShapes,
-    provinceAt: provinceAt
+    provinceAt: provinceAt,
+    districtAt: districtAt
   };
 })();
 
@@ -4123,7 +4421,7 @@ window.SENGOKU_TIMELINE = [
     shapes: null
   };
 
-  var provPaths = {};   // 国ID -> <path>
+  var distPaths = {};   // 郡ID -> <path>（各郡は所属する旧国の色で塗る）
   var edgePaths = {};   // 勢力ID -> <path>
   var overlayItems = [];
 
@@ -4168,13 +4466,16 @@ window.SENGOKU_TIMELINE = [
     var g = GEO.build();
     gEzo.setAttribute('d', g.ezo);
     gCoast.setAttribute('d', g.coast);
-    GEO.PROVINCES.forEach(function (p) {
+    // 郡（DISTRICTS）単位でポリゴンを作る。data-prov には所属する旧国idを持たせ、
+    // 勢力の判定・クリック選択は従来通り旧国単位のまま扱えるようにする。
+    GEO.DISTRICTS.forEach(function (d) {
       var el = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      el.setAttribute('d', g.paths[p.id]);
-      el.setAttribute('class', 'province');
-      el.dataset.prov = p.id;
+      el.setAttribute('d', g.paths[d.id]);
+      el.setAttribute('class', 'province district');
+      el.dataset.prov = d.province;
+      el.dataset.district = d.id;
       gProv.appendChild(el);
-      provPaths[p.id] = el;
+      distPaths[d.id] = el;
     });
   }
 
@@ -4197,10 +4498,10 @@ window.SENGOKU_TIMELINE = [
 
     if (!rebuildMap) return;
 
-    GEO.PROVINCES.forEach(function (p) {
-      var c = CLANS[ownerOf(p.id)] || CLANS.other;
-      provPaths[p.id].style.fill = c.color;
-      provPaths[p.id].dataset.clan = ownerOf(p.id);
+    GEO.DISTRICTS.forEach(function (d) {
+      var c = CLANS[ownerOf(d.province)] || CLANS.other;
+      distPaths[d.id].style.fill = c.color;
+      distPaths[d.id].dataset.clan = ownerOf(d.province);
     });
 
     state.shapes = GEO.clanShapes(cur.owners);
@@ -4411,16 +4712,18 @@ window.SENGOKU_TIMELINE = [
 
   /* ---------------- 追従ラベル（マウスhover／指でなぞった時） ---------------- */
   var hoverLabelProv = null;
-  function showHoverLabel(clientX, clientY, provId) {
+  function showHoverLabel(clientX, clientY, provId, districtId) {
     var clanId = ownerOf(provId);
     var prov = GEO.provinceAt(provId);
     var clan = CLANS[clanId];
-    if (hoverLabelProv !== provId) {
+    var dist = districtId ? GEO.districtAt(districtId) : null;
+    var key = provId + '|' + (districtId || '');
+    if (hoverLabelProv !== key) {
       hoverLabel.innerHTML =
         '<span class="hl-swatch" style="background:' + clan.color + '"></span>' +
         '<span class="hl-clan">' + clan.name + '</span>' +
-        '<span class="hl-prov">' + prov.name + '</span>';
-      hoverLabelProv = provId;
+        '<span class="hl-prov">' + prov.name + (dist ? '・' + dist.name : '') + '</span>';
+      hoverLabelProv = key;
     }
     hoverLabel.style.transform = 'translate(-50%,-130%) translate(' + clientX + 'px,' + clientY + 'px)';
     hoverLabel.hidden = false;
@@ -4441,7 +4744,7 @@ window.SENGOKU_TIMELINE = [
     var el = document.elementFromPoint(e.clientX, e.clientY);
     var provEl = el && el.closest ? el.closest('[data-prov]') : null;
     if (!provEl) { hideHoverLabel(); return; }
-    showHoverLabel(e.clientX, e.clientY, provEl.dataset.prov);
+    showHoverLabel(e.clientX, e.clientY, provEl.dataset.prov, provEl.dataset.district);
   }
 
   /* ---------------- 年表（通し年表） ---------------- */
