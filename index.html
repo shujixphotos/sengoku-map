@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <meta name="theme-color" content="#141b26">
 <title>戦国時代 勢力変遷マップ</title>
-<!-- 1ファイル版（自動生成）: 編集は分割版 index.html / css / js 側で -->
 <style>
 /* ============================================================
    戦国時代 勢力変遷マップ  —  style.css
@@ -106,12 +105,24 @@ button{ font-family:inherit; color:inherit; cursor:pointer; }
   border:1.5px solid #6d5a24;
 }
 #year-range:focus-visible{ outline:2px solid #8c2b1f; outline-offset:4px; border-radius:6px; }
-.ticks{ display:flex; justify-content:space-between; margin-top:-2px; }
-.tick{
-  background:none; border:0; padding:2px 3px; font-size:11px; color:#6b5b3e;
-  font-family:var(--mincho); letter-spacing:.02em;
+.ticks{
+  position:relative; height:22px; margin-top:0;
 }
-.tick:hover{ color:#8c2b1f; }
+.tick{
+  position:absolute; top:0; transform:translateX(-50%);
+  background:none; border:0; padding:0; font-size:10.5px; color:#6b5b3e;
+  font-family:var(--mincho); letter-spacing:0; white-space:nowrap;
+  display:flex; flex-direction:column; align-items:center; gap:1px;
+}
+.tick-dot{
+  width:4px; height:4px; border-radius:50%; background:#9c8a5e;
+}
+.tick-label{ line-height:1; padding:1px 2px; }
+.tick:hover .tick-label{ color:#8c2b1f; }
+.tick:hover .tick-dot{ background:#8c2b1f; }
+/* ラベルが密集する場合、マークだけ残してラベル文字は隠す（タップは引き続き可能） */
+.tick.label-hidden .tick-label{ display:none; }
+.tick.label-hidden .tick-dot{ width:3px; height:3px; }
 .year-note{
   text-align:center; font-family:var(--mincho); font-size:12px; color:#6b5b3e; margin-top:1px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -132,16 +143,16 @@ button{ font-family:inherit; color:inherit; cursor:pointer; }
 }
 #map{ position:absolute; inset:0; width:100%; height:100%; display:block; }
 .province{
-  stroke:#3a2c1a; stroke-width:.7; stroke-opacity:.55;
+  stroke:#3a2c1a; stroke-width:.5; stroke-opacity:.45;
   transition:fill .55s ease;
   cursor:pointer;
 }
 .clan-edge{
-  fill:none; stroke:#2a2118; stroke-width:2.2; stroke-linejoin:round; pointer-events:none;
+  fill:none; stroke:#2a2118; stroke-width:1.6; stroke-linejoin:round; stroke-linecap:round; pointer-events:none;
   transition:stroke .3s ease, stroke-width .3s ease;
 }
 .clan-edge.is-selected{ stroke:var(--gold-lt); stroke-width:3.4; filter:url(#glow); }
-.coast{ fill:none; stroke:#0a0f18; stroke-width:2.6; stroke-opacity:.8; pointer-events:none; }
+.coast{ fill:none; stroke:#0a0f18; stroke-width:1.8; stroke-opacity:.75; stroke-linejoin:round; pointer-events:none; }
 .ezo{ fill:#5c5648; stroke:#2a2118; stroke-width:1.6; opacity:.55; }
 
 /* 地図上のラベル（拡大しても大きさは一定） */
@@ -280,12 +291,51 @@ dialog#help button{
   background:#2a2f3c; color:var(--gold-lt); font-family:var(--mincho); letter-spacing:.1em;
 }
 
+/* ---------------- 年表ダイアログ ---------------- */
+dialog#chronicle{
+  border:1px solid #b99b4e; border-radius:10px; padding:18px 20px;
+  max-width:min(520px,90vw); width:100%;
+  height:min(78vh,640px); max-height:calc(100vh - 40px);
+  position:fixed; top:50%; left:50%; margin:0; transform:translate(-50%,-50%);
+  display:flex; flex-direction:column; min-height:0;
+  background:linear-gradient(#f7efdb,#eadcbd); color:var(--ink);
+}
+dialog#chronicle::backdrop{ background:rgba(6,10,16,.6); }
+.chr-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex:none; }
+.chr-head h3{ margin:0; }
+.chr-x{
+  flex:none; width:32px; height:32px; border-radius:7px;
+  border:1px solid #cbb27a; background:#fdf8ea; color:#6b5b3e;
+  font-size:19px; line-height:1; display:flex; align-items:center; justify-content:center;
+}
+.chr-x:hover{ background:#f0e4c8; }
+dialog#chronicle h3{ margin:0 0 4px; font-family:var(--mincho); font-size:17px; color:#6b3b25; flex:none; }
+.chr-list{ flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; border-top:1px dashed #b99b4e; padding-top:6px; margin:0 -4px; }
+.chr-year{
+  position:sticky; top:0; background:#eadcbd; font-family:var(--mincho); font-weight:700;
+  color:#6b3b25; font-size:13px; padding:6px 4px 3px; letter-spacing:.06em;
+}
+.chr-row{
+  display:flex; align-items:baseline; gap:7px; width:100%; text-align:left;
+  background:none; border:0; border-radius:5px; padding:5px 6px; font-size:13px; line-height:1.5;
+}
+.chr-row:hover{ background:rgba(140,43,31,.08); }
+.chr-dot{ width:9px; height:9px; border-radius:50%; flex:none; margin-top:3px; }
+.chr-clan{ font-family:var(--mincho); font-weight:700; white-space:nowrap; flex:none; color:#4a3c26; }
+.chr-text{ color:var(--ink-2); }
+dialog#chronicle button#chronicle-close-bottom{
+  margin-top:10px; width:100%; padding:10px; border-radius:7px; border:1px solid #6d5a24; flex:none;
+  background:#2a2f3c; color:var(--gold-lt); font-family:var(--mincho); letter-spacing:.1em;
+}
+.empty.small{ font-size:12px; color:#8b8371; margin:2px 2px 0; }
+
 /* ============================================================
    スマートフォン
    ============================================================ */
 @media (max-width:899px){
   .brand{ font-size:15.5px; }
   .tbtn{ padding:6px 8px; font-size:11.5px; }
+  .topbar-actions{ gap:4px; }
 
   /* 勢力一覧 = 引き出し */
   .legend{
@@ -321,7 +371,9 @@ dialog#help button{
 }
 
 @media (max-width:380px){
-  .brand{ font-size:14px; }
+  .brand{ font-size:12.5px; }
+  .brand-mark{ display:none; }
+  .tbtn{ padding:5px 6px; font-size:10.5px; }
   #year-big{ font-size:22px; }
   .tick{ font-size:10px; }
 }
@@ -343,6 +395,7 @@ dialog#help button{
     戦国時代 勢力変遷マップ
   </h1>
   <div class="topbar-actions">
+    <button id="btn-chronicle" class="tbtn" type="button">年表を見る</button>
     <button id="btn-legend" class="tbtn" type="button">勢力一覧</button>
     <button id="btn-help" class="tbtn" type="button">使い方</button>
   </div>
@@ -441,6 +494,18 @@ dialog#help button{
   </ul>
   <p class="note">勢力範囲は旧国（甲斐・信濃など）単位で管理した簡略表示です。国境や実効支配は史実と厳密には一致しません。</p>
   <button id="help-close" type="button">閉じる</button>
+</dialog>
+
+<dialog id="chronicle">
+  <div class="chr-head">
+    <h3>年表</h3>
+    <button id="chronicle-close" class="chr-x" type="button" aria-label="閉じる">×</button>
+  </div>
+  <p class="note" style="border-top:0;padding-top:0;margin-bottom:8px;">
+    タップすると、その年に地図が切り替わります。
+  </p>
+  <div id="chronicle-list" class="chr-list"></div>
+  <button id="chronicle-close-bottom" type="button">閉じる</button>
 </dialog>
 
 <script>
@@ -607,6 +672,44 @@ window.GEO = (function () {
     return pts;
   }
 
+  // Douglas-Peucker による単純化（グリッドの階段状ノイズを間引く）
+  function perpDist(p, a, b) {
+    var dx = b[0] - a[0], dy = b[1] - a[1];
+    var len2 = dx * dx + dy * dy;
+    if (len2 === 0) return Math.hypot(p[0] - a[0], p[1] - a[1]);
+    var t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len2;
+    t = Math.max(0, Math.min(1, t));
+    var px = a[0] + t * dx, py = a[1] + t * dy;
+    return Math.hypot(p[0] - px, p[1] - py);
+  }
+  function rdp(pts, eps) {
+    if (pts.length < 3) return pts.slice();
+    var maxD = -1, idx = 0;
+    for (var i = 1; i < pts.length - 1; i++) {
+      var d = perpDist(pts[i], pts[0], pts[pts.length - 1]);
+      if (d > maxD) { maxD = d; idx = i; }
+    }
+    if (maxD > eps) {
+      var left = rdp(pts.slice(0, idx + 1), eps);
+      var right = rdp(pts.slice(idx), eps);
+      return left.slice(0, -1).concat(right);
+    }
+    return [pts[0], pts[pts.length - 1]];
+  }
+  // 閉ループ向け：開始点をずらして2回に分けて単純化する
+  function simplifyLoop(pts, eps) {
+    var n = pts.length;
+    if (n < 8) return pts;
+    var half = n >> 1;
+    var a = rdp(pts.slice(0, half + 1), eps);
+    var b = rdp(pts.slice(half), eps);
+    return a.slice(0, -1).concat(b.slice(0, -1));
+  }
+  // 単純化→平滑化をまとめて行う（境界の“ギザギザ”をなだらかな線に整える）
+  function smoothLoop(pts) {
+    return chaikin(simplifyLoop(pts, STEP * 1.4), 3);
+  }
+
   function ringArea(pts) {
     var s = 0;
     for (var i = 0; i < pts.length; i++) {
@@ -628,7 +731,7 @@ window.GEO = (function () {
   }
 
   // ================= グリッド構築 =================
-  var STEP = 2.5;
+  var STEP = 1.8;
   var COLS = Math.ceil(MAP_W / STEP), ROWS = Math.ceil(MAP_H / STEP);
   var labels = null;          // Int16Array : 旧国index / -1=海
   var provIndex = {};         // id -> index
@@ -711,7 +814,7 @@ window.GEO = (function () {
           return [Math.floor(key / CH) * STEP, (key % CH) * STEP];
         });
         if (ringArea(pts) < STEP * STEP * 6) continue;
-        loops.push(chaikin(pts, 2));
+        loops.push(smoothLoop(pts));
       }
       result.push(loops);
     }
@@ -893,6 +996,15 @@ window.KAMON = (function () {
     ikko: '<rect x="24" y="14" width="52" height="8" rx="4"/>' +
       '<path d="M28 20 C18 40 22 64 34 80 C30 58 28 38 28 20Z"/><path d="M72 20 C82 40 78 64 66 80 C70 58 72 38 72 20Z"/>' +
       dots([[42, 52], [58, 52], [50, 70]], 7),
+    // 山名（七つ星に山形を簡略化）
+    yamana: '<path d="M50 20 L82 70 L18 70Z" fill="none" stroke="currentColor" stroke-width="8"/>' + dots([[50, 32], [34, 60], [66, 60]], 8),
+    // 細川（九曜に似た细川九曜を簡略化）
+    hosokawa: dots([[50, 50]], 15) + dots([[50, 22], [50, 78], [22, 50], [78, 50], [31, 31], [69, 31], [31, 69], [69, 69]], 8),
+    // 足利（丸に二つ引両）
+    ashikaga: ring(50, 50, 40, 6) + '<rect x="16" y="38" width="68" height="9"/><rect x="16" y="55" width="68" height="9"/>',
+    // 山内（土佐柏）
+    yamauchi: '<ellipse cx="50" cy="34" rx="15" ry="20"/><ellipse cx="30" cy="62" rx="15" ry="20" transform="rotate(-35 30 62)"/>' +
+      '<ellipse cx="70" cy="62" rx="15" ry="20" transform="rotate(35 70 62)"/>',
     // その他
     other: ring(50, 50, 36, 7) + '<circle cx="50" cy="50" r="12"/>'
   };
@@ -943,6 +1055,11 @@ window.SENGOKU_CLANS = {
   asakura:   { name: '朝倉家',    color: '#4f7d8f', kamon: 'asakura' },
   rokkaku:   { name: '六角家',    color: '#9c6b4f', kamon: 'rokkaku' },
   ikko:      { name: '加賀一向一揆', color: '#8e5572', kamon: 'ikko' },
+  yamana:    { name: '山名家',    color: '#4f6a8f', kamon: 'yamana' },
+  hosokawa:  { name: '細川家',    color: '#a8763e', kamon: 'hosokawa' },
+  ashikaga:  { name: '足利将軍家', color: '#7a6a4f', kamon: 'ashikaga' },
+  bakufu:    { name: '江戸幕府(徳川将軍家)', color: '#d9b13b', kamon: 'tokugawa' },
+  yamauchi:  { name: '山内家(土佐藩)', color: '#5a7d5a', kamon: 'yamauchi' },
   other:     { name: 'その他の諸勢力', color: '#8d8778', kamon: 'other' }
 };
 
@@ -978,360 +1095,2966 @@ var C = {
   uchijo:  { name: '内城(鹿児島)',lon: 130.55, lat: 31.60 },
   funai:   { name: '府内館',      lon: 131.61, lat: 33.24 },
   muranaka:{ name: '村中城(佐賀)',lon: 130.30, lat: 33.25 },
-  ota:     { name: '太田城',      lon: 140.53, lat: 36.54 }
+  ota:     { name: '太田城',      lon: 140.53, lat: 36.54 },
+  hana:    { name: '花の御所',    lon: 135.76, lat: 35.03 },
+  konosumi:{ name: '此隅山城',    lon: 134.68, lat: 35.55 },
+  katsuryuji:{ name:'勝龍寺城',   lon: 135.70, lat: 34.87 },
+  nirayama:{ name: '韮山城',      lon: 138.95, lat: 35.05 },
+  shizuoka_bakufu:{ name:'駿府城(隠居所)', lon:138.38, lat:34.98 }
 };
 
-window.SENGOKU_YEARS = [
-  /* ========================= 1550年 ========================= */
+/* ============================================================
+   SENGOKU_TIMELINE
+   ------------------------------------------------------------
+   「差分（変化があった国だけ）」を年代順に並べたものです。
+   ・owners : この年に所属が変わった国だけを書きます。
+              書かなかった国は、直前までの所属をそのまま引き継ぎます。
+   ・clans  : head/castle/lands/retainers/power/desc は
+              変化があったものだけ書けば、前回の内容を引き継ぎます。
+              events だけは年ごとに必ず個別に評価されます
+              （書かなければ「その年の出来事なし」扱い）。
+   詳しい追加方法は README を参照してください。
+   ============================================================ */
+window.SENGOKU_TIMELINE = [
   {
-    year: 1550, era: '天文19年', note: '三好長慶が畿内を握った頃',
-    owners: {
-      mutsu:'nanbu', nanou:'date', dewa:'mogami',
-      echigo:'uesugi', sado:'uesugi', echizen:'asakura', kaga:'ikko',
-      kai:'takeda', hitachi:'satake',
-      musashi:'hojo', sagami:'hojo', izu:'hojo', shimousa:'hojo',
-      suruga:'imagawa', totomi:'imagawa', mikawa:'imagawa',
-      owari:'oda', mino:'saito', omi:'rokkaku',
-      yamashiro:'miyoshi', kawachi:'miyoshi', izumi:'miyoshi', settsu:'miyoshi',
-      awaji:'miyoshi', awa_s:'miyoshi', sanuki:'miyoshi',
-      hoki:'amago', izumo:'amago', iwami:'amago', mimasaka:'amago',
-      aki:'mori', bingo:'ouchi', suo:'ouchi', nagato:'ouchi',
-      chikuzen:'ouchi', buzen:'ouchi',
-      chikugo:'otomo', bungo:'otomo', hizen:'ryuzoji',
-      tosa:'chosokabe', osumi:'shimazu', satsuma:'shimazu'
+    "year": 1467,
+    "era": "応仁元年",
+    "note": "応仁の乱、勃発",
+    "owners": {
+      "yamashiro": "ashikaga",
+      "izumi": "hosokawa",
+      "settsu": "hosokawa",
+      "tajima": "yamana",
+      "inaba": "yamana",
+      "hoki": "yamana",
+      "izumo": "yamana",
+      "bingo": "yamana",
+      "aki": "yamana",
+      "suo": "ouchi",
+      "nagato": "ouchi",
+      "awa_s": "hosokawa",
+      "sanuki": "hosokawa",
+      "tosa": "hosokawa",
+      "bungo": "otomo",
+      "osumi": "shimazu",
+      "satsuma": "shimazu"
     },
-    clans: {
-      nanbu:   { head:'南部晴政', castle:C.sanpe, lands:'陸奥北部', retainers:['北信愛','南部政康','石川高信'], power:2,
-                 events:['三戸を本拠に糠部一帯を支配'], desc:'陸奥北端の名族。九戸氏ら一族との緊張を抱えつつ北奥州に君臨した。' },
-      date:    { head:'伊達晴宗', castle:C.yonezawa, lands:'出羽置賜・南奥州', retainers:['中野宗時','牧野久仲','桑折景長'], power:3,
-                 events:['天文の乱の後、米沢を本拠に家中を再編'], desc:'父・稙宗との内乱(天文の乱)を制し、米沢に本拠を移した。' },
-      mogami:  { head:'最上義守', castle:C.yamagata, lands:'出羽村山・最上', retainers:['氏家定直','中野義時'], power:2,
-                 events:['伊達氏の影響下で家勢を保つ'], desc:'出羽の内陸を押さえる名門斯波氏の分流。' },
-      uesugi:  { head:'長尾景虎(のちの上杉謙信)', castle:C.kasugayama, lands:'越後・佐渡', retainers:['直江実綱','柿崎景家','本庄実乃'], power:3,
-                 events:['守護代として越後の内乱を鎮めつつある'], desc:'21歳の景虎が越後統一へ向けて動き出した頃。' },
-      asakura: { head:'朝倉義景', castle:C.ichijodani, lands:'越前', retainers:['朝倉景鏡','朝倉宗滴'], power:3,
-                 events:['一乗谷に京風の文化が花開く'], desc:'一向一揆と対峙しつつ北陸に独自の文化圏を築いた。' },
-      ikko:    { head:'本願寺証如(門徒衆)', castle:C.oyama, lands:'加賀', retainers:['七里頼周','超勝寺'], power:2,
-                 events:['「百姓の持ちたる国」として加賀を自治'], desc:'守護富樫氏を倒した門徒による自治が続いていた。' },
-      takeda:  { head:'武田晴信(信玄)', castle:C.tsutsuji, lands:'甲斐・信濃の一部', retainers:['板垣信方','甘利虎泰','飯富虎昌'], power:3,
-                 events:['砥石崩れで村上義清に大敗'], desc:'信濃侵攻の途上。生涯屈指の敗戦を喫した年。' },
-      hojo:    { head:'北条氏康', castle:C.odawara, lands:'相模・伊豆・武蔵・下総の一部', retainers:['北条綱成','大道寺政繁','松田憲秀'], power:4,
-                 events:['河越夜戦の勝利を経て関東の覇権を固める'], desc:'検地と税制改革で知られる関東の実力者。' },
-      imagawa: { head:'今川義元', castle:C.sunpu, lands:'駿河・遠江・三河', retainers:['太原雪斎','朝比奈泰能','岡部元信'], power:4,
-                 events:['三河を制圧し、松平氏を従属させる'], desc:'東海一の弓取り。軍師・太原雪斎を擁し全盛期を迎える。' },
-      oda:     { head:'織田信秀', castle:C.kiyosu, lands:'尾張の一部', retainers:['平手政秀','林秀貞','織田信長'], power:2,
-                 events:['信秀の病が篤く、尾張は分裂状態'], desc:'尾張下四郡の実力者。翌年に信秀が没し信長が家督を継ぐ。' },
-      saito:   { head:'斎藤道三', castle:C.inabayama, lands:'美濃', retainers:['斎藤義龍','日根野弘就'], power:3,
-                 events:['娘・帰蝶を織田信長に嫁がせ同盟'], desc:'油商人から国主に成り上がったとされる「美濃の蝮」。' },
-      rokkaku: { head:'六角定頼', castle:C.kannonji, lands:'近江南部', retainers:['蒲生定秀','後藤賢豊'], power:3,
-                 events:['楽市を布き、幕政にも影響力を持つ'], desc:'南近江の守護。楽市の先駆けとされる。' },
-      miyoshi: { head:'三好長慶', castle:C.iimoriyama, lands:'摂津・河内・和泉・山城・阿波・讃岐・淡路', retainers:['松永久秀','三好長逸','安宅冬康'], power:5,
-                 events:['江口の戦いに勝ち、将軍を京から追う'], desc:'幕府を凌ぐ実権を握った、事実上最初の「天下人」。' },
-      amago:   { head:'尼子晴久', castle:C.gassan, lands:'出雲・伯耆・石見・美作', retainers:['尼子国久','宇山久兼'], power:4,
-                 events:['新宮党を擁し山陰に覇を唱える'], desc:'月山富田城を拠点に山陰8か国の守護を号した。' },
-      mori:    { head:'毛利元就', castle:C.koriyama, lands:'安芸', retainers:['福原貞俊','児玉就忠','桂元澄'], power:2,
-                 events:['井上党を粛清し家中の統制を確立'], desc:'まだ安芸一国の国人領主。大内・尼子の間で力を蓄えていた。' },
-      ouchi:   { head:'大内義隆', castle:C.yamaguchi, lands:'周防・長門・備後・筑前・豊前', retainers:['陶隆房','杉重矩','相良武任'], power:4,
-                 events:['山口に西国一の文化が栄えるが家中は不穏'], desc:'翌年、陶隆房の謀反で滅ぶことになる西国の名門。' },
-      otomo:   { head:'大友義鎮(宗麟)', castle:C.funai, lands:'豊後・筑後', retainers:['立花道雪','臼杵鑑速','吉岡長増'], power:3,
-                 events:['二階崩れの変で家督を継ぐ'], desc:'南蛮貿易とキリスト教で知られる豊後の太守。この年に当主となった。' },
-      ryuzoji: { head:'龍造寺胤栄', castle:C.muranaka, lands:'肥前の一部', retainers:['龍造寺隆信','鍋島清房'], power:1,
-                 events:['少弐氏の圧迫を受け苦境にある'], desc:'肥前の国人。後に隆信のもとで急拡大する。' },
-      chosokabe:{ head:'長宗我部国親', castle:C.oko, lands:'土佐岡豊周辺', retainers:['長宗我部元親','吉田重俊'], power:1,
-                 events:['岡豊城を回復し土佐中央部へ勢力を伸ばす'], desc:'一度は没落した家を再興した。息子が元親。' },
-      shimazu: { head:'島津貴久', castle:C.uchijo, lands:'薩摩・大隅の一部', retainers:['島津義久','伊集院忠朗'], power:2,
-                 events:['薩摩をほぼ統一し、鉄砲を導入'], desc:'種子島に伝来した鉄砲をいち早く実戦投入した。' },
-      satake:  { head:'佐竹義昭', castle:C.ota, lands:'常陸', retainers:['和田昭為','小野崎義昌'], power:2,
-                 events:['常陸統一へ向け江戸氏らと抗争'], desc:'源氏の名門。北条・伊達に挟まれ苦しい舵取りが続く。' },
-      other:   { head:'—', castle:null, lands:'各地', retainers:[], power:1,
-                 events:['大小の国人・寺社勢力が割拠'], desc:'この地図で個別に色分けしていない国人・一揆・寺社などの勢力。' }
+    "clans": {
+      "ashikaga": {
+        "head": "足利義政",
+        "castle": {
+          "name": "花の御所",
+          "lon": 135.76,
+          "lat": 35.03
+        },
+        "lands": "山城(京)",
+        "retainers": [
+          "伊勢貞親",
+          "日野富子"
+        ],
+        "power": 3,
+        "events": [
+          "将軍の後継争いに端を発し、京で東西両軍が激突",
+          "細川方(東軍)と山名方(西軍)に諸大名が分裂"
+        ],
+        "desc": "将軍権威が両陣営の争いに引きずられ、以後の下剋上の時代を招いた。"
+      },
+      "hosokawa": {
+        "head": "細川勝元",
+        "castle": {
+          "name": "勝龍寺城",
+          "lon": 135.7,
+          "lat": 34.87
+        },
+        "lands": "摂津・丹波・讃岐・土佐など(細川分国)",
+        "retainers": [
+          "細川政元",
+          "安富元家"
+        ],
+        "power": 4,
+        "events": [
+          "東軍の総大将として京で西軍と対峙"
+        ],
+        "desc": "管領家として畿内・四国に広大な分国を持つ東軍の旗頭。"
+      },
+      "yamana": {
+        "head": "山名宗全(持豊)",
+        "castle": {
+          "name": "此隅山城",
+          "lon": 134.68,
+          "lat": 35.55
+        },
+        "lands": "但馬・因幡・伯耆・出雲・備後・安芸など(山名分国)",
+        "retainers": [
+          "山名政豊",
+          "山名是豊"
+        ],
+        "power": 4,
+        "events": [
+          "西軍の総大将として京へ進軍"
+        ],
+        "desc": "「六分の一殿」と呼ばれた山陰の大守護。細川氏と並ぶ実力者。"
+      },
+      "shimazu": {
+        "head": "島津立久",
+        "castle": {
+          "name": "内城(鹿児島)",
+          "lon": 130.55,
+          "lat": 31.6
+        },
+        "lands": "薩摩・大隅",
+        "retainers": [
+          "島津忠昌"
+        ],
+        "power": 2,
+        "events": [
+          "京の争乱と距離を置き、南九州で独自の勢力を保つ"
+        ],
+        "desc": "応仁の乱にはほぼ関与せず、鎌倉以来の島津氏が薩摩・大隅を治め続けた。"
+      },
+      "otomo": {
+        "head": "大友親繁",
+        "castle": {
+          "name": "府内館",
+          "lon": 131.61,
+          "lat": 33.24
+        },
+        "lands": "豊後",
+        "retainers": [
+          "田原親宏"
+        ],
+        "power": 2,
+        "events": [
+          "豊後国内をまとめつつ、乱には深く関与せず"
+        ],
+        "desc": "鎮西の名族として九州で独自の地歩を保った。"
+      },
+      "ouchi": {
+        "head": "大内政弘",
+        "castle": {
+          "name": "山口館",
+          "lon": 131.47,
+          "lat": 34.18
+        },
+        "lands": "周防・長門",
+        "retainers": [
+          "陶弘護"
+        ],
+        "power": 3,
+        "events": [
+          "西軍として上洛し、京での戦いに参加"
+        ],
+        "desc": "西国の大名でありながら大軍を率いて京へ出陣した。"
+      },
+      "other": {
+        "head": "—",
+        "castle": null,
+        "lands": "各地",
+        "retainers": [],
+        "power": 1,
+        "events": [
+          "諸国の守護・国人がそれぞれ東西どちらかに与する",
+          "戦乱は10年続き、京は荒廃"
+        ],
+        "desc": "この年地図で色分けしていない諸国は、いずれかの陣営に属しつつ実効支配は流動的だった。"
+      }
     }
   },
-
-  /* ========================= 1560年 ========================= */
   {
-    year: 1560, era: '永禄3年', note: '桶狭間の戦いの年',
-    owners: {
-      mutsu:'nanbu', nanou:'date', dewa:'mogami',
-      echigo:'uesugi', sado:'uesugi', kozuke:'uesugi',
-      echizen:'asakura', kaga:'ikko',
-      kai:'takeda', shinano:'takeda',
-      hitachi:'satake',
-      musashi:'hojo', sagami:'hojo', izu:'hojo', shimousa:'hojo',
-      suruga:'imagawa', totomi:'imagawa', mikawa:'tokugawa',
-      owari:'oda', mino:'saito', omi:'rokkaku',
-      yamashiro:'miyoshi', yamato:'miyoshi', kawachi:'miyoshi', izumi:'miyoshi',
-      settsu:'miyoshi', awaji:'miyoshi', awa_s:'miyoshi', sanuki:'miyoshi',
-      hoki:'amago', izumo:'amago', mimasaka:'amago',
-      iwami:'mori', bingo:'mori', aki:'mori', suo:'mori', nagato:'mori',
-      chikuzen:'otomo', buzen:'otomo', chikugo:'otomo', bungo:'otomo',
-      hizen:'ryuzoji', tosa:'chosokabe', osumi:'shimazu', satsuma:'shimazu'
+    "year": 1500,
+    "era": "明応9年",
+    "note": "下剋上の始まりの頃",
+    "owners": {
+      "echigo": "uesugi",
+      "echizen": "asakura",
+      "kai": "takeda",
+      "sagami": "hojo",
+      "izu": "hojo",
+      "suruga": "imagawa",
+      "totomi": "imagawa",
+      "owari": "oda",
+      "yamashiro": "other",
+      "izumi": "other",
+      "settsu": "other",
+      "tajima": "other",
+      "inaba": "other",
+      "hoki": "amago",
+      "izumo": "amago",
+      "bingo": "other",
+      "aki": "mori",
+      "awa_s": "other",
+      "sanuki": "other",
+      "tosa": "other",
+      "chikuzen": "ouchi",
+      "buzen": "ouchi"
     },
-    clans: {
-      nanbu:   { head:'南部晴政', castle:C.sanpe, lands:'陸奥北部', retainers:['北信愛','石川高信'], power:2,
-                 events:['安東氏と鹿角をめぐり争う'], desc:'北奥州最大の勢力。' },
-      date:    { head:'伊達晴宗', castle:C.yonezawa, lands:'出羽置賜・南奥州', retainers:['中野宗時','伊達輝宗'], power:3,
-                 events:['奥州探題に任じられる'], desc:'南奥州の盟主として周辺大名と縁組を重ねた。' },
-      mogami:  { head:'最上義守', castle:C.yamagata, lands:'出羽村山', retainers:['氏家定直'], power:2,
-                 events:['伊達氏との関係を保ちつつ自立を模索'], desc:'のちの義光の父。' },
-      uesugi:  { head:'長尾景虎', castle:C.kasugayama, lands:'越後・佐渡・上野', retainers:['直江実綱','柿崎景家','斎藤朝信'], power:4,
-                 events:['関東へ出兵し、北条方の諸城を落とす'], desc:'関東管領・上杉憲政を擁して関東へ大遠征。翌年に上杉姓を継ぐ。' },
-      asakura: { head:'朝倉義景', castle:C.ichijodani, lands:'越前', retainers:['朝倉景鏡','山崎吉家'], power:3,
-                 events:['加賀一向一揆と和睦'], desc:'北陸の名門。' },
-      ikko:    { head:'本願寺門徒衆', castle:C.oyama, lands:'加賀', retainers:['七里頼周'], power:2,
-                 events:['朝倉氏と一時的に和睦'], desc:'本願寺の指導下にある自治勢力。' },
-      takeda:  { head:'武田信玄', castle:C.tsutsuji, lands:'甲斐・信濃', retainers:['馬場信春','山県昌景','高坂昌信'], power:4,
-                 events:['信濃をほぼ平定し、川中島で上杉と対峙'], desc:'翌年に第四次川中島の戦いを迎える。' },
-      hojo:    { head:'北条氏康', castle:C.odawara, lands:'相模・伊豆・武蔵・下総の一部', retainers:['北条綱成','北条氏政'], power:4,
-                 events:['上杉軍の関東侵攻を受け小田原に籠城の構え'], desc:'関東の覇者としての正念場。' },
-      imagawa: { head:'今川義元 → 氏真', castle:C.sunpu, lands:'駿河・遠江', retainers:['朝比奈泰朝','岡部元信'], power:3,
-                 events:['桶狭間の戦いで義元が討死','氏真が家督を継ぐも動揺広がる'], desc:'上洛を目指した大軍が尾張で崩れ、名門が傾いた年。' },
-      tokugawa:{ head:'松平元康(のちの徳川家康)', castle:C.okazaki, lands:'三河', retainers:['酒井忠次','石川数正','本多忠勝'], power:2,
-                 events:['桶狭間の後、岡崎城に帰還し今川から自立'], desc:'19歳。人質生活を脱し、独立への一歩を踏み出す。' },
-      oda:     { head:'織田信長', castle:C.kiyosu, lands:'尾張', retainers:['柴田勝家','丹羽長秀','佐久間信盛'], power:3,
-                 events:['桶狭間の戦いで今川義元を討ち取る'], desc:'兵力差を覆した奇襲で、一躍その名を天下に知らしめた。' },
-      saito:   { head:'斎藤義龍', castle:C.inabayama, lands:'美濃', retainers:['竹中重元','日根野弘就'], power:3,
-                 events:['父・道三を倒し美濃を掌握、織田と対立'], desc:'翌年に急死し、斎藤氏は急速に傾く。' },
-      rokkaku: { head:'六角義賢', castle:C.kannonji, lands:'近江南部', retainers:['蒲生賢秀','後藤賢豊'], power:3,
-                 events:['浅井氏の離反に直面'], desc:'南近江の守護。' },
-      miyoshi: { head:'三好長慶', castle:C.iimoriyama, lands:'畿内・阿波・讃岐・淡路', retainers:['松永久秀','三好義興','安宅冬康'], power:5,
-                 events:['幕府の実権を握り、畿内に強大な政権を築く'], desc:'三好政権の絶頂期。' },
-      amago:   { head:'尼子晴久', castle:C.gassan, lands:'出雲・伯耆・美作', retainers:['宇山久兼','本城常光'], power:3,
-                 events:['石見銀山をめぐり毛利と争う中、晴久が急死'], desc:'当主の死により尼子は毛利の攻勢に晒される。' },
-      mori:    { head:'毛利元就', castle:C.koriyama, lands:'安芸・周防・長門・備後・石見', retainers:['吉川元春','小早川隆景','福原貞俊'], power:5,
-                 events:['大内氏を滅ぼし、中国地方の覇者となる'], desc:'厳島の戦いから防長経略へ。両川体制が完成した。' },
-      otomo:   { head:'大友宗麟', castle:C.funai, lands:'豊後・筑後・筑前・豊前', retainers:['立花道雪','角隈石宗'], power:4,
-                 events:['九州探題に任じられ、北九州を支配'], desc:'大内氏滅亡の後、北九州の権益を継承した。' },
-      ryuzoji: { head:'龍造寺隆信', castle:C.muranaka, lands:'肥前の一部', retainers:['鍋島直茂','納富信景'], power:2,
-                 events:['一時追放されるも肥前に復帰'], desc:'「肥前の熊」と呼ばれる猛将。' },
-      chosokabe:{ head:'長宗我部元親', castle:C.oko, lands:'土佐中部', retainers:['吉良親貞','香宗我部親泰'], power:1,
-                 events:['長浜の戦いで初陣を飾る','父・国親が没し家督を継ぐ'], desc:'「姫若子」と侮られた元親の飛躍が始まる。' },
-      shimazu: { head:'島津貴久', castle:C.uchijo, lands:'薩摩・大隅の一部', retainers:['島津義久','島津義弘'], power:3,
-                 events:['大隅の肝付氏と激しく争う'], desc:'四兄弟が育ちつつあった。' },
-      satake:  { head:'佐竹義昭', castle:C.ota, lands:'常陸', retainers:['和田昭為'], power:2,
-                 events:['上杉方につき北条と対立'], desc:'常陸の名門。' },
-      other:   { head:'—', castle:null, lands:'各地', retainers:[], power:1,
-                 events:['国人・一揆勢が各地に割拠'], desc:'個別に色分けしていない諸勢力。' }
+    "clans": {
+      "hojo": {
+        "head": "伊勢宗瑞(北条早雲)",
+        "castle": {
+          "name": "韮山城",
+          "lon": 138.95,
+          "lat": 35.05
+        },
+        "lands": "伊豆・相模",
+        "retainers": [
+          "伊勢弥次郎",
+          "大道寺重時"
+        ],
+        "power": 2,
+        "events": [
+          "堀越公方を滅ぼし伊豆を平定",
+          "相模への進出を開始"
+        ],
+        "desc": "一介の素浪人から身を起こしたとされ、後の北条氏の礎を築いた「下剋上」の代表格。"
+      },
+      "imagawa": {
+        "head": "今川氏親",
+        "castle": {
+          "name": "駿府館",
+          "lon": 138.38,
+          "lat": 34.98
+        },
+        "lands": "駿河・遠江",
+        "retainers": [
+          "伊勢宗瑞",
+          "朝比奈泰熙"
+        ],
+        "power": 3,
+        "events": [
+          "遠江の斯波氏勢力を退け領国を拡大"
+        ],
+        "desc": "伯父にあたる伊勢宗瑞の後見を受けて成長した。"
+      },
+      "takeda": {
+        "head": "武田信縄",
+        "castle": {
+          "name": "躑躅ヶ崎館",
+          "lon": 138.57,
+          "lat": 35.66
+        },
+        "lands": "甲斐の一部",
+        "retainers": [
+          "油川信恵"
+        ],
+        "power": 1,
+        "events": [
+          "一族内での家督争いが続く"
+        ],
+        "desc": "甲斐武田氏はまだ国内をまとめきれずにいた。"
+      },
+      "uesugi": {
+        "head": "上杉房能(山内上杉家)",
+        "castle": {
+          "name": "春日山城",
+          "lon": 138.24,
+          "lat": 37.15
+        },
+        "lands": "越後",
+        "retainers": [
+          "長尾能景"
+        ],
+        "power": 2,
+        "events": [
+          "守護代・長尾氏の勢力伸長に苦慮"
+        ],
+        "desc": "守護上杉家の権威が守護代の台頭で揺らいでいく。"
+      },
+      "oda": {
+        "head": "織田敏定(尾張守護代)",
+        "castle": {
+          "name": "清洲城",
+          "lon": 136.85,
+          "lat": 35.2
+        },
+        "lands": "尾張下四郡",
+        "retainers": [
+          "織田信定"
+        ],
+        "power": 1,
+        "events": [
+          "守護・斯波氏に代わり実権を強める"
+        ],
+        "desc": "後の織田信長は、この系統から数代のちに現れる。"
+      },
+      "asakura": {
+        "head": "朝倉貞景",
+        "castle": {
+          "name": "一乗谷",
+          "lon": 136.31,
+          "lat": 35.98
+        },
+        "lands": "越前",
+        "retainers": [
+          "朝倉宗滴"
+        ],
+        "power": 2,
+        "events": [
+          "守護・斯波氏を排して越前を実効支配"
+        ],
+        "desc": "守護代から戦国大名へ転じた早い例。"
+      },
+      "mori": {
+        "head": "毛利弘元",
+        "castle": {
+          "name": "吉田郡山城",
+          "lon": 132.7,
+          "lat": 34.67
+        },
+        "lands": "安芸の一部",
+        "retainers": [
+          "志道広良"
+        ],
+        "power": 1,
+        "events": [
+          "安芸の一国人として大内・尼子の間で自立を模索"
+        ],
+        "desc": "まだ小さな国人領主にすぎなかった。"
+      },
+      "amago": {
+        "head": "尼子経久",
+        "castle": {
+          "name": "月山富田城",
+          "lon": 133.2,
+          "lat": 35.28
+        },
+        "lands": "出雲・伯耆",
+        "retainers": [
+          "亀井秀綱"
+        ],
+        "power": 2,
+        "events": [
+          "月山富田城を奪還し、出雲での勢力を拡大"
+        ],
+        "desc": "一度は城を追われるも謀略で奪い返し、勢力を盛り返した。"
+      },
+      "ouchi": {
+        "head": "大内義興",
+        "castle": {
+          "name": "山口館",
+          "lon": 131.47,
+          "lat": 34.18
+        },
+        "lands": "周防・長門・豊前・筑前",
+        "retainers": [
+          "陶興房"
+        ],
+        "power": 4,
+        "events": [
+          "朝鮮・明との貿易で富強を誇る"
+        ],
+        "desc": "西国随一の富を誇り、後に上洛して幕政を左右する。"
+      },
+      "otomo": {
+        "head": "大友義右",
+        "castle": {
+          "name": "府内館",
+          "lon": 131.61,
+          "lat": 33.24
+        },
+        "lands": "豊後",
+        "retainers": [
+          "田原親宗"
+        ],
+        "power": 2,
+        "events": [
+          "豊後国内の統制を固める"
+        ],
+        "desc": "後の宗麟につながる大友氏の当主。"
+      },
+      "shimazu": {
+        "head": "島津忠昌",
+        "castle": {
+          "name": "内城(鹿児島)",
+          "lon": 130.55,
+          "lat": 31.6
+        },
+        "lands": "薩摩・大隅",
+        "retainers": [
+          "新納忠武"
+        ],
+        "power": 2,
+        "events": [
+          "一族・国人の反乱が相次ぎ、家中の統制に苦慮"
+        ],
+        "desc": "守護職を継いではいたが、この頃の島津家は内紛に悩まされ続けていた。"
+      },
+      "other": {
+        "head": "—",
+        "castle": null,
+        "lands": "各地",
+        "retainers": [],
+        "power": 1,
+        "events": [
+          "各地で守護代・国人が実権を奪う「下剋上」が広がる"
+        ],
+        "desc": "幕府の統制が弱まり、実力で領国を支配する動きが各地に広がった時代。"
+      }
     }
   },
-
-  /* ========================= 1575年 ========================= */
   {
-    year: 1575, era: '天正3年', note: '長篠の戦いの頃',
-    owners: {
-      mutsu:'nanbu', nanou:'date', dewa:'mogami',
-      echigo:'uesugi', sado:'uesugi', etchu:'uesugi',
-      kaga:'ikko', echizen:'oda', wakasa:'oda',
-      kai:'takeda', shinano:'takeda', kozuke:'takeda', suruga:'takeda',
-      hitachi:'satake',
-      musashi:'hojo', sagami:'hojo', izu:'hojo', shimousa:'hojo',
-      totomi:'tokugawa', mikawa:'tokugawa',
-      owari:'oda', mino:'oda', omi:'oda', ise:'oda', shima:'oda',
-      yamashiro:'oda', yamato:'oda', kawachi:'oda', izumi:'oda', settsu:'oda',
-      hoki:'mori', izumo:'mori', iwami:'mori', mimasaka:'mori', bizen:'mori',
-      bicchu:'mori', bingo:'mori', aki:'mori', suo:'mori', nagato:'mori',
-      awa_s:'miyoshi', sanuki:'miyoshi', tosa:'chosokabe',
-      chikuzen:'otomo', buzen:'otomo', chikugo:'otomo', bungo:'otomo',
-      hizen:'ryuzoji', osumi:'shimazu', satsuma:'shimazu'
+    "year": 1550,
+    "era": "天文19年",
+    "note": "三好長慶が畿内を握った頃",
+    "owners": {
+      "mutsu": "nanbu",
+      "nanou": "date",
+      "dewa": "mogami",
+      "sado": "uesugi",
+      "kaga": "ikko",
+      "hitachi": "satake",
+      "shimousa": "hojo",
+      "musashi": "hojo",
+      "mikawa": "imagawa",
+      "mino": "saito",
+      "omi": "rokkaku",
+      "yamashiro": "miyoshi",
+      "kawachi": "miyoshi",
+      "izumi": "miyoshi",
+      "settsu": "miyoshi",
+      "iwami": "amago",
+      "mimasaka": "amago",
+      "bingo": "ouchi",
+      "awaji": "miyoshi",
+      "awa_s": "miyoshi",
+      "sanuki": "miyoshi",
+      "tosa": "chosokabe",
+      "chikugo": "otomo",
+      "hizen": "ryuzoji"
     },
-    clans: {
-      takeda:  { head:'武田勝頼', castle:C.tsutsuji, lands:'甲斐・信濃・駿河・上野の一部', retainers:['山県昌景','馬場信春','内藤昌豊','真田昌幸'], power:4,
-                 events:['長篠の戦いで織田・徳川連合軍に大敗','宿老の多くを一挙に失う'], desc:'父・信玄の版図を継ぎ最大領国を得たが、長篠で屋台骨を折られた。' },
-      uesugi:  { head:'上杉謙信', castle:C.kasugayama, lands:'越後・佐渡・越中', retainers:['直江景綱','柿崎景家','斎藤朝信'], power:4,
-                 events:['越中を平定し、能登・加賀へ進む構え'], desc:'信長包囲網の一角として西へ目を向け始める。' },
-      hojo:    { head:'北条氏政', castle:C.odawara, lands:'相模・伊豆・武蔵・下総の一部', retainers:['北条氏照','北条氏邦','松田憲秀'], power:4,
-                 events:['武田と同盟し、関東で佐竹・里見と争う'], desc:'甲相同盟のもと関東経営に専念した。' },
-      date:    { head:'伊達輝宗', castle:C.yonezawa, lands:'出羽置賜・南奥州', retainers:['遠藤基信','鬼庭良直'], power:3,
-                 events:['相馬氏と伊具郡をめぐり抗争'], desc:'政宗の父。織田信長とも音信を通じた外交巧者。' },
-      nanbu:   { head:'南部晴政', castle:C.sanpe, lands:'陸奥北部', retainers:['北信愛','九戸政実'], power:2,
-                 events:['家督をめぐり一族が対立'], desc:'北奥州の雄。' },
-      mogami:  { head:'最上義光', castle:C.yamagata, lands:'出羽村山', retainers:['氏家守棟','鮭延秀綱'], power:2,
-                 events:['父・義守と対立し家中が二分'], desc:'謀略に長けた「出羽の驍将」。政宗の伯父にあたる。' },
-      tokugawa:{ head:'徳川家康', castle:C.hamamatsu, lands:'三河・遠江', retainers:['酒井忠次','本多忠勝','榊原康政'], power:3,
-                 events:['長篠の戦いで織田と共に武田を破る','長篠城の攻防で奥平信昌が奮戦'], desc:'武田の圧迫を耐え抜き、反攻に転じた年。' },
-      oda:     { head:'織田信長', castle:C.azuchi, lands:'尾張・美濃・近江・伊勢・畿内・越前', retainers:['柴田勝家','羽柴秀吉','明智光秀','丹羽長秀'], power:5,
-                 events:['長篠の戦いで鉄砲を活用し武田軍を撃破','越前一向一揆を平定','家督を信忠に譲る'], desc:'畿内を制圧し、天下布武が現実味を帯びた。翌年から安土築城。' },
-      mori:    { head:'毛利輝元', castle:C.koriyama, lands:'安芸・備後・周防・長門・出雲・石見・伯耆ほか', retainers:['吉川元春','小早川隆景','福原貞俊'], power:5,
-                 events:['備中・備前へ影響力を広げ、織田と接触'], desc:'祖父・元就の遺産を両川が支える中国地方の巨人。' },
-      chosokabe:{ head:'長宗我部元親', castle:C.oko, lands:'土佐', retainers:['吉良親貞','香宗我部親泰','谷忠澄'], power:3,
-                 events:['四万十川の戦いで一条氏を破り土佐を統一'], desc:'一領具足を擁し、四国統一へ動き出す。' },
-      shimazu: { head:'島津義久', castle:C.uchijo, lands:'薩摩・大隅', retainers:['島津義弘','島津歳久','新納忠元'], power:3,
-                 events:['大隅を平定し、三州統一に王手'], desc:'四兄弟の結束で九州南部を制していく。' },
-      ikko:    { head:'本願寺門徒衆', castle:C.oyama, lands:'加賀', retainers:['七里頼周'], power:2,
-                 events:['越前の一揆が織田軍に壊滅させられる'], desc:'石山本願寺と連動して織田に抵抗を続けた。' },
-      satake:  { head:'佐竹義重', castle:C.ota, lands:'常陸', retainers:['和田昭為','梶原政景'], power:3,
-                 events:['北条氏と関東で角逐'], desc:'「鬼義重」と恐れられた常陸の当主。' },
-      miyoshi: { head:'三好長治', castle:{ name:'勝瑞城', lon:134.53, lat:34.10 }, lands:'阿波・讃岐', retainers:['篠原長房(故)','三好存保'], power:2,
-                 events:['家中の内訌が続き、長宗我部の圧力が強まる'], desc:'畿内を失った三好の残存勢力。' },
-      otomo:   { head:'大友宗麟', castle:C.funai, lands:'豊後・筑後・筑前・豊前', retainers:['立花道雪','高橋紹運'], power:4,
-                 events:['北九州六か国に号令'], desc:'九州最大の勢力として全盛期にあった。' },
-      ryuzoji: { head:'龍造寺隆信', castle:C.muranaka, lands:'肥前', retainers:['鍋島直茂','龍造寺四天王'], power:3,
-                 events:['肥前をほぼ統一し、筑後へ進出'], desc:'大友の勢力圏を侵食し始める。' },
-      other:   { head:'—', castle:null, lands:'各地', retainers:[], power:1,
-                 events:['本願寺・雑賀衆・国人らが各地に割拠'], desc:'個別に色分けしていない諸勢力。' }
+    "clans": {
+      "nanbu": {
+        "head": "南部晴政",
+        "castle": {
+          "name": "三戸城",
+          "lon": 141.15,
+          "lat": 40.38
+        },
+        "lands": "陸奥北部",
+        "retainers": [
+          "北信愛",
+          "南部政康",
+          "石川高信"
+        ],
+        "power": 2,
+        "events": [
+          "三戸を本拠に糠部一帯を支配"
+        ],
+        "desc": "陸奥北端の名族。九戸氏ら一族との緊張を抱えつつ北奥州に君臨した。"
+      },
+      "date": {
+        "head": "伊達晴宗",
+        "castle": {
+          "name": "米沢城",
+          "lon": 140.12,
+          "lat": 37.91
+        },
+        "lands": "出羽置賜・南奥州",
+        "retainers": [
+          "中野宗時",
+          "牧野久仲",
+          "桑折景長"
+        ],
+        "power": 3,
+        "events": [
+          "天文の乱の後、米沢を本拠に家中を再編"
+        ],
+        "desc": "父・稙宗との内乱(天文の乱)を制し、米沢に本拠を移した。"
+      },
+      "mogami": {
+        "head": "最上義守",
+        "castle": {
+          "name": "山形城",
+          "lon": 140.34,
+          "lat": 38.25
+        },
+        "lands": "出羽村山・最上",
+        "retainers": [
+          "氏家定直",
+          "中野義時"
+        ],
+        "power": 2,
+        "events": [
+          "伊達氏の影響下で家勢を保つ"
+        ],
+        "desc": "出羽の内陸を押さえる名門斯波氏の分流。"
+      },
+      "uesugi": {
+        "head": "長尾景虎(のちの上杉謙信)",
+        "castle": {
+          "name": "春日山城",
+          "lon": 138.24,
+          "lat": 37.15
+        },
+        "lands": "越後・佐渡",
+        "retainers": [
+          "直江実綱",
+          "柿崎景家",
+          "本庄実乃"
+        ],
+        "power": 3,
+        "events": [
+          "守護代として越後の内乱を鎮めつつある"
+        ],
+        "desc": "21歳の景虎が越後統一へ向けて動き出した頃。"
+      },
+      "asakura": {
+        "head": "朝倉義景",
+        "castle": {
+          "name": "一乗谷",
+          "lon": 136.31,
+          "lat": 35.98
+        },
+        "lands": "越前",
+        "retainers": [
+          "朝倉景鏡",
+          "朝倉宗滴"
+        ],
+        "power": 3,
+        "events": [
+          "一乗谷に京風の文化が花開く"
+        ],
+        "desc": "一向一揆と対峙しつつ北陸に独自の文化圏を築いた。"
+      },
+      "ikko": {
+        "head": "本願寺証如(門徒衆)",
+        "castle": {
+          "name": "尾山御坊",
+          "lon": 136.66,
+          "lat": 36.56
+        },
+        "lands": "加賀",
+        "retainers": [
+          "七里頼周",
+          "超勝寺"
+        ],
+        "power": 2,
+        "events": [
+          "「百姓の持ちたる国」として加賀を自治"
+        ],
+        "desc": "守護富樫氏を倒した門徒による自治が続いていた。"
+      },
+      "takeda": {
+        "head": "武田晴信(信玄)",
+        "castle": {
+          "name": "躑躅ヶ崎館",
+          "lon": 138.57,
+          "lat": 35.66
+        },
+        "lands": "甲斐・信濃の一部",
+        "retainers": [
+          "板垣信方",
+          "甘利虎泰",
+          "飯富虎昌"
+        ],
+        "power": 3,
+        "events": [
+          "砥石崩れで村上義清に大敗"
+        ],
+        "desc": "信濃侵攻の途上。生涯屈指の敗戦を喫した年。"
+      },
+      "hojo": {
+        "head": "北条氏康",
+        "castle": {
+          "name": "小田原城",
+          "lon": 139.15,
+          "lat": 35.25
+        },
+        "lands": "相模・伊豆・武蔵・下総の一部",
+        "retainers": [
+          "北条綱成",
+          "大道寺政繁",
+          "松田憲秀"
+        ],
+        "power": 4,
+        "events": [
+          "河越夜戦の勝利を経て関東の覇権を固める"
+        ],
+        "desc": "検地と税制改革で知られる関東の実力者。"
+      },
+      "imagawa": {
+        "head": "今川義元",
+        "castle": {
+          "name": "駿府館",
+          "lon": 138.38,
+          "lat": 34.98
+        },
+        "lands": "駿河・遠江・三河",
+        "retainers": [
+          "太原雪斎",
+          "朝比奈泰能",
+          "岡部元信"
+        ],
+        "power": 4,
+        "events": [
+          "三河を制圧し、松平氏を従属させる"
+        ],
+        "desc": "東海一の弓取り。軍師・太原雪斎を擁し全盛期を迎える。"
+      },
+      "oda": {
+        "head": "織田信秀",
+        "castle": {
+          "name": "清洲城",
+          "lon": 136.85,
+          "lat": 35.2
+        },
+        "lands": "尾張の一部",
+        "retainers": [
+          "平手政秀",
+          "林秀貞",
+          "織田信長"
+        ],
+        "power": 2,
+        "events": [
+          "信秀の病が篤く、尾張は分裂状態"
+        ],
+        "desc": "尾張下四郡の実力者。翌年に信秀が没し信長が家督を継ぐ。"
+      },
+      "saito": {
+        "head": "斎藤道三",
+        "castle": {
+          "name": "稲葉山城",
+          "lon": 136.78,
+          "lat": 35.43
+        },
+        "lands": "美濃",
+        "retainers": [
+          "斎藤義龍",
+          "日根野弘就"
+        ],
+        "power": 3,
+        "events": [
+          "娘・帰蝶を織田信長に嫁がせ同盟"
+        ],
+        "desc": "油商人から国主に成り上がったとされる「美濃の蝮」。"
+      },
+      "rokkaku": {
+        "head": "六角定頼",
+        "castle": {
+          "name": "観音寺城",
+          "lon": 136.15,
+          "lat": 35.13
+        },
+        "lands": "近江南部",
+        "retainers": [
+          "蒲生定秀",
+          "後藤賢豊"
+        ],
+        "power": 3,
+        "events": [
+          "楽市を布き、幕政にも影響力を持つ"
+        ],
+        "desc": "南近江の守護。楽市の先駆けとされる。"
+      },
+      "miyoshi": {
+        "head": "三好長慶",
+        "castle": {
+          "name": "飯盛山城",
+          "lon": 135.64,
+          "lat": 34.72
+        },
+        "lands": "摂津・河内・和泉・山城・阿波・讃岐・淡路",
+        "retainers": [
+          "松永久秀",
+          "三好長逸",
+          "安宅冬康"
+        ],
+        "power": 5,
+        "events": [
+          "江口の戦いに勝ち、将軍を京から追う"
+        ],
+        "desc": "幕府を凌ぐ実権を握った、事実上最初の「天下人」。"
+      },
+      "amago": {
+        "head": "尼子晴久",
+        "castle": {
+          "name": "月山富田城",
+          "lon": 133.2,
+          "lat": 35.28
+        },
+        "lands": "出雲・伯耆・石見・美作",
+        "retainers": [
+          "尼子国久",
+          "宇山久兼"
+        ],
+        "power": 4,
+        "events": [
+          "新宮党を擁し山陰に覇を唱える"
+        ],
+        "desc": "月山富田城を拠点に山陰8か国の守護を号した。"
+      },
+      "mori": {
+        "head": "毛利元就",
+        "castle": {
+          "name": "吉田郡山城",
+          "lon": 132.7,
+          "lat": 34.67
+        },
+        "lands": "安芸",
+        "retainers": [
+          "福原貞俊",
+          "児玉就忠",
+          "桂元澄"
+        ],
+        "power": 2,
+        "events": [
+          "井上党を粛清し家中の統制を確立"
+        ],
+        "desc": "まだ安芸一国の国人領主。大内・尼子の間で力を蓄えていた。"
+      },
+      "ouchi": {
+        "head": "大内義隆",
+        "castle": {
+          "name": "山口館",
+          "lon": 131.47,
+          "lat": 34.18
+        },
+        "lands": "周防・長門・備後・筑前・豊前",
+        "retainers": [
+          "陶隆房",
+          "杉重矩",
+          "相良武任"
+        ],
+        "power": 4,
+        "events": [
+          "山口に西国一の文化が栄えるが家中は不穏"
+        ],
+        "desc": "翌年、陶隆房の謀反で滅ぶことになる西国の名門。"
+      },
+      "otomo": {
+        "head": "大友義鎮(宗麟)",
+        "castle": {
+          "name": "府内館",
+          "lon": 131.61,
+          "lat": 33.24
+        },
+        "lands": "豊後・筑後",
+        "retainers": [
+          "立花道雪",
+          "臼杵鑑速",
+          "吉岡長増"
+        ],
+        "power": 3,
+        "events": [
+          "二階崩れの変で家督を継ぐ"
+        ],
+        "desc": "南蛮貿易とキリスト教で知られる豊後の太守。この年に当主となった。"
+      },
+      "ryuzoji": {
+        "head": "龍造寺胤栄",
+        "castle": {
+          "name": "村中城(佐賀)",
+          "lon": 130.3,
+          "lat": 33.25
+        },
+        "lands": "肥前の一部",
+        "retainers": [
+          "龍造寺隆信",
+          "鍋島清房"
+        ],
+        "power": 1,
+        "events": [
+          "少弐氏の圧迫を受け苦境にある"
+        ],
+        "desc": "肥前の国人。後に隆信のもとで急拡大する。"
+      },
+      "chosokabe": {
+        "head": "長宗我部国親",
+        "castle": {
+          "name": "岡豊城",
+          "lon": 133.62,
+          "lat": 33.6
+        },
+        "lands": "土佐岡豊周辺",
+        "retainers": [
+          "長宗我部元親",
+          "吉田重俊"
+        ],
+        "power": 1,
+        "events": [
+          "岡豊城を回復し土佐中央部へ勢力を伸ばす"
+        ],
+        "desc": "一度は没落した家を再興した。息子が元親。"
+      },
+      "shimazu": {
+        "head": "島津貴久",
+        "castle": {
+          "name": "内城(鹿児島)",
+          "lon": 130.55,
+          "lat": 31.6
+        },
+        "lands": "薩摩・大隅の一部",
+        "retainers": [
+          "島津義久",
+          "伊集院忠朗"
+        ],
+        "power": 2,
+        "events": [
+          "薩摩をほぼ統一し、鉄砲を導入"
+        ],
+        "desc": "種子島に伝来した鉄砲をいち早く実戦投入した。"
+      },
+      "satake": {
+        "head": "佐竹義昭",
+        "castle": {
+          "name": "太田城",
+          "lon": 140.53,
+          "lat": 36.54
+        },
+        "lands": "常陸",
+        "retainers": [
+          "和田昭為",
+          "小野崎義昌"
+        ],
+        "power": 2,
+        "events": [
+          "常陸統一へ向け江戸氏らと抗争"
+        ],
+        "desc": "源氏の名門。北条・伊達に挟まれ苦しい舵取りが続く。"
+      },
+      "other": {
+        "head": "—",
+        "castle": null,
+        "lands": "各地",
+        "retainers": [],
+        "power": 1,
+        "events": [
+          "大小の国人・寺社勢力が割拠"
+        ],
+        "desc": "この地図で個別に色分けしていない国人・一揆・寺社などの勢力。"
+      }
     }
   },
-
-  /* ========================= 1582年 ========================= */
   {
-    year: 1582, era: '天正10年', note: '本能寺の変の年',
-    owners: {
-      mutsu:'nanbu', nanou:'date', dewa:'mogami',
-      echigo:'uesugi', sado:'uesugi',
-      etchu:'oda', noto:'oda', kaga:'oda', echizen:'oda', wakasa:'oda',
-      shinano:'oda', kai:'oda', hida:'oda', kozuke:'oda',
-      omi:'oda', mino:'oda', owari:'oda', ise:'oda', shima:'oda', iga:'oda',
-      yamashiro:'oda', yamato:'oda', kawachi:'oda', izumi:'oda', settsu:'oda',
-      tanba:'oda', tango:'oda', tajima:'oda', inaba:'oda',
-      harima:'oda', bizen:'oda', awaji:'oda',
-      suruga:'tokugawa', totomi:'tokugawa', mikawa:'tokugawa',
-      hitachi:'satake',
-      musashi:'hojo', sagami:'hojo', izu:'hojo', shimousa:'hojo', kazusa:'hojo',
-      hoki:'mori', izumo:'mori', iwami:'mori', mimasaka:'mori',
-      bicchu:'mori', bingo:'mori', aki:'mori', suo:'mori', nagato:'mori',
-      awa_s:'chosokabe', sanuki:'chosokabe', tosa:'chosokabe',
-      chikuzen:'otomo', buzen:'otomo', bungo:'otomo',
-      chikugo:'ryuzoji', hizen:'ryuzoji',
-      higo:'shimazu', hyuga:'shimazu', osumi:'shimazu', satsuma:'shimazu'
+    "year": 1560,
+    "era": "永禄3年",
+    "note": "桶狭間の戦いの年",
+    "owners": {
+      "shinano": "takeda",
+      "kozuke": "uesugi",
+      "mikawa": "tokugawa",
+      "yamato": "miyoshi",
+      "iwami": "mori",
+      "bingo": "mori",
+      "suo": "mori",
+      "nagato": "mori",
+      "chikuzen": "otomo",
+      "buzen": "otomo"
     },
-    clans: {
-      oda:     { head:'織田信長', castle:C.azuchi, lands:'東海・畿内・北陸・山陰・甲信', retainers:['柴田勝家','羽柴秀吉','明智光秀','滝川一益'], power:5,
-                 events:['武田氏を滅ぼす(天目山)','本能寺の変で信長・信忠が横死','山崎の戦いで明智光秀が敗死'], desc:'天下統一目前で家臣の謀反により斃れた。図はその直前の版図。' },
-      tokugawa:{ head:'徳川家康', castle:C.hamamatsu, lands:'三河・遠江・駿河', retainers:['酒井忠次','本多忠勝','井伊直政'], power:3,
-                 events:['武田攻めの功で駿河を得る','伊賀越えで堺から三河へ逃げ帰る','甲斐・信濃へ進出'], desc:'本能寺の報せに窮地へ陥るも、直後に旧武田領へ手を伸ばす。' },
-      uesugi:  { head:'上杉景勝', castle:C.kasugayama, lands:'越後・佐渡', retainers:['直江兼続','須田満親'], power:2,
-                 events:['魚津城が落城し滅亡寸前','本能寺の変で織田の攻勢が止み九死に一生'], desc:'御館の乱を経て当主となった直後の苦境。' },
-      hojo:    { head:'北条氏直', castle:C.odawara, lands:'関東6か国', retainers:['北条氏照','北条氏邦','松田憲秀'], power:4,
-                 events:['本能寺の後、滝川一益を神流川で破り上野へ進出'], desc:'関東最大の勢力。氏政が後見。' },
-      date:    { head:'伊達輝宗', castle:C.yonezawa, lands:'出羽置賜・南奥州', retainers:['遠藤基信','鬼庭良直','伊達政宗'], power:3,
-                 events:['嫡男・政宗が元服し家中を固める'], desc:'翌々年に政宗へ家督を譲る。' },
-      nanbu:   { head:'南部信直', castle:C.sanpe, lands:'陸奥北部', retainers:['北信愛','八戸政栄'], power:2,
-                 events:['家督を継ぐが九戸政実と対立'], desc:'南部氏の内訌が深まる。' },
-      mogami:  { head:'最上義光', castle:C.yamagata, lands:'出羽村山・最上', retainers:['氏家守棟','志村光安'], power:2,
-                 events:['庄内・大宝寺氏と争う'], desc:'出羽の切れ者。' },
-      mori:    { head:'毛利輝元', castle:C.koriyama, lands:'中国地方西部', retainers:['吉川元春','小早川隆景','清水宗治'], power:4,
-                 events:['備中高松城を羽柴秀吉に水攻めされる','本能寺の報を受け秀吉と即時講和'], desc:'織田との決戦寸前に天下が引っくり返った。' },
-      chosokabe:{ head:'長宗我部元親', castle:C.oko, lands:'土佐・阿波・讃岐', retainers:['香宗我部親泰','谷忠澄','久武親信'], power:3,
-                 events:['中富川の戦いで十河存保を破り阿波を制圧','織田の四国征伐が本能寺で中止となる'], desc:'四国統一に王手。信長の死に救われた。' },
-      shimazu: { head:'島津義久', castle:C.uchijo, lands:'薩摩・大隅・日向・肥後', retainers:['島津義弘','島津家久','新納忠元'], power:4,
-                 events:['肥後の相良氏を降し、北上を続ける'], desc:'耳川で大友を破って以来、九州制覇へ突き進む。' },
-      otomo:   { head:'大友義統', castle:C.funai, lands:'豊後・豊前・筑前の一部', retainers:['立花道雪','高橋紹運'], power:2,
-                 events:['島津・龍造寺の圧迫で勢力が縮む'], desc:'耳川の大敗以来、退勢が続く。' },
-      ryuzoji: { head:'龍造寺隆信', castle:C.muranaka, lands:'肥前・筑後', retainers:['鍋島直茂','龍造寺政家'], power:3,
-                 events:['五州二島の太守を称する'], desc:'九州三強の一角に伸し上がった。' },
-      satake:  { head:'佐竹義重', castle:C.ota, lands:'常陸', retainers:['和田昭為','梶原政景'], power:3,
-                 events:['北条氏と下野で対峙'], desc:'関東で北条に抗し続けた。' },
-      other:   { head:'—', castle:null, lands:'各地', retainers:[], power:1,
-                 events:['里見・雑賀衆・国人らが割拠'], desc:'個別に色分けしていない諸勢力。' }
+    "clans": {
+      "nanbu": {
+        "head": "南部晴政",
+        "castle": {
+          "name": "三戸城",
+          "lon": 141.15,
+          "lat": 40.38
+        },
+        "lands": "陸奥北部",
+        "retainers": [
+          "北信愛",
+          "石川高信"
+        ],
+        "power": 2,
+        "events": [
+          "安東氏と鹿角をめぐり争う"
+        ],
+        "desc": "北奥州最大の勢力。"
+      },
+      "date": {
+        "head": "伊達晴宗",
+        "castle": {
+          "name": "米沢城",
+          "lon": 140.12,
+          "lat": 37.91
+        },
+        "lands": "出羽置賜・南奥州",
+        "retainers": [
+          "中野宗時",
+          "伊達輝宗"
+        ],
+        "power": 3,
+        "events": [
+          "奥州探題に任じられる"
+        ],
+        "desc": "南奥州の盟主として周辺大名と縁組を重ねた。"
+      },
+      "mogami": {
+        "head": "最上義守",
+        "castle": {
+          "name": "山形城",
+          "lon": 140.34,
+          "lat": 38.25
+        },
+        "lands": "出羽村山",
+        "retainers": [
+          "氏家定直"
+        ],
+        "power": 2,
+        "events": [
+          "伊達氏との関係を保ちつつ自立を模索"
+        ],
+        "desc": "のちの義光の父。"
+      },
+      "uesugi": {
+        "head": "長尾景虎",
+        "castle": {
+          "name": "春日山城",
+          "lon": 138.24,
+          "lat": 37.15
+        },
+        "lands": "越後・佐渡・上野",
+        "retainers": [
+          "直江実綱",
+          "柿崎景家",
+          "斎藤朝信"
+        ],
+        "power": 4,
+        "events": [
+          "関東へ出兵し、北条方の諸城を落とす"
+        ],
+        "desc": "関東管領・上杉憲政を擁して関東へ大遠征。翌年に上杉姓を継ぐ。"
+      },
+      "asakura": {
+        "head": "朝倉義景",
+        "castle": {
+          "name": "一乗谷",
+          "lon": 136.31,
+          "lat": 35.98
+        },
+        "lands": "越前",
+        "retainers": [
+          "朝倉景鏡",
+          "山崎吉家"
+        ],
+        "power": 3,
+        "events": [
+          "加賀一向一揆と和睦"
+        ],
+        "desc": "北陸の名門。"
+      },
+      "ikko": {
+        "head": "本願寺門徒衆",
+        "castle": {
+          "name": "尾山御坊",
+          "lon": 136.66,
+          "lat": 36.56
+        },
+        "lands": "加賀",
+        "retainers": [
+          "七里頼周"
+        ],
+        "power": 2,
+        "events": [
+          "朝倉氏と一時的に和睦"
+        ],
+        "desc": "本願寺の指導下にある自治勢力。"
+      },
+      "takeda": {
+        "head": "武田信玄",
+        "castle": {
+          "name": "躑躅ヶ崎館",
+          "lon": 138.57,
+          "lat": 35.66
+        },
+        "lands": "甲斐・信濃",
+        "retainers": [
+          "馬場信春",
+          "山県昌景",
+          "高坂昌信"
+        ],
+        "power": 4,
+        "events": [
+          "信濃をほぼ平定し、川中島で上杉と対峙"
+        ],
+        "desc": "翌年に第四次川中島の戦いを迎える。"
+      },
+      "hojo": {
+        "head": "北条氏康",
+        "castle": {
+          "name": "小田原城",
+          "lon": 139.15,
+          "lat": 35.25
+        },
+        "lands": "相模・伊豆・武蔵・下総の一部",
+        "retainers": [
+          "北条綱成",
+          "北条氏政"
+        ],
+        "power": 4,
+        "events": [
+          "上杉軍の関東侵攻を受け小田原に籠城の構え"
+        ],
+        "desc": "関東の覇者としての正念場。"
+      },
+      "imagawa": {
+        "head": "今川義元 → 氏真",
+        "castle": {
+          "name": "駿府館",
+          "lon": 138.38,
+          "lat": 34.98
+        },
+        "lands": "駿河・遠江",
+        "retainers": [
+          "朝比奈泰朝",
+          "岡部元信"
+        ],
+        "power": 3,
+        "events": [
+          "桶狭間の戦いで義元が討死",
+          "氏真が家督を継ぐも動揺広がる"
+        ],
+        "desc": "上洛を目指した大軍が尾張で崩れ、名門が傾いた年。"
+      },
+      "tokugawa": {
+        "head": "松平元康(のちの徳川家康)",
+        "castle": {
+          "name": "岡崎城",
+          "lon": 137.16,
+          "lat": 34.95
+        },
+        "lands": "三河",
+        "retainers": [
+          "酒井忠次",
+          "石川数正",
+          "本多忠勝"
+        ],
+        "power": 2,
+        "events": [
+          "桶狭間の後、岡崎城に帰還し今川から自立"
+        ],
+        "desc": "19歳。人質生活を脱し、独立への一歩を踏み出す。"
+      },
+      "oda": {
+        "head": "織田信長",
+        "castle": {
+          "name": "清洲城",
+          "lon": 136.85,
+          "lat": 35.2
+        },
+        "lands": "尾張",
+        "retainers": [
+          "柴田勝家",
+          "丹羽長秀",
+          "佐久間信盛"
+        ],
+        "power": 3,
+        "events": [
+          "桶狭間の戦いで今川義元を討ち取る"
+        ],
+        "desc": "兵力差を覆した奇襲で、一躍その名を天下に知らしめた。"
+      },
+      "saito": {
+        "head": "斎藤義龍",
+        "castle": {
+          "name": "稲葉山城",
+          "lon": 136.78,
+          "lat": 35.43
+        },
+        "lands": "美濃",
+        "retainers": [
+          "竹中重元",
+          "日根野弘就"
+        ],
+        "power": 3,
+        "events": [
+          "父・道三を倒し美濃を掌握、織田と対立"
+        ],
+        "desc": "翌年に急死し、斎藤氏は急速に傾く。"
+      },
+      "rokkaku": {
+        "head": "六角義賢",
+        "castle": {
+          "name": "観音寺城",
+          "lon": 136.15,
+          "lat": 35.13
+        },
+        "lands": "近江南部",
+        "retainers": [
+          "蒲生賢秀",
+          "後藤賢豊"
+        ],
+        "power": 3,
+        "events": [
+          "浅井氏の離反に直面"
+        ],
+        "desc": "南近江の守護。"
+      },
+      "miyoshi": {
+        "head": "三好長慶",
+        "castle": {
+          "name": "飯盛山城",
+          "lon": 135.64,
+          "lat": 34.72
+        },
+        "lands": "畿内・阿波・讃岐・淡路",
+        "retainers": [
+          "松永久秀",
+          "三好義興",
+          "安宅冬康"
+        ],
+        "power": 5,
+        "events": [
+          "幕府の実権を握り、畿内に強大な政権を築く"
+        ],
+        "desc": "三好政権の絶頂期。"
+      },
+      "amago": {
+        "head": "尼子晴久",
+        "castle": {
+          "name": "月山富田城",
+          "lon": 133.2,
+          "lat": 35.28
+        },
+        "lands": "出雲・伯耆・美作",
+        "retainers": [
+          "宇山久兼",
+          "本城常光"
+        ],
+        "power": 3,
+        "events": [
+          "石見銀山をめぐり毛利と争う中、晴久が急死"
+        ],
+        "desc": "当主の死により尼子は毛利の攻勢に晒される。"
+      },
+      "mori": {
+        "head": "毛利元就",
+        "castle": {
+          "name": "吉田郡山城",
+          "lon": 132.7,
+          "lat": 34.67
+        },
+        "lands": "安芸・周防・長門・備後・石見",
+        "retainers": [
+          "吉川元春",
+          "小早川隆景",
+          "福原貞俊"
+        ],
+        "power": 5,
+        "events": [
+          "大内氏を滅ぼし、中国地方の覇者となる"
+        ],
+        "desc": "厳島の戦いから防長経略へ。両川体制が完成した。"
+      },
+      "otomo": {
+        "head": "大友宗麟",
+        "castle": {
+          "name": "府内館",
+          "lon": 131.61,
+          "lat": 33.24
+        },
+        "lands": "豊後・筑後・筑前・豊前",
+        "retainers": [
+          "立花道雪",
+          "角隈石宗"
+        ],
+        "power": 4,
+        "events": [
+          "九州探題に任じられ、北九州を支配"
+        ],
+        "desc": "大内氏滅亡の後、北九州の権益を継承した。"
+      },
+      "ryuzoji": {
+        "head": "龍造寺隆信",
+        "castle": {
+          "name": "村中城(佐賀)",
+          "lon": 130.3,
+          "lat": 33.25
+        },
+        "lands": "肥前の一部",
+        "retainers": [
+          "鍋島直茂",
+          "納富信景"
+        ],
+        "power": 2,
+        "events": [
+          "一時追放されるも肥前に復帰"
+        ],
+        "desc": "「肥前の熊」と呼ばれる猛将。"
+      },
+      "chosokabe": {
+        "head": "長宗我部元親",
+        "castle": {
+          "name": "岡豊城",
+          "lon": 133.62,
+          "lat": 33.6
+        },
+        "lands": "土佐中部",
+        "retainers": [
+          "吉良親貞",
+          "香宗我部親泰"
+        ],
+        "power": 1,
+        "events": [
+          "長浜の戦いで初陣を飾る",
+          "父・国親が没し家督を継ぐ"
+        ],
+        "desc": "「姫若子」と侮られた元親の飛躍が始まる。"
+      },
+      "shimazu": {
+        "head": "島津貴久",
+        "castle": {
+          "name": "内城(鹿児島)",
+          "lon": 130.55,
+          "lat": 31.6
+        },
+        "lands": "薩摩・大隅の一部",
+        "retainers": [
+          "島津義久",
+          "島津義弘"
+        ],
+        "power": 3,
+        "events": [
+          "大隅の肝付氏と激しく争う"
+        ],
+        "desc": "四兄弟が育ちつつあった。"
+      },
+      "satake": {
+        "head": "佐竹義昭",
+        "castle": {
+          "name": "太田城",
+          "lon": 140.53,
+          "lat": 36.54
+        },
+        "lands": "常陸",
+        "retainers": [
+          "和田昭為"
+        ],
+        "power": 2,
+        "events": [
+          "上杉方につき北条と対立"
+        ],
+        "desc": "常陸の名門。"
+      },
+      "other": {
+        "head": "—",
+        "castle": null,
+        "lands": "各地",
+        "retainers": [],
+        "power": 1,
+        "events": [
+          "国人・一揆勢が各地に割拠"
+        ],
+        "desc": "個別に色分けしていない諸勢力。"
+      }
     }
   },
-
-  /* ========================= 1590年 ========================= */
   {
-    year: 1590, era: '天正18年', note: '小田原征伐・天下統一',
-    owners: {
-      mutsu:'nanbu', nanou:'date', dewa:'mogami',
-      echigo:'uesugi', sado:'uesugi',
-      etchu:'maeda', noto:'maeda', kaga:'maeda',
-      musashi:'tokugawa', sagami:'tokugawa', izu:'tokugawa',
-      shimousa:'tokugawa', kazusa:'tokugawa', kozuke:'tokugawa',
-      hitachi:'satake',
-      hoki:'mori', izumo:'mori', iwami:'mori', bingo:'mori',
-      aki:'mori', suo:'mori', nagato:'mori', chikuzen:'mori',
-      tosa:'chosokabe', bungo:'otomo', hizen:'ryuzoji',
-      osumi:'shimazu', satsuma:'shimazu',
-      echizen:'toyotomi', wakasa:'toyotomi', shinano:'toyotomi', kai:'toyotomi',
-      hida:'toyotomi', shimotsuke:'toyotomi', suruga:'toyotomi', totomi:'toyotomi',
-      mikawa:'toyotomi', owari:'toyotomi', mino:'toyotomi', omi:'toyotomi',
-      ise:'toyotomi', shima:'toyotomi', iga:'toyotomi',
-      yamashiro:'toyotomi', yamato:'toyotomi', kawachi:'toyotomi', izumi:'toyotomi',
-      settsu:'toyotomi', kii:'toyotomi', tanba:'toyotomi', tango:'toyotomi',
-      tajima:'toyotomi', inaba:'toyotomi', harima:'toyotomi', mimasaka:'toyotomi',
-      bizen:'toyotomi', bicchu:'toyotomi', awaji:'toyotomi', awa_s:'toyotomi',
-      sanuki:'toyotomi', iyo:'toyotomi', chikugo:'toyotomi', buzen:'toyotomi',
-      higo:'toyotomi', hyuga:'toyotomi'
+    "year": 1566,
+    "era": "永禄9年",
+    "note": "尼子氏、滅亡",
+    "owners": {
+      "izumo": "mori",
+      "hoki": "mori",
+      "iwami": "mori",
+      "mimasaka": "mori"
     },
-    clans: {
-      toyotomi:{ head:'豊臣秀吉', castle:C.osaka, lands:'畿内を中心に全国の蔵入地', retainers:['石田三成','増田長盛','浅野長政','加藤清正'], power:5,
-                 events:['小田原征伐で北条氏を滅ぼす','奥州仕置を行い天下統一を完成'], desc:'関白として全国の大名を臣従させ、太閤検地と刀狩を進めた。' },
-      tokugawa:{ head:'徳川家康', castle:C.edo, lands:'武蔵・相模・伊豆・上野・上総・下総', retainers:['本多忠勝','井伊直政','榊原康政','本多正信'], power:5,
-                 events:['小田原征伐に参陣','旧北条領へ移封され、江戸を本拠とする'], desc:'東海5か国から関東250万石へ。江戸の町づくりが始まった。' },
-      date:    { head:'伊達政宗', castle:C.yonezawa, lands:'出羽置賜・南奥州', retainers:['片倉景綱','伊達成実','鬼庭綱元'], power:3,
-                 events:['小田原に遅参し秀吉に謝罪','会津を没収され版図が縮む'], desc:'摺上原で蘆名を破り奥州を制した矢先、天下人の登場に屈した。' },
-      uesugi:  { head:'上杉景勝', castle:C.kasugayama, lands:'越後・佐渡・出羽庄内', retainers:['直江兼続','須田満親'], power:3,
-                 events:['小田原征伐・奥州仕置に従軍'], desc:'豊臣政権の重鎮として遇された。' },
-      maeda:   { head:'前田利家', castle:C.kanazawa, lands:'加賀・能登・越中', retainers:['前田利長','村井長頼'], power:4,
-                 events:['小田原征伐に従軍','北陸の抑えとして加賀百万石を築く'], desc:'秀吉の盟友。のちの五大老。' },
-      mogami:  { head:'最上義光', castle:C.yamagata, lands:'出羽村山・最上', retainers:['氏家守棟','志村光安'], power:2,
-                 events:['小田原に参陣し所領を安堵される'], desc:'政宗の伯父。庄内をめぐり上杉と対立していく。' },
-      nanbu:   { head:'南部信直', castle:C.sanpe, lands:'陸奥北部', retainers:['北信愛','八戸政栄'], power:2,
-                 events:['小田原に参陣し所領を安堵','翌年に九戸政実の乱が起こる'], desc:'豊臣大名として存続。' },
-      satake:  { head:'佐竹義宣', castle:C.ota, lands:'常陸', retainers:['和田昭為','梶原政景'], power:3,
-                 events:['小田原に参陣し常陸54万石を安堵される'], desc:'石田三成と親しく、のちの関ヶ原で苦境に立つ。' },
-      mori:    { head:'毛利輝元', castle:C.hiroshima, lands:'安芸ほか中国8か国', retainers:['吉川広家','小早川隆景','安国寺恵瓊'], power:5,
-                 events:['広島城の築城を開始','小早川隆景が筑前を治める'], desc:'五大老の一人。112万石の大身。' },
-      chosokabe:{ head:'長宗我部元親', castle:{ name:'浦戸城', lon:133.55, lat:33.50 }, lands:'土佐', retainers:['香宗我部親泰','谷忠澄'], power:2,
-                 events:['小田原征伐に水軍を率いて従軍'], desc:'四国平定で土佐一国に減らされ、豊臣大名となった。' },
-      shimazu: { head:'島津義久', castle:C.uchijo, lands:'薩摩・大隅', retainers:['島津義弘','伊集院忠棟'], power:3,
-                 events:['豊臣政権下で薩摩・大隅を安堵される'], desc:'九州平定で降伏し、南九州に押し戻された。' },
-      otomo:   { head:'大友義統', castle:C.funai, lands:'豊後', retainers:['吉弘統幸'], power:1,
-                 events:['豊後一国のみを安堵される'], desc:'かつての九州探題も豊臣大名の一人となった。' },
-      ryuzoji: { head:'龍造寺政家(鍋島直茂が実権)', castle:C.muranaka, lands:'肥前', retainers:['鍋島直茂','鍋島勝茂'], power:2,
-                 events:['実権が鍋島氏へ移っていく'], desc:'沖田畷で隆信が討死して以来、鍋島氏が家政を主導。' },
-      other:   { head:'—', castle:null, lands:'安房ほか', retainers:[], power:1,
-                 events:['里見氏らが豊臣大名として存続'], desc:'個別に色分けしていない諸勢力。' }
+    "clans": {
+      "mori": {
+        "events": [
+          "月山富田城を落とし、尼子義久を降す。中国地方をほぼ手中に収める"
+        ]
+      }
     }
   },
-
-  /* ========================= 1600年 ========================= */
   {
-    year: 1600, era: '慶長5年', note: '関ヶ原の戦いの年',
-    owners: {
-      mutsu:'date', nanou:'uesugi', dewa:'mogami',
-      musashi:'tokugawa', sagami:'tokugawa', izu:'tokugawa', kai:'tokugawa',
-      shimousa:'tokugawa', kazusa:'tokugawa', kozuke:'tokugawa', shimotsuke:'tokugawa',
-      hitachi:'satake',
-      etchu:'maeda', noto:'maeda', kaga:'maeda',
-      hoki:'mori', izumo:'mori', iwami:'mori', bingo:'mori',
-      aki:'mori', suo:'mori', nagato:'mori',
-      tosa:'chosokabe', hizen:'ryuzoji',
-      hyuga:'shimazu', osumi:'shimazu', satsuma:'shimazu',
-      echigo:'toyotomi', sado:'toyotomi', echizen:'toyotomi', wakasa:'toyotomi',
-      shinano:'toyotomi', hida:'toyotomi', suruga:'toyotomi', totomi:'toyotomi',
-      mikawa:'toyotomi', owari:'toyotomi', mino:'toyotomi', omi:'toyotomi',
-      ise:'toyotomi', shima:'toyotomi', iga:'toyotomi',
-      yamashiro:'toyotomi', yamato:'toyotomi', kawachi:'toyotomi', izumi:'toyotomi',
-      settsu:'toyotomi', kii:'toyotomi', tanba:'toyotomi', tango:'toyotomi',
-      tajima:'toyotomi', inaba:'toyotomi', harima:'toyotomi', mimasaka:'toyotomi',
-      bizen:'toyotomi', bicchu:'toyotomi', awaji:'toyotomi', awa_s:'toyotomi',
-      sanuki:'toyotomi', iyo:'toyotomi', chikuzen:'toyotomi', chikugo:'toyotomi',
-      buzen:'toyotomi', bungo:'toyotomi', higo:'toyotomi'
+    "year": 1575,
+    "era": "天正3年",
+    "note": "長篠の戦いの頃",
+    "owners": {
+      "etchu": "uesugi",
+      "echizen": "oda",
+      "wakasa": "oda",
+      "kozuke": "takeda",
+      "suruga": "takeda",
+      "totomi": "tokugawa",
+      "mino": "oda",
+      "omi": "oda",
+      "ise": "oda",
+      "shima": "oda",
+      "yamashiro": "oda",
+      "yamato": "oda",
+      "kawachi": "oda",
+      "izumi": "oda",
+      "settsu": "oda",
+      "hoki": "mori",
+      "izumo": "mori",
+      "mimasaka": "mori",
+      "bizen": "mori",
+      "bicchu": "mori",
+      "awaji": "other"
     },
-    clans: {
-      tokugawa:{ head:'徳川家康', castle:C.edo, lands:'関東・甲斐', retainers:['本多忠勝','井伊直政','榊原康政','本多正信'], power:5,
-                 events:['会津征伐に出陣','関ヶ原の戦いで西軍を破り、天下の実権を握る'], desc:'五大老筆頭。この年の勝利が江戸幕府へ直結する。' },
-      toyotomi:{ head:'豊臣秀頼(石田三成ら西軍)', castle:C.osaka, lands:'畿内・西国の豊臣系大名領', retainers:['石田三成','大谷吉継','宇喜多秀家','小西行長'], power:4,
-                 events:['三成らが家康弾劾の挙兵','関ヶ原で西軍が敗北し、豊臣の力が大きく削がれる'], desc:'秀吉没後、秀頼は幼く政権は分裂した。図は西軍寄りの大名領をまとめて表示。' },
-      uesugi:  { head:'上杉景勝', castle:C.aizu, lands:'会津・出羽の一部(120万石)', retainers:['直江兼続','甘粕景継'], power:4,
-                 events:['直江状で家康を挑発','長谷堂城で最上・伊達と戦う','戦後、米沢30万石へ減封'], desc:'会津へ移り西軍の東の柱となった。' },
-      date:    { head:'伊達政宗', castle:C.sendai, lands:'陸奥', retainers:['片倉景綱','伊達成実'], power:3,
-                 events:['東軍につき上杉領へ侵攻','白石城を攻略'], desc:'翌年、仙台に本拠を移し仙台藩の礎を築く。' },
-      mogami:  { head:'最上義光', castle:C.yamagata, lands:'出羽', retainers:['志村光安','鮭延秀綱'], power:3,
-                 events:['長谷堂城の戦いで上杉軍を防ぎきる','戦後、57万石に加増'], desc:'東軍として奮戦し、大幅に加増された。' },
-      maeda:   { head:'前田利長', castle:C.kanazawa, lands:'加賀・能登・越中', retainers:['前田利政','村井長次'], power:4,
-                 events:['東軍につき北陸の西軍勢力を制圧'], desc:'加賀百万石を確定させた。' },
-      mori:    { head:'毛利輝元', castle:C.hiroshima, lands:'中国地方8か国', retainers:['吉川広家','安国寺恵瓊'], power:4,
-                 events:['西軍の総大将に担がれ大坂城に入る','戦後、周防・長門2か国へ減封'], desc:'大坂を動かぬまま敗軍の将となった。' },
-      satake:  { head:'佐竹義宣', castle:C.ota, lands:'常陸', retainers:['和田昭為','梶原政景'], power:3,
-                 events:['旗幟を鮮明にせず、戦後に出羽秋田へ減転封'], desc:'三成との友誼と家中の事情に挟まれた。' },
-      chosokabe:{ head:'長宗我部盛親', castle:{ name:'浦戸城', lon:133.55, lat:33.50 }, lands:'土佐', retainers:['久武親直','吉田政重'], power:2,
-                 events:['西軍に属し、戦後に改易される'], desc:'関ヶ原ではほとんど戦わずに敗軍となり、家は取り潰された。' },
-      shimazu: { head:'島津義弘', castle:C.uchijo, lands:'薩摩・大隅・日向の一部', retainers:['島津豊久','長寿院盛淳'], power:3,
-                 events:['西軍として関ヶ原に布陣','敵中突破で戦場を離脱','所領は安堵される'], desc:'「島津の退き口」で名を上げ、本領を守り抜いた。' },
-      ryuzoji: { head:'鍋島直茂・勝茂', castle:C.muranaka, lands:'肥前', retainers:['鍋島茂里'], power:2,
-                 events:['西軍から東軍へ転じ、本領を安堵される'], desc:'実権は完全に鍋島氏へ移っていた。' },
-      other:   { head:'—', castle:null, lands:'安房ほか', retainers:[], power:1,
-                 events:['里見氏らが東軍に属す'], desc:'個別に色分けしていない諸勢力。' }
+    "clans": {
+      "takeda": {
+        "head": "武田勝頼",
+        "castle": {
+          "name": "躑躅ヶ崎館",
+          "lon": 138.57,
+          "lat": 35.66
+        },
+        "lands": "甲斐・信濃・駿河・上野の一部",
+        "retainers": [
+          "山県昌景",
+          "馬場信春",
+          "内藤昌豊",
+          "真田昌幸"
+        ],
+        "power": 4,
+        "events": [
+          "長篠の戦いで織田・徳川連合軍に大敗",
+          "宿老の多くを一挙に失う"
+        ],
+        "desc": "父・信玄の版図を継ぎ最大領国を得たが、長篠で屋台骨を折られた。"
+      },
+      "uesugi": {
+        "head": "上杉謙信",
+        "castle": {
+          "name": "春日山城",
+          "lon": 138.24,
+          "lat": 37.15
+        },
+        "lands": "越後・佐渡・越中",
+        "retainers": [
+          "直江景綱",
+          "柿崎景家",
+          "斎藤朝信"
+        ],
+        "power": 4,
+        "events": [
+          "越中を平定し、能登・加賀へ進む構え"
+        ],
+        "desc": "信長包囲網の一角として西へ目を向け始める。"
+      },
+      "hojo": {
+        "head": "北条氏政",
+        "castle": {
+          "name": "小田原城",
+          "lon": 139.15,
+          "lat": 35.25
+        },
+        "lands": "相模・伊豆・武蔵・下総の一部",
+        "retainers": [
+          "北条氏照",
+          "北条氏邦",
+          "松田憲秀"
+        ],
+        "power": 4,
+        "events": [
+          "武田と同盟し、関東で佐竹・里見と争う"
+        ],
+        "desc": "甲相同盟のもと関東経営に専念した。"
+      },
+      "date": {
+        "head": "伊達輝宗",
+        "castle": {
+          "name": "米沢城",
+          "lon": 140.12,
+          "lat": 37.91
+        },
+        "lands": "出羽置賜・南奥州",
+        "retainers": [
+          "遠藤基信",
+          "鬼庭良直"
+        ],
+        "power": 3,
+        "events": [
+          "相馬氏と伊具郡をめぐり抗争"
+        ],
+        "desc": "政宗の父。織田信長とも音信を通じた外交巧者。"
+      },
+      "nanbu": {
+        "head": "南部晴政",
+        "castle": {
+          "name": "三戸城",
+          "lon": 141.15,
+          "lat": 40.38
+        },
+        "lands": "陸奥北部",
+        "retainers": [
+          "北信愛",
+          "九戸政実"
+        ],
+        "power": 2,
+        "events": [
+          "家督をめぐり一族が対立"
+        ],
+        "desc": "北奥州の雄。"
+      },
+      "mogami": {
+        "head": "最上義光",
+        "castle": {
+          "name": "山形城",
+          "lon": 140.34,
+          "lat": 38.25
+        },
+        "lands": "出羽村山",
+        "retainers": [
+          "氏家守棟",
+          "鮭延秀綱"
+        ],
+        "power": 2,
+        "events": [
+          "父・義守と対立し家中が二分"
+        ],
+        "desc": "謀略に長けた「出羽の驍将」。政宗の伯父にあたる。"
+      },
+      "tokugawa": {
+        "head": "徳川家康",
+        "castle": {
+          "name": "浜松城",
+          "lon": 137.73,
+          "lat": 34.71
+        },
+        "lands": "三河・遠江",
+        "retainers": [
+          "酒井忠次",
+          "本多忠勝",
+          "榊原康政"
+        ],
+        "power": 3,
+        "events": [
+          "長篠の戦いで織田と共に武田を破る",
+          "長篠城の攻防で奥平信昌が奮戦"
+        ],
+        "desc": "武田の圧迫を耐え抜き、反攻に転じた年。"
+      },
+      "oda": {
+        "head": "織田信長",
+        "castle": {
+          "name": "安土城",
+          "lon": 136.14,
+          "lat": 35.15
+        },
+        "lands": "尾張・美濃・近江・伊勢・畿内・越前",
+        "retainers": [
+          "柴田勝家",
+          "羽柴秀吉",
+          "明智光秀",
+          "丹羽長秀"
+        ],
+        "power": 5,
+        "events": [
+          "長篠の戦いで鉄砲を活用し武田軍を撃破",
+          "越前一向一揆を平定",
+          "家督を信忠に譲る"
+        ],
+        "desc": "畿内を制圧し、天下布武が現実味を帯びた。翌年から安土築城。"
+      },
+      "mori": {
+        "head": "毛利輝元",
+        "castle": {
+          "name": "吉田郡山城",
+          "lon": 132.7,
+          "lat": 34.67
+        },
+        "lands": "安芸・備後・周防・長門・出雲・石見・伯耆ほか",
+        "retainers": [
+          "吉川元春",
+          "小早川隆景",
+          "福原貞俊"
+        ],
+        "power": 5,
+        "events": [
+          "備中・備前へ影響力を広げ、織田と接触"
+        ],
+        "desc": "祖父・元就の遺産を両川が支える中国地方の巨人。"
+      },
+      "chosokabe": {
+        "head": "長宗我部元親",
+        "castle": {
+          "name": "岡豊城",
+          "lon": 133.62,
+          "lat": 33.6
+        },
+        "lands": "土佐",
+        "retainers": [
+          "吉良親貞",
+          "香宗我部親泰",
+          "谷忠澄"
+        ],
+        "power": 3,
+        "events": [
+          "四万十川の戦いで一条氏を破り土佐を統一"
+        ],
+        "desc": "一領具足を擁し、四国統一へ動き出す。"
+      },
+      "shimazu": {
+        "head": "島津義久",
+        "castle": {
+          "name": "内城(鹿児島)",
+          "lon": 130.55,
+          "lat": 31.6
+        },
+        "lands": "薩摩・大隅",
+        "retainers": [
+          "島津義弘",
+          "島津歳久",
+          "新納忠元"
+        ],
+        "power": 3,
+        "events": [
+          "大隅を平定し、三州統一に王手"
+        ],
+        "desc": "四兄弟の結束で九州南部を制していく。"
+      },
+      "ikko": {
+        "head": "本願寺門徒衆",
+        "castle": {
+          "name": "尾山御坊",
+          "lon": 136.66,
+          "lat": 36.56
+        },
+        "lands": "加賀",
+        "retainers": [
+          "七里頼周"
+        ],
+        "power": 2,
+        "events": [
+          "越前の一揆が織田軍に壊滅させられる"
+        ],
+        "desc": "石山本願寺と連動して織田に抵抗を続けた。"
+      },
+      "satake": {
+        "head": "佐竹義重",
+        "castle": {
+          "name": "太田城",
+          "lon": 140.53,
+          "lat": 36.54
+        },
+        "lands": "常陸",
+        "retainers": [
+          "和田昭為",
+          "梶原政景"
+        ],
+        "power": 3,
+        "events": [
+          "北条氏と関東で角逐"
+        ],
+        "desc": "「鬼義重」と恐れられた常陸の当主。"
+      },
+      "miyoshi": {
+        "head": "三好長治",
+        "castle": {
+          "name": "勝瑞城",
+          "lon": 134.53,
+          "lat": 34.1
+        },
+        "lands": "阿波・讃岐",
+        "retainers": [
+          "篠原長房(故)",
+          "三好存保"
+        ],
+        "power": 2,
+        "events": [
+          "家中の内訌が続き、長宗我部の圧力が強まる"
+        ],
+        "desc": "畿内を失った三好の残存勢力。"
+      },
+      "otomo": {
+        "head": "大友宗麟",
+        "castle": {
+          "name": "府内館",
+          "lon": 131.61,
+          "lat": 33.24
+        },
+        "lands": "豊後・筑後・筑前・豊前",
+        "retainers": [
+          "立花道雪",
+          "高橋紹運"
+        ],
+        "power": 4,
+        "events": [
+          "北九州六か国に号令"
+        ],
+        "desc": "九州最大の勢力として全盛期にあった。"
+      },
+      "ryuzoji": {
+        "head": "龍造寺隆信",
+        "castle": {
+          "name": "村中城(佐賀)",
+          "lon": 130.3,
+          "lat": 33.25
+        },
+        "lands": "肥前",
+        "retainers": [
+          "鍋島直茂",
+          "龍造寺四天王"
+        ],
+        "power": 3,
+        "events": [
+          "肥前をほぼ統一し、筑後へ進出"
+        ],
+        "desc": "大友の勢力圏を侵食し始める。"
+      },
+      "other": {
+        "head": "—",
+        "castle": null,
+        "lands": "各地",
+        "retainers": [],
+        "power": 1,
+        "events": [
+          "本願寺・雑賀衆・国人らが各地に割拠"
+        ],
+        "desc": "個別に色分けしていない諸勢力。"
+      }
+    }
+  },
+  {
+    "year": 1582,
+    "era": "天正10年",
+    "note": "本能寺の変の年",
+    "owners": {
+      "etchu": "oda",
+      "noto": "oda",
+      "kaga": "oda",
+      "shinano": "oda",
+      "hida": "oda",
+      "kai": "oda",
+      "kozuke": "oda",
+      "kazusa": "hojo",
+      "suruga": "tokugawa",
+      "iga": "oda",
+      "tanba": "oda",
+      "tango": "oda",
+      "tajima": "oda",
+      "inaba": "oda",
+      "harima": "oda",
+      "bizen": "oda",
+      "awaji": "oda",
+      "awa_s": "chosokabe",
+      "sanuki": "chosokabe",
+      "chikugo": "ryuzoji",
+      "higo": "shimazu",
+      "hyuga": "shimazu"
+    },
+    "clans": {
+      "oda": {
+        "head": "織田信長",
+        "castle": {
+          "name": "安土城",
+          "lon": 136.14,
+          "lat": 35.15
+        },
+        "lands": "東海・畿内・北陸・山陰・甲信",
+        "retainers": [
+          "柴田勝家",
+          "羽柴秀吉",
+          "明智光秀",
+          "滝川一益"
+        ],
+        "power": 5,
+        "events": [
+          "武田氏を滅ぼす(天目山)",
+          "本能寺の変で信長・信忠が横死",
+          "山崎の戦いで明智光秀が敗死"
+        ],
+        "desc": "天下統一目前で家臣の謀反により斃れた。図はその直前の版図。"
+      },
+      "tokugawa": {
+        "head": "徳川家康",
+        "castle": {
+          "name": "浜松城",
+          "lon": 137.73,
+          "lat": 34.71
+        },
+        "lands": "三河・遠江・駿河",
+        "retainers": [
+          "酒井忠次",
+          "本多忠勝",
+          "井伊直政"
+        ],
+        "power": 3,
+        "events": [
+          "武田攻めの功で駿河を得る",
+          "伊賀越えで堺から三河へ逃げ帰る",
+          "甲斐・信濃へ進出"
+        ],
+        "desc": "本能寺の報せに窮地へ陥るも、直後に旧武田領へ手を伸ばす。"
+      },
+      "uesugi": {
+        "head": "上杉景勝",
+        "castle": {
+          "name": "春日山城",
+          "lon": 138.24,
+          "lat": 37.15
+        },
+        "lands": "越後・佐渡",
+        "retainers": [
+          "直江兼続",
+          "須田満親"
+        ],
+        "power": 2,
+        "events": [
+          "魚津城が落城し滅亡寸前",
+          "本能寺の変で織田の攻勢が止み九死に一生"
+        ],
+        "desc": "御館の乱を経て当主となった直後の苦境。"
+      },
+      "hojo": {
+        "head": "北条氏直",
+        "castle": {
+          "name": "小田原城",
+          "lon": 139.15,
+          "lat": 35.25
+        },
+        "lands": "関東6か国",
+        "retainers": [
+          "北条氏照",
+          "北条氏邦",
+          "松田憲秀"
+        ],
+        "power": 4,
+        "events": [
+          "本能寺の後、滝川一益を神流川で破り上野へ進出"
+        ],
+        "desc": "関東最大の勢力。氏政が後見。"
+      },
+      "date": {
+        "head": "伊達輝宗",
+        "castle": {
+          "name": "米沢城",
+          "lon": 140.12,
+          "lat": 37.91
+        },
+        "lands": "出羽置賜・南奥州",
+        "retainers": [
+          "遠藤基信",
+          "鬼庭良直",
+          "伊達政宗"
+        ],
+        "power": 3,
+        "events": [
+          "嫡男・政宗が元服し家中を固める"
+        ],
+        "desc": "翌々年に政宗へ家督を譲る。"
+      },
+      "nanbu": {
+        "head": "南部信直",
+        "castle": {
+          "name": "三戸城",
+          "lon": 141.15,
+          "lat": 40.38
+        },
+        "lands": "陸奥北部",
+        "retainers": [
+          "北信愛",
+          "八戸政栄"
+        ],
+        "power": 2,
+        "events": [
+          "家督を継ぐが九戸政実と対立"
+        ],
+        "desc": "南部氏の内訌が深まる。"
+      },
+      "mogami": {
+        "head": "最上義光",
+        "castle": {
+          "name": "山形城",
+          "lon": 140.34,
+          "lat": 38.25
+        },
+        "lands": "出羽村山・最上",
+        "retainers": [
+          "氏家守棟",
+          "志村光安"
+        ],
+        "power": 2,
+        "events": [
+          "庄内・大宝寺氏と争う"
+        ],
+        "desc": "出羽の切れ者。"
+      },
+      "mori": {
+        "head": "毛利輝元",
+        "castle": {
+          "name": "吉田郡山城",
+          "lon": 132.7,
+          "lat": 34.67
+        },
+        "lands": "中国地方西部",
+        "retainers": [
+          "吉川元春",
+          "小早川隆景",
+          "清水宗治"
+        ],
+        "power": 4,
+        "events": [
+          "備中高松城を羽柴秀吉に水攻めされる",
+          "本能寺の報を受け秀吉と即時講和"
+        ],
+        "desc": "織田との決戦寸前に天下が引っくり返った。"
+      },
+      "chosokabe": {
+        "head": "長宗我部元親",
+        "castle": {
+          "name": "岡豊城",
+          "lon": 133.62,
+          "lat": 33.6
+        },
+        "lands": "土佐・阿波・讃岐",
+        "retainers": [
+          "香宗我部親泰",
+          "谷忠澄",
+          "久武親信"
+        ],
+        "power": 3,
+        "events": [
+          "中富川の戦いで十河存保を破り阿波を制圧",
+          "織田の四国征伐が本能寺で中止となる"
+        ],
+        "desc": "四国統一に王手。信長の死に救われた。"
+      },
+      "shimazu": {
+        "head": "島津義久",
+        "castle": {
+          "name": "内城(鹿児島)",
+          "lon": 130.55,
+          "lat": 31.6
+        },
+        "lands": "薩摩・大隅・日向・肥後",
+        "retainers": [
+          "島津義弘",
+          "島津家久",
+          "新納忠元"
+        ],
+        "power": 4,
+        "events": [
+          "肥後の相良氏を降し、北上を続ける"
+        ],
+        "desc": "耳川で大友を破って以来、九州制覇へ突き進む。"
+      },
+      "otomo": {
+        "head": "大友義統",
+        "castle": {
+          "name": "府内館",
+          "lon": 131.61,
+          "lat": 33.24
+        },
+        "lands": "豊後・豊前・筑前の一部",
+        "retainers": [
+          "立花道雪",
+          "高橋紹運"
+        ],
+        "power": 2,
+        "events": [
+          "島津・龍造寺の圧迫で勢力が縮む"
+        ],
+        "desc": "耳川の大敗以来、退勢が続く。"
+      },
+      "ryuzoji": {
+        "head": "龍造寺隆信",
+        "castle": {
+          "name": "村中城(佐賀)",
+          "lon": 130.3,
+          "lat": 33.25
+        },
+        "lands": "肥前・筑後",
+        "retainers": [
+          "鍋島直茂",
+          "龍造寺政家"
+        ],
+        "power": 3,
+        "events": [
+          "五州二島の太守を称する"
+        ],
+        "desc": "九州三強の一角に伸し上がった。"
+      },
+      "satake": {
+        "head": "佐竹義重",
+        "castle": {
+          "name": "太田城",
+          "lon": 140.53,
+          "lat": 36.54
+        },
+        "lands": "常陸",
+        "retainers": [
+          "和田昭為",
+          "梶原政景"
+        ],
+        "power": 3,
+        "events": [
+          "北条氏と下野で対峙"
+        ],
+        "desc": "関東で北条に抗し続けた。"
+      },
+      "other": {
+        "head": "—",
+        "castle": null,
+        "lands": "各地",
+        "retainers": [],
+        "power": 1,
+        "events": [
+          "里見・雑賀衆・国人らが割拠"
+        ],
+        "desc": "個別に色分けしていない諸勢力。"
+      }
+    }
+  },
+  {
+    "year": 1584,
+    "era": "天正12年",
+    "note": "賤ヶ岳・小牧長久手の頃",
+    "owners": {
+      "yamashiro": "toyotomi",
+      "izumi": "toyotomi",
+      "settsu": "toyotomi",
+      "tajima": "toyotomi",
+      "inaba": "toyotomi",
+      "echizen": "toyotomi",
+      "kai": "toyotomi",
+      "owari": "toyotomi",
+      "kaga": "toyotomi",
+      "mino": "toyotomi",
+      "omi": "toyotomi",
+      "kawachi": "toyotomi",
+      "awaji": "toyotomi",
+      "shinano": "toyotomi",
+      "kozuke": "toyotomi",
+      "yamato": "toyotomi",
+      "etchu": "toyotomi",
+      "wakasa": "toyotomi",
+      "ise": "toyotomi",
+      "shima": "toyotomi",
+      "bizen": "toyotomi",
+      "noto": "toyotomi",
+      "hida": "toyotomi",
+      "iga": "toyotomi",
+      "tanba": "toyotomi",
+      "tango": "toyotomi",
+      "harima": "toyotomi"
+    },
+    "clans": {
+      "toyotomi": {
+        "head": "羽柴(豊臣)秀吉",
+        "castle": {
+          "name": "大坂城",
+          "lon": 135.5,
+          "lat": 34.69
+        },
+        "lands": "旧織田領のほぼ全域",
+        "retainers": [
+          "石田三成",
+          "黒田孝高",
+          "蒲生氏郷"
+        ],
+        "power": 4,
+        "events": [
+          "賤ヶ岳の戦いで柴田勝家を破る",
+          "大坂城の築城を開始",
+          "小牧・長久手の戦いで徳川家康と交戦するも和睦"
+        ],
+        "desc": "清須会議の主導権を握った秀吉が、柴田勝家を滅ぼして旧織田領を掌握。信長の後継者としての地位を固めた。"
+      },
+      "tokugawa": {
+        "events": [
+          "小牧・長久手の戦いで羽柴軍を撃退するも、後に秀吉と和睦"
+        ]
+      }
+    }
+  },
+  {
+    "year": 1585,
+    "era": "天正13年",
+    "note": "四国征伐",
+    "owners": {
+      "awa_s": "toyotomi",
+      "sanuki": "toyotomi",
+      "iyo": "toyotomi"
+    },
+    "clans": {
+      "toyotomi": {
+        "events": [
+          "四国征伐で長宗我部元親を降し、土佐一国のみを安堵する",
+          "秀吉が関白に就任"
+        ]
+      },
+      "chosokabe": {
+        "lands": "土佐",
+        "power": 2,
+        "events": [
+          "抗戦の末に降伏し、四国のほとんどを失う"
+        ]
+      }
+    }
+  },
+  {
+    "year": 1587,
+    "era": "天正15年",
+    "note": "九州征伐",
+    "owners": {
+      "chikuzen": "mori",
+      "chikugo": "toyotomi",
+      "buzen": "toyotomi",
+      "higo": "toyotomi",
+      "hyuga": "toyotomi"
+    },
+    "clans": {
+      "toyotomi": {
+        "events": [
+          "九州征伐で島津義久を降伏させる",
+          "バテレン追放令を発する"
+        ]
+      },
+      "shimazu": {
+        "lands": "薩摩・大隅",
+        "power": 2,
+        "events": [
+          "根白坂の戦いに敗れ、秀吉に降伏。薩摩・大隅2か国に押し込められる"
+        ]
+      },
+      "mori": {
+        "events": [
+          "九州征伐の功により小早川隆景が筑前を与えられる"
+        ]
+      }
+    }
+  },
+  {
+    "year": 1590,
+    "era": "天正18年",
+    "note": "小田原征伐・天下統一",
+    "owners": {
+      "etchu": "maeda",
+      "noto": "maeda",
+      "kaga": "maeda",
+      "echizen": "toyotomi",
+      "wakasa": "toyotomi",
+      "shinano": "toyotomi",
+      "hida": "toyotomi",
+      "kai": "toyotomi",
+      "kozuke": "tokugawa",
+      "shimotsuke": "toyotomi",
+      "shimousa": "tokugawa",
+      "kazusa": "tokugawa",
+      "musashi": "tokugawa",
+      "sagami": "tokugawa",
+      "izu": "tokugawa",
+      "suruga": "toyotomi",
+      "totomi": "toyotomi",
+      "mikawa": "toyotomi",
+      "owari": "toyotomi",
+      "mino": "toyotomi",
+      "omi": "toyotomi",
+      "ise": "toyotomi",
+      "shima": "toyotomi",
+      "iga": "toyotomi",
+      "yamashiro": "toyotomi",
+      "yamato": "toyotomi",
+      "kawachi": "toyotomi",
+      "izumi": "toyotomi",
+      "settsu": "toyotomi",
+      "kii": "toyotomi",
+      "tanba": "toyotomi",
+      "tango": "toyotomi",
+      "tajima": "toyotomi",
+      "inaba": "toyotomi",
+      "harima": "toyotomi",
+      "mimasaka": "toyotomi",
+      "bizen": "toyotomi",
+      "bicchu": "toyotomi",
+      "awaji": "toyotomi",
+      "awa_s": "toyotomi",
+      "sanuki": "toyotomi",
+      "iyo": "toyotomi",
+      "chikuzen": "mori",
+      "chikugo": "toyotomi",
+      "buzen": "toyotomi",
+      "higo": "toyotomi",
+      "hyuga": "toyotomi"
+    },
+    "clans": {
+      "toyotomi": {
+        "head": "豊臣秀吉",
+        "castle": {
+          "name": "大坂城",
+          "lon": 135.5,
+          "lat": 34.69
+        },
+        "lands": "畿内を中心に全国の蔵入地",
+        "retainers": [
+          "石田三成",
+          "増田長盛",
+          "浅野長政",
+          "加藤清正"
+        ],
+        "power": 5,
+        "events": [
+          "小田原征伐で北条氏を滅ぼす",
+          "奥州仕置を行い天下統一を完成"
+        ],
+        "desc": "関白として全国の大名を臣従させ、太閤検地と刀狩を進めた。"
+      },
+      "tokugawa": {
+        "head": "徳川家康",
+        "castle": {
+          "name": "江戸城",
+          "lon": 139.76,
+          "lat": 35.68
+        },
+        "lands": "武蔵・相模・伊豆・上野・上総・下総",
+        "retainers": [
+          "本多忠勝",
+          "井伊直政",
+          "榊原康政",
+          "本多正信"
+        ],
+        "power": 5,
+        "events": [
+          "小田原征伐に参陣",
+          "旧北条領へ移封され、江戸を本拠とする"
+        ],
+        "desc": "東海5か国から関東250万石へ。江戸の町づくりが始まった。"
+      },
+      "date": {
+        "head": "伊達政宗",
+        "castle": {
+          "name": "米沢城",
+          "lon": 140.12,
+          "lat": 37.91
+        },
+        "lands": "出羽置賜・南奥州",
+        "retainers": [
+          "片倉景綱",
+          "伊達成実",
+          "鬼庭綱元"
+        ],
+        "power": 3,
+        "events": [
+          "小田原に遅参し秀吉に謝罪",
+          "会津を没収され版図が縮む"
+        ],
+        "desc": "摺上原で蘆名を破り奥州を制した矢先、天下人の登場に屈した。"
+      },
+      "uesugi": {
+        "head": "上杉景勝",
+        "castle": {
+          "name": "春日山城",
+          "lon": 138.24,
+          "lat": 37.15
+        },
+        "lands": "越後・佐渡・出羽庄内",
+        "retainers": [
+          "直江兼続",
+          "須田満親"
+        ],
+        "power": 3,
+        "events": [
+          "小田原征伐・奥州仕置に従軍"
+        ],
+        "desc": "豊臣政権の重鎮として遇された。"
+      },
+      "maeda": {
+        "head": "前田利家",
+        "castle": {
+          "name": "金沢城",
+          "lon": 136.66,
+          "lat": 36.56
+        },
+        "lands": "加賀・能登・越中",
+        "retainers": [
+          "前田利長",
+          "村井長頼"
+        ],
+        "power": 4,
+        "events": [
+          "小田原征伐に従軍",
+          "北陸の抑えとして加賀百万石を築く"
+        ],
+        "desc": "秀吉の盟友。のちの五大老。"
+      },
+      "mogami": {
+        "head": "最上義光",
+        "castle": {
+          "name": "山形城",
+          "lon": 140.34,
+          "lat": 38.25
+        },
+        "lands": "出羽村山・最上",
+        "retainers": [
+          "氏家守棟",
+          "志村光安"
+        ],
+        "power": 2,
+        "events": [
+          "小田原に参陣し所領を安堵される"
+        ],
+        "desc": "政宗の伯父。庄内をめぐり上杉と対立していく。"
+      },
+      "nanbu": {
+        "head": "南部信直",
+        "castle": {
+          "name": "三戸城",
+          "lon": 141.15,
+          "lat": 40.38
+        },
+        "lands": "陸奥北部",
+        "retainers": [
+          "北信愛",
+          "八戸政栄"
+        ],
+        "power": 2,
+        "events": [
+          "小田原に参陣し所領を安堵",
+          "翌年に九戸政実の乱が起こる"
+        ],
+        "desc": "豊臣大名として存続。"
+      },
+      "satake": {
+        "head": "佐竹義宣",
+        "castle": {
+          "name": "太田城",
+          "lon": 140.53,
+          "lat": 36.54
+        },
+        "lands": "常陸",
+        "retainers": [
+          "和田昭為",
+          "梶原政景"
+        ],
+        "power": 3,
+        "events": [
+          "小田原に参陣し常陸54万石を安堵される"
+        ],
+        "desc": "石田三成と親しく、のちの関ヶ原で苦境に立つ。"
+      },
+      "mori": {
+        "head": "毛利輝元",
+        "castle": {
+          "name": "広島城",
+          "lon": 132.46,
+          "lat": 34.4
+        },
+        "lands": "安芸ほか中国8か国",
+        "retainers": [
+          "吉川広家",
+          "小早川隆景",
+          "安国寺恵瓊"
+        ],
+        "power": 5,
+        "events": [
+          "広島城の築城を開始",
+          "小早川隆景が筑前を治める"
+        ],
+        "desc": "五大老の一人。112万石の大身。"
+      },
+      "chosokabe": {
+        "head": "長宗我部元親",
+        "castle": {
+          "name": "浦戸城",
+          "lon": 133.55,
+          "lat": 33.5
+        },
+        "lands": "土佐",
+        "retainers": [
+          "香宗我部親泰",
+          "谷忠澄"
+        ],
+        "power": 2,
+        "events": [
+          "小田原征伐に水軍を率いて従軍"
+        ],
+        "desc": "四国平定で土佐一国に減らされ、豊臣大名となった。"
+      },
+      "shimazu": {
+        "head": "島津義久",
+        "castle": {
+          "name": "内城(鹿児島)",
+          "lon": 130.55,
+          "lat": 31.6
+        },
+        "lands": "薩摩・大隅",
+        "retainers": [
+          "島津義弘",
+          "伊集院忠棟"
+        ],
+        "power": 3,
+        "events": [
+          "豊臣政権下で薩摩・大隅を安堵される"
+        ],
+        "desc": "九州平定で降伏し、南九州に押し戻された。"
+      },
+      "otomo": {
+        "head": "大友義統",
+        "castle": {
+          "name": "府内館",
+          "lon": 131.61,
+          "lat": 33.24
+        },
+        "lands": "豊後",
+        "retainers": [
+          "吉弘統幸"
+        ],
+        "power": 1,
+        "events": [
+          "豊後一国のみを安堵される"
+        ],
+        "desc": "かつての九州探題も豊臣大名の一人となった。"
+      },
+      "ryuzoji": {
+        "head": "龍造寺政家(鍋島直茂が実権)",
+        "castle": {
+          "name": "村中城(佐賀)",
+          "lon": 130.3,
+          "lat": 33.25
+        },
+        "lands": "肥前",
+        "retainers": [
+          "鍋島直茂",
+          "鍋島勝茂"
+        ],
+        "power": 2,
+        "events": [
+          "実権が鍋島氏へ移っていく"
+        ],
+        "desc": "沖田畷で隆信が討死して以来、鍋島氏が家政を主導。"
+      },
+      "other": {
+        "head": "—",
+        "castle": null,
+        "lands": "安房ほか",
+        "retainers": [],
+        "power": 1,
+        "events": [
+          "里見氏らが豊臣大名として存続"
+        ],
+        "desc": "個別に色分けしていない諸勢力。"
+      }
+    }
+  },
+  {
+    "year": 1600,
+    "era": "慶長5年",
+    "note": "関ヶ原の戦いの年",
+    "owners": {
+      "mutsu": "date",
+      "nanou": "uesugi",
+      "echigo": "toyotomi",
+      "sado": "toyotomi",
+      "kai": "tokugawa",
+      "shimotsuke": "tokugawa",
+      "chikuzen": "toyotomi",
+      "bungo": "toyotomi",
+      "hyuga": "shimazu"
+    },
+    "clans": {
+      "tokugawa": {
+        "head": "徳川家康",
+        "castle": {
+          "name": "江戸城",
+          "lon": 139.76,
+          "lat": 35.68
+        },
+        "lands": "関東・甲斐",
+        "retainers": [
+          "本多忠勝",
+          "井伊直政",
+          "榊原康政",
+          "本多正信"
+        ],
+        "power": 5,
+        "events": [
+          "会津征伐に出陣",
+          "関ヶ原の戦いで西軍を破り、天下の実権を握る"
+        ],
+        "desc": "五大老筆頭。この年の勝利が江戸幕府へ直結する。"
+      },
+      "toyotomi": {
+        "head": "豊臣秀頼(石田三成ら西軍)",
+        "castle": {
+          "name": "大坂城",
+          "lon": 135.5,
+          "lat": 34.69
+        },
+        "lands": "畿内・西国の豊臣系大名領",
+        "retainers": [
+          "石田三成",
+          "大谷吉継",
+          "宇喜多秀家",
+          "小西行長"
+        ],
+        "power": 4,
+        "events": [
+          "三成らが家康弾劾の挙兵",
+          "関ヶ原で西軍が敗北し、豊臣の力が大きく削がれる"
+        ],
+        "desc": "秀吉没後、秀頼は幼く政権は分裂した。図は西軍寄りの大名領をまとめて表示。"
+      },
+      "uesugi": {
+        "head": "上杉景勝",
+        "castle": {
+          "name": "会津若松城",
+          "lon": 139.93,
+          "lat": 37.49
+        },
+        "lands": "会津・出羽の一部(120万石)",
+        "retainers": [
+          "直江兼続",
+          "甘粕景継"
+        ],
+        "power": 4,
+        "events": [
+          "直江状で家康を挑発",
+          "長谷堂城で最上・伊達と戦う",
+          "戦後、米沢30万石へ減封"
+        ],
+        "desc": "会津へ移り西軍の東の柱となった。"
+      },
+      "date": {
+        "head": "伊達政宗",
+        "castle": {
+          "name": "仙台城",
+          "lon": 140.87,
+          "lat": 38.27
+        },
+        "lands": "陸奥",
+        "retainers": [
+          "片倉景綱",
+          "伊達成実"
+        ],
+        "power": 3,
+        "events": [
+          "東軍につき上杉領へ侵攻",
+          "白石城を攻略"
+        ],
+        "desc": "翌年、仙台に本拠を移し仙台藩の礎を築く。"
+      },
+      "mogami": {
+        "head": "最上義光",
+        "castle": {
+          "name": "山形城",
+          "lon": 140.34,
+          "lat": 38.25
+        },
+        "lands": "出羽",
+        "retainers": [
+          "志村光安",
+          "鮭延秀綱"
+        ],
+        "power": 3,
+        "events": [
+          "長谷堂城の戦いで上杉軍を防ぎきる",
+          "戦後、57万石に加増"
+        ],
+        "desc": "東軍として奮戦し、大幅に加増された。"
+      },
+      "maeda": {
+        "head": "前田利長",
+        "castle": {
+          "name": "金沢城",
+          "lon": 136.66,
+          "lat": 36.56
+        },
+        "lands": "加賀・能登・越中",
+        "retainers": [
+          "前田利政",
+          "村井長次"
+        ],
+        "power": 4,
+        "events": [
+          "東軍につき北陸の西軍勢力を制圧"
+        ],
+        "desc": "加賀百万石を確定させた。"
+      },
+      "mori": {
+        "head": "毛利輝元",
+        "castle": {
+          "name": "広島城",
+          "lon": 132.46,
+          "lat": 34.4
+        },
+        "lands": "中国地方8か国",
+        "retainers": [
+          "吉川広家",
+          "安国寺恵瓊"
+        ],
+        "power": 4,
+        "events": [
+          "西軍の総大将に担がれ大坂城に入る",
+          "戦後、周防・長門2か国へ減封"
+        ],
+        "desc": "大坂を動かぬまま敗軍の将となった。"
+      },
+      "satake": {
+        "head": "佐竹義宣",
+        "castle": {
+          "name": "太田城",
+          "lon": 140.53,
+          "lat": 36.54
+        },
+        "lands": "常陸",
+        "retainers": [
+          "和田昭為",
+          "梶原政景"
+        ],
+        "power": 3,
+        "events": [
+          "旗幟を鮮明にせず、戦後に出羽秋田へ減転封"
+        ],
+        "desc": "三成との友誼と家中の事情に挟まれた。"
+      },
+      "chosokabe": {
+        "head": "長宗我部盛親",
+        "castle": {
+          "name": "浦戸城",
+          "lon": 133.55,
+          "lat": 33.5
+        },
+        "lands": "土佐",
+        "retainers": [
+          "久武親直",
+          "吉田政重"
+        ],
+        "power": 2,
+        "events": [
+          "西軍に属し、戦後に改易される"
+        ],
+        "desc": "関ヶ原ではほとんど戦わずに敗軍となり、家は取り潰された。"
+      },
+      "shimazu": {
+        "head": "島津義弘",
+        "castle": {
+          "name": "内城(鹿児島)",
+          "lon": 130.55,
+          "lat": 31.6
+        },
+        "lands": "薩摩・大隅・日向の一部",
+        "retainers": [
+          "島津豊久",
+          "長寿院盛淳"
+        ],
+        "power": 3,
+        "events": [
+          "西軍として関ヶ原に布陣",
+          "敵中突破で戦場を離脱",
+          "所領は安堵される"
+        ],
+        "desc": "「島津の退き口」で名を上げ、本領を守り抜いた。"
+      },
+      "ryuzoji": {
+        "head": "鍋島直茂・勝茂",
+        "castle": {
+          "name": "村中城(佐賀)",
+          "lon": 130.3,
+          "lat": 33.25
+        },
+        "lands": "肥前",
+        "retainers": [
+          "鍋島茂里"
+        ],
+        "power": 2,
+        "events": [
+          "西軍から東軍へ転じ、本領を安堵される"
+        ],
+        "desc": "実権は完全に鍋島氏へ移っていた。"
+      },
+      "other": {
+        "head": "—",
+        "castle": null,
+        "lands": "安房ほか",
+        "retainers": [],
+        "power": 1,
+        "events": [
+          "里見氏らが東軍に属す"
+        ],
+        "desc": "個別に色分けしていない諸勢力。"
+      }
+    }
+  },
+  {
+    "year": 1605,
+    "era": "慶長10年",
+    "note": "将軍職、秀忠へ",
+    "owners": {},
+    "clans": {
+      "tokugawa": {
+        "head": "徳川秀忠(2代将軍)",
+        "events": [
+          "家康が将軍職を秀忠に譲り、徳川家による世襲を内外に示す",
+          "家康は大御所として駿府で実権を握り続ける"
+        ]
+      }
+    }
+  },
+  {
+    "year": 1615,
+    "era": "慶長20年(元和元年)",
+    "note": "大坂夏の陣・豊臣家滅亡",
+    "owners": {
+      "nanou": "other",
+      "echigo": "uesugi",
+      "sado": "other",
+      "echizen": "bakufu",
+      "wakasa": "bakufu",
+      "shinano": "bakufu",
+      "hida": "bakufu",
+      "kai": "bakufu",
+      "kozuke": "other",
+      "shimotsuke": "bakufu",
+      "shimousa": "bakufu",
+      "kazusa": "bakufu",
+      "musashi": "bakufu",
+      "sagami": "bakufu",
+      "izu": "bakufu",
+      "suruga": "bakufu",
+      "totomi": "bakufu",
+      "mikawa": "bakufu",
+      "owari": "bakufu",
+      "mino": "bakufu",
+      "omi": "bakufu",
+      "ise": "bakufu",
+      "shima": "other",
+      "iga": "bakufu",
+      "yamashiro": "bakufu",
+      "yamato": "bakufu",
+      "kawachi": "bakufu",
+      "izumi": "bakufu",
+      "settsu": "bakufu",
+      "kii": "other",
+      "tanba": "other",
+      "tango": "other",
+      "tajima": "other",
+      "inaba": "other",
+      "hoki": "other",
+      "izumo": "other",
+      "iwami": "other",
+      "harima": "other",
+      "mimasaka": "other",
+      "bizen": "other",
+      "bicchu": "other",
+      "bingo": "other",
+      "awaji": "other",
+      "awa_s": "other",
+      "sanuki": "other",
+      "iyo": "other",
+      "tosa": "yamauchi",
+      "chikuzen": "other",
+      "chikugo": "other",
+      "buzen": "other",
+      "bungo": "other",
+      "hizen": "other",
+      "higo": "other"
+    },
+    "clans": {
+      "bakufu": {
+        "head": "徳川家康(大御所)・秀忠(2代将軍)",
+        "castle": {
+          "name": "駿府城(隠居所)",
+          "lon": 138.38,
+          "lat": 34.98
+        },
+        "lands": "畿内・東海・北陸の一部など幕府直轄・譜代領",
+        "retainers": [
+          "本多正純",
+          "土井利勝",
+          "藤堂高虎"
+        ],
+        "power": 5,
+        "events": [
+          "大坂夏の陣で豊臣秀頼・淀殿が自害し、豊臣家が滅亡",
+          "一国一城令・武家諸法度を発布し諸大名を統制"
+        ],
+        "desc": "大坂の陣を最後に戦乱が終わり、幕藩体制が確立していく。以後、大名は「藩」として領国を治める。"
+      },
+      "date": {
+        "head": "伊達政宗(仙台藩)",
+        "castle": {
+          "name": "仙台城",
+          "lon": 140.87,
+          "lat": 38.27
+        },
+        "lands": "陸奥仙台62万石",
+        "retainers": [
+          "片倉重長",
+          "伊達成実"
+        ],
+        "power": 3,
+        "events": [
+          "大坂の陣に徳川方として参陣"
+        ],
+        "desc": "仙台藩の基礎を固め、以後260年余り伊達家が治める。"
+      },
+      "mogami": {
+        "head": "最上家親(山形藩)",
+        "castle": {
+          "name": "山形城",
+          "lon": 140.34,
+          "lat": 38.25
+        },
+        "lands": "出羽山形57万石",
+        "retainers": [
+          "楯岡光直"
+        ],
+        "power": 2,
+        "events": [
+          "最上騒動の火種を抱えつつ大藩を維持"
+        ],
+        "desc": "この7年後の1622年、御家騒動により改易される運命にある。"
+      },
+      "uesugi": {
+        "head": "上杉景勝(米沢藩)",
+        "castle": {
+          "name": "米沢城",
+          "lon": 140.12,
+          "lat": 37.91
+        },
+        "lands": "出羽米沢30万石",
+        "retainers": [
+          "直江兼続"
+        ],
+        "power": 2,
+        "events": [
+          "関ヶ原後の大減封から藩政の立て直しを進める"
+        ],
+        "desc": "120万石から30万石へ減らされてなお家臣団を維持し続けた。"
+      },
+      "maeda": {
+        "head": "前田利常(加賀藩)",
+        "castle": {
+          "name": "金沢城",
+          "lon": 136.66,
+          "lat": 36.56
+        },
+        "lands": "加賀・能登・越中103万石",
+        "retainers": [
+          "本多政重"
+        ],
+        "power": 4,
+        "events": [
+          "外様大名ながら徳川と縁戚を結び存続を図る"
+        ],
+        "desc": "加賀百万石。外様大名として最大級の所領を保った。"
+      },
+      "satake": {
+        "head": "佐竹義宣(秋田藩)",
+        "castle": {
+          "name": "久保田城",
+          "lon": 140.1,
+          "lat": 39.72
+        },
+        "lands": "出羽秋田20万石",
+        "retainers": [
+          "梅津憲忠"
+        ],
+        "power": 2,
+        "events": [
+          "関ヶ原後に常陸から秋田へ移封されていた"
+        ],
+        "desc": "常陸54万石から秋田20万石へ大幅に減らされ、移封の憂き目を見た。"
+      },
+      "mori": {
+        "head": "毛利秀就(萩藩)",
+        "castle": {
+          "name": "萩城",
+          "lon": 131.4,
+          "lat": 34.41
+        },
+        "lands": "周防・長門(長州)37万石",
+        "retainers": [
+          "益田元祥"
+        ],
+        "power": 3,
+        "events": [
+          "防長2か国へ押し込められた中で藩政を整える"
+        ],
+        "desc": "かつて中国8か国を領した毛利氏は、関ヶ原の敗戦で防長2か国に減らされていた。"
+      },
+      "shimazu": {
+        "head": "島津家久(薩摩藩)",
+        "castle": {
+          "name": "内城(鹿児島)",
+          "lon": 130.55,
+          "lat": 31.6
+        },
+        "lands": "薩摩・大隅・日向の一部73万石",
+        "retainers": [
+          "樺山久高"
+        ],
+        "power": 4,
+        "events": [
+          "琉球出兵を経て勢力を保つ"
+        ],
+        "desc": "外様大名として最大級の石高を保ち続けた。"
+      },
+      "yamauchi": {
+        "head": "山内一豊の養嗣子・忠義(土佐藩)",
+        "castle": {
+          "name": "高知城",
+          "lon": 133.53,
+          "lat": 33.56
+        },
+        "lands": "土佐20万石",
+        "retainers": [
+          "深尾重良"
+        ],
+        "power": 2,
+        "events": [
+          "旧長宗我部家臣団(一領具足)との軋轢を抱える"
+        ],
+        "desc": "関ヶ原の功により掛川から土佐へ加増移封された。"
+      },
+      "other": {
+        "head": "—",
+        "castle": null,
+        "lands": "各地",
+        "retainers": [],
+        "power": 1,
+        "events": [
+          "全国の大名が「藩」として石高に応じ江戸幕府に組み込まれていく"
+        ],
+        "desc": "この地図では代表的な藩のみ色分けしています。実際にはこの時期、全国に200以上の藩がありました。"
+      }
+    }
+  },
+  {
+    "year": 1650,
+    "era": "慶安3年",
+    "note": "幕藩体制の安定期",
+    "owners": {
+      "dewa": "other",
+      "kozuke": "bakufu"
+    },
+    "clans": {
+      "bakufu": {
+        "head": "徳川家光→家綱(3代・4代将軍)",
+        "castle": {
+          "name": "江戸城",
+          "lon": 139.76,
+          "lat": 35.68
+        },
+        "lands": "幕府直轄領・譜代大名領(全国石高の約4分の1)",
+        "retainers": [
+          "松平信綱",
+          "保科正之",
+          "酒井忠勝"
+        ],
+        "power": 5,
+        "events": [
+          "武家諸法度・参勤交代の制度が定着",
+          "鎖国体制が完成し、対外関係を長崎などに限定"
+        ],
+        "desc": "三代・四代将軍のもとで幕藩体制が安定し、大きな戦のない「泰平の世」に入った。"
+      },
+      "date": {
+        "head": "伊達忠宗(仙台藩)",
+        "castle": {
+          "name": "仙台城",
+          "lon": 140.87,
+          "lat": 38.27
+        },
+        "lands": "陸奥仙台62万石",
+        "retainers": [
+          "片倉定広"
+        ],
+        "power": 3,
+        "events": [
+          "新田開発を進め実高を大きく伸ばす"
+        ],
+        "desc": "表高62万石に対し、実際の石高はさらに大きかったとされる。"
+      },
+      "uesugi": {
+        "head": "上杉綱勝(米沢藩)",
+        "castle": {
+          "name": "米沢城",
+          "lon": 140.12,
+          "lat": 37.91
+        },
+        "lands": "出羽米沢30万石",
+        "retainers": [
+          "甘粕継政"
+        ],
+        "power": 1,
+        "events": [
+          "財政難が続き藩政改革が課題となる"
+        ],
+        "desc": "後の藩主・上杉鷹山による改革を待つことになる。"
+      },
+      "maeda": {
+        "head": "前田光高→綱紀(加賀藩)",
+        "castle": {
+          "name": "金沢城",
+          "lon": 136.66,
+          "lat": 36.56
+        },
+        "lands": "加賀・能登・越中103万石",
+        "retainers": [
+          "本多政長"
+        ],
+        "power": 4,
+        "events": [
+          "学問や文化の奨励に力を入れる(加賀百万石の文治)"
+        ],
+        "desc": "外様大名でありながら幕府と協調し、大藩を保ち続けた。"
+      },
+      "satake": {
+        "head": "佐竹義隆(秋田藩)",
+        "castle": {
+          "name": "久保田城",
+          "lon": 140.1,
+          "lat": 39.72
+        },
+        "lands": "出羽秋田20万石",
+        "retainers": [],
+        "power": 2,
+        "events": [
+          "藩財政の基盤づくりが進む"
+        ],
+        "desc": "常陸からの移封から半世紀、秋田の地に藩政が定着していた。"
+      },
+      "mori": {
+        "head": "毛利綱広(萩藩)",
+        "castle": {
+          "name": "萩城",
+          "lon": 131.4,
+          "lat": 34.41
+        },
+        "lands": "周防・長門(長州)37万石",
+        "retainers": [],
+        "power": 3,
+        "events": [
+          "検地と新田開発により財政基盤を強化"
+        ],
+        "desc": "幕末に至るまで、この長州の地から多くの人材を輩出することになる。"
+      },
+      "shimazu": {
+        "head": "島津光久(薩摩藩)",
+        "castle": {
+          "name": "内城(鹿児島)",
+          "lon": 130.55,
+          "lat": 31.6
+        },
+        "lands": "薩摩・大隅・日向の一部73万石(琉球含む)",
+        "retainers": [],
+        "power": 4,
+        "events": [
+          "琉球王国を実質支配下に置きつつ独自の統治を継続"
+        ],
+        "desc": "幕府とは一定の距離を保ちつつ、南方交易の利を得ていた。"
+      },
+      "yamauchi": {
+        "head": "山内忠豊(土佐藩)",
+        "castle": {
+          "name": "高知城",
+          "lon": 133.53,
+          "lat": 33.56
+        },
+        "lands": "土佐20万石",
+        "retainers": [],
+        "power": 2,
+        "events": [
+          "上士(山内旧臣)と郷士(旧長宗我部家臣)の身分差が固定化"
+        ],
+        "desc": "この身分制度は、後の幕末まで土佐藩独特の緊張を残すことになる。"
+      },
+      "other": {
+        "head": "—",
+        "castle": null,
+        "lands": "各地",
+        "retainers": [],
+        "power": 1,
+        "events": [
+          "戦国期の下剋上は終わり、大名は「藩」として世襲統治する時代が続く"
+        ],
+        "desc": "この地図では代表的な藩のみ表示。全国では200以上の藩が並立していました。"
+      }
     }
   }
 ];
@@ -1340,12 +4063,17 @@ window.SENGOKU_YEARS = [
 <script>
 /* ============================================================
    app.js — 画面の組み立てと操作
+   ------------------------------------------------------------
+   SENGOKU_TIMELINE は「差分（変化があった国だけ）」を年代順に
+   並べたデータ。resolveYear() が0番目からその年までを積み上げて
+   計算することで、「書かなかった国は前の年を引き継ぐ」を実現する。
    ============================================================ */
 (function () {
   'use strict';
+  console.log('%c戦国時代 勢力変遷マップ - build 2026-07-17T00:49Z (chronicle-close-v3)', 'color:#c9a227;font-weight:bold;');
 
   var CLANS = window.SENGOKU_CLANS;
-  var YEARS = window.SENGOKU_YEARS;
+  var TIMELINE = window.SENGOKU_TIMELINE;
 
   var svg      = document.getElementById('map');
   var gWorld   = document.getElementById('world');
@@ -1359,8 +4087,13 @@ window.SENGOKU_YEARS = [
   var panel    = document.getElementById('panel');
   var range    = document.getElementById('year-range');
 
+  var YEAR_MIN = TIMELINE[0].year;
+  var YEAR_MAX = TIMELINE[TIMELINE.length - 1].year;
+
   var state = {
-    yearIdx: 2,               // 初期表示は1575年
+    year: 1575,               // スライダーの実際の値（連続）
+    ckptIdx: 0,                // 直近のチェックポイントのインデックス
+    current: null,             // resolveYear() の結果をキャッシュ
     selected: null,
     k: 1, tx: 0, ty: 0,
     shapes: null
@@ -1369,6 +4102,42 @@ window.SENGOKU_YEARS = [
   var provPaths = {};   // 国ID -> <path>
   var edgePaths = {};   // 勢力ID -> <path>
   var overlayItems = [];
+
+  /* ---------------- 履歴の積み上げ計算 ---------------- */
+
+  function ckptIndexForYear(y) {
+    var idx = 0;
+    for (var i = 0; i < TIMELINE.length; i++) {
+      if (TIMELINE[i].year <= y) idx = i; else break;
+    }
+    return idx;
+  }
+
+  var resolveCache = {};
+  function resolveYear(idx) {
+    if (resolveCache[idx]) return resolveCache[idx];
+    var owners = {}, infos = {};
+    for (var i = 0; i <= idx; i++) {
+      var y = TIMELINE[i];
+      Object.keys(y.owners || {}).forEach(function (p) { owners[p] = y.owners[p]; });
+      Object.keys(y.clans || {}).forEach(function (cid) {
+        var c = y.clans[cid], base = infos[cid] || {};
+        infos[cid] = {
+          head: c.head !== undefined ? c.head : base.head,
+          castle: c.castle !== undefined ? c.castle : base.castle,
+          lands: c.lands !== undefined ? c.lands : base.lands,
+          retainers: c.retainers !== undefined ? c.retainers : base.retainers,
+          power: c.power !== undefined ? c.power : base.power,
+          desc: c.desc !== undefined ? c.desc : base.desc
+        };
+      });
+    }
+    var thisY = TIMELINE[idx], events = {};
+    Object.keys(thisY.clans || {}).forEach(function (cid) { events[cid] = thisY.clans[cid].events || []; });
+    var result = { year: thisY.year, era: thisY.era, note: thisY.note, owners: owners, infos: infos, events: events };
+    resolveCache[idx] = result;
+    return result;
+  }
 
   /* ---------------- 地図の生成 ---------------- */
   function buildMap() {
@@ -1386,26 +4155,31 @@ window.SENGOKU_YEARS = [
   }
 
   /* ---------------- 年代の反映 ---------------- */
-  function ownerOf(provId, y) { return (y.owners[provId] || 'other'); }
+  function ownerOf(provId) { return state.current.owners[provId] || 'other'; }
 
-  function renderYear() {
-    var y = YEARS[state.yearIdx];
+  function renderYear(rebuildMap) {
+    var cur = state.current;
 
-    document.getElementById('year-big').textContent = y.year;
-    document.getElementById('year-note').textContent = '（' + y.era + '）' + y.note;
-    range.value = state.yearIdx;
-    document.getElementById('btn-prev').disabled = state.yearIdx === 0;
-    document.getElementById('btn-next').disabled = state.yearIdx === YEARS.length - 1;
+    document.getElementById('year-big').textContent = state.year;
+    var noteEl = document.getElementById('year-note');
+    if (state.year === cur.year) {
+      noteEl.textContent = '（' + cur.era + '）' + cur.note;
+    } else {
+      noteEl.textContent = '（' + cur.era + 'の情勢が続く）' + cur.note;
+    }
+    range.value = state.year;
+    document.getElementById('btn-prev').disabled = state.ckptIdx === 0;
+    document.getElementById('btn-next').disabled = state.ckptIdx === TIMELINE.length - 1;
 
-    // 国の塗り分け（CSS transition で自然に切り替わる）
+    if (!rebuildMap) return;
+
     GEO.PROVINCES.forEach(function (p) {
-      var c = CLANS[ownerOf(p.id, y)] || CLANS.other;
+      var c = CLANS[ownerOf(p.id)] || CLANS.other;
       provPaths[p.id].style.fill = c.color;
-      provPaths[p.id].dataset.clan = ownerOf(p.id, y);
+      provPaths[p.id].dataset.clan = ownerOf(p.id);
     });
 
-    // 勢力ごとの外形線
-    state.shapes = GEO.clanShapes(y.owners);
+    state.shapes = GEO.clanShapes(cur.owners);
     Object.keys(edgePaths).forEach(function (id) { edgePaths[id].setAttribute('d', ''); });
     Object.keys(state.shapes).forEach(function (id) {
       var el = edgePaths[id];
@@ -1421,22 +4195,22 @@ window.SENGOKU_YEARS = [
 
     if (state.selected && !(state.selected in state.shapes)) state.selected = null;
 
-    buildLegend(y);
-    buildOverlay(y);
+    buildLegend();
+    buildOverlay();
     highlight();
     renderPanel();
   }
 
   /* ---------------- 勢力一覧 ---------------- */
-  function clansOfYear(y) {
-    var ids = Object.keys(state.shapes).filter(function (id) { return y.clans[id]; });
+  function clansOfYear() {
+    var ids = Object.keys(state.shapes).filter(function (id) { return state.current.infos[id]; });
     ids.sort(function (a, b) { return state.shapes[b].area - state.shapes[a].area; });
     return ids;
   }
 
-  function buildLegend(y) {
+  function buildLegend() {
     legendList.innerHTML = '';
-    clansOfYear(y).forEach(function (id) {
+    clansOfYear().forEach(function (id) {
       var c = CLANS[id];
       var li = document.createElement('button');
       li.className = 'legend-item';
@@ -1449,11 +4223,11 @@ window.SENGOKU_YEARS = [
   }
 
   /* ---------------- 地図上のラベル・城 ---------------- */
-  function buildOverlay(y) {
+  function buildOverlay() {
     overlay.innerHTML = '';
     overlayItems = [];
 
-    clansOfYear(y).forEach(function (id) {
+    clansOfYear().forEach(function (id) {
       var s = state.shapes[id], c = CLANS[id];
       if (s.area < 900 || id === 'other') return;
       var el = document.createElement('div');
@@ -1465,8 +4239,8 @@ window.SENGOKU_YEARS = [
       overlayItems.push({ el: el, x: s.cx, y: s.cy, clan: id, rank: 0 });
     });
 
-    clansOfYear(y).forEach(function (id) {
-      var info = y.clans[id];
+    clansOfYear().forEach(function (id) {
+      var info = state.current.infos[id];
       if (!info || !info.castle) return;
       var xy = GEO.project(info.castle.lon, info.castle.lat);
       var el = document.createElement('div');
@@ -1483,7 +4257,6 @@ window.SENGOKU_YEARS = [
     overlay.appendChild(ez);
     overlayItems.push({ el: ez, x: ezoXY[0], y: ezoXY[1], rank: 2 });
 
-    // 重なり判定用に大きさを一度だけ測っておく
     overlayItems.forEach(function (it) {
       it.w = it.el.offsetWidth || 48;
       it.h = it.el.offsetHeight || 18;
@@ -1491,7 +4264,6 @@ window.SENGOKU_YEARS = [
     syncOverlay();
   }
 
-  /* 画面座標へ反映しつつ、重なったラベルは間引く（拡大すると出てくる） */
   function syncOverlay() {
     var ctm = gWorld.getScreenCTM();
     if (!ctm) return;
@@ -1553,21 +4325,22 @@ window.SENGOKU_YEARS = [
 
   function renderPanel() {
     var body = document.getElementById('panel-body');
-    var y = YEARS[state.yearIdx];
+    var cur = state.current;
     if (!state.selected) {
       body.innerHTML = '<p class="empty">地図の勢力をタップすると、その年の当主・本拠地・出来事を表示します。</p>';
       document.getElementById('panel-title').innerHTML = '<span class="ph">勢力の詳細</span>';
       return;
     }
-    var id = state.selected, c = CLANS[id], info = y.clans[id];
+    var id = state.selected, c = CLANS[id], info = cur.infos[id];
     if (!info) { body.innerHTML = '<p class="empty">この年代のデータがありません。</p>'; return; }
+    var events = cur.events[id] || [];
 
     document.getElementById('panel-title').innerHTML =
       '<span class="crest" style="background:' + c.color + '">' + KAMON.svg(c.kamon, 26, '#fff') + '</span>' +
       '<span class="pt-name" style="color:' + c.color + '">' + c.name + '</span>' +
-      '<span class="pt-year">' + y.year + '年</span>';
+      '<span class="pt-year">' + state.year + '年</span>';
 
-    var provs = GEO.PROVINCES.filter(function (p) { return ownerOf(p.id, y) === id; })
+    var provs = GEO.PROVINCES.filter(function (p) { return ownerOf(p.id) === id; })
       .map(function (p) { return p.name; });
 
     var html = '';
@@ -1575,21 +4348,26 @@ window.SENGOKU_YEARS = [
       '<div class="portrait" style="--c:' + c.color + '">' + KAMON.svg(c.kamon, 64, c.color) +
       '<span>肖像画</span></div>' +
       '<dl class="facts">' +
-      '<dt>当主</dt><dd class="head">' + info.head + '</dd>' +
+      '<dt>当主</dt><dd class="head">' + (info.head || '—') + '</dd>' +
       '<dt>本拠地</dt><dd>' + (info.castle ? info.castle.name : '—') + '</dd>' +
-      '<dt>主な領土</dt><dd>' + info.lands + '</dd>' +
-      '<dt>勢力の強さ</dt><dd class="stars">' + stars(info.power) + '</dd>' +
+      '<dt>主な領土</dt><dd>' + (info.lands || '—') + '</dd>' +
+      '<dt>勢力の強さ</dt><dd class="stars">' + stars(info.power || 1) + '</dd>' +
       '</dl></div>';
 
     if (info.retainers && info.retainers.length) {
       html += '<h4>主な家臣</h4><ul class="retainers">' +
         info.retainers.map(function (r) { return '<li>' + r + '</li>'; }).join('') + '</ul>';
     }
-    html += '<h4>' + y.year + '年の主な出来事</h4><ul class="events">' +
-      info.events.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
 
-    html += '<div class="more" hidden><h4>解説</h4><p>' + info.desc + '</p>' +
-      '<h4>この年の領国（' + provs.length + 'か国）</h4><p class="provlist">' + (provs.join('・') || '—') + '</p></div>';
+    if (events.length) {
+      html += '<h4>' + state.year + '年の主な出来事</h4><ul class="events">' +
+        events.map(function (e) { return '<li>' + e + '</li>'; }).join('') + '</ul>';
+    } else {
+      html += '<h4>' + state.year + '年の主な出来事</h4><p class="empty small">この時点で特筆すべき出来事は伝わっていません。</p>';
+    }
+
+    html += '<div class="more" hidden><h4>解説</h4><p>' + (info.desc || '') + '</p>' +
+      '<h4>この時点の領国（' + provs.length + 'か国）</h4><p class="provlist">' + (provs.join('・') || '—') + '</p></div>';
     html += '<button class="btn-more" type="button">詳細を見る<span class="chev">›</span></button>';
 
     body.innerHTML = html;
@@ -1605,6 +4383,42 @@ window.SENGOKU_YEARS = [
 
   function openSheet() { document.body.classList.add('sheet-open'); }
   function closeSheet() { document.body.classList.remove('sheet-open'); }
+
+  /* ---------------- 年表（通し年表） ---------------- */
+  function buildChronicle() {
+    var rows = [];
+    TIMELINE.forEach(function (y) {
+      Object.keys(y.clans || {}).forEach(function (cid) {
+        var evs = y.clans[cid].events || [];
+        evs.forEach(function (text) { rows.push({ year: y.year, clan: cid, text: text }); });
+      });
+    });
+    rows.sort(function (a, b) { return a.year - b.year; });
+
+    var list = document.getElementById('chronicle-list');
+    list.innerHTML = '';
+    var lastYear = null;
+    rows.forEach(function (r) {
+      var c = CLANS[r.clan] || CLANS.other;
+      if (r.year !== lastYear) {
+        var yh = document.createElement('div');
+        yh.className = 'chr-year';
+        yh.textContent = r.year + '年';
+        list.appendChild(yh);
+        lastYear = r.year;
+      }
+      var row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'chr-row';
+      row.innerHTML = '<span class="chr-dot" style="background:' + c.color + '"></span>' +
+        '<span class="chr-clan">' + c.name + '</span><span class="chr-text">' + r.text + '</span>';
+      row.addEventListener('click', function () {
+        document.getElementById('chronicle').close();
+        setYearValue(r.year);
+      });
+      list.appendChild(row);
+    });
+  }
 
   /* ---------------- 変形（ズーム・パン） ---------------- */
   function applyTransform() {
@@ -1641,7 +4455,7 @@ window.SENGOKU_YEARS = [
 
   /* ---------------- ポインタ操作 ---------------- */
   var pts = new Map(), prevDist = 0, prevMid = null, moved = 0, downAt = 0, downTarget = null;
-  var lastTap = 0, lastTapPos = null;
+  var lastTap = 0, lastTapPos = null, lastTapProv = null;
 
   mapwrap.addEventListener('pointerdown', function (e) {
     mapwrap.setPointerCapture(e.pointerId);
@@ -1681,20 +4495,22 @@ window.SENGOKU_YEARS = [
     if (!single) return;
 
     if (moved < 10 && Date.now() - downAt < 500) {
-      // ダブルタップ判定
+      var t = downTarget && downTarget.closest ? downTarget.closest('[data-prov]') : null;
+      var prov = t ? t.dataset.prov : null;
       var now = Date.now();
-      if (lastTapPos && now - lastTap < 320 &&
-          Math.hypot(e.clientX - lastTapPos.x, e.clientY - lastTapPos.y) < 30) {
+
+      // ダブルタップ判定は「同じ国を連続でタップ」した場合のみ。
+      // 別の勢力を続けてタップしたときに誤って拡大扱いされ、
+      // 選択が効かなくなる不具合を避けるための条件。
+      if (prov && lastTapPos && lastTapProv === prov && now - lastTap < 320 &&
+          Math.hypot(e.clientX - lastTapPos.x, e.clientY - lastTapPos.y) < 40) {
         zoomAt(clientToUser(e.clientX, e.clientY), 1.9);
-        lastTap = 0; lastTapPos = null;
+        lastTap = 0; lastTapPos = null; lastTapProv = null;
         return;
       }
-      lastTap = now; lastTapPos = { x: e.clientX, y: e.clientY };
+      lastTap = now; lastTapPos = { x: e.clientX, y: e.clientY }; lastTapProv = prov;
 
-      var t = downTarget && downTarget.closest ? downTarget.closest('[data-prov]') : null;
-      if (t) {
-        select(YEARS[state.yearIdx].owners[t.dataset.prov] || 'other');
-      }
+      if (t) select(ownerOf(t.dataset.prov));
     }
   }
   mapwrap.addEventListener('pointerup', endPointer);
@@ -1706,28 +4522,65 @@ window.SENGOKU_YEARS = [
   }, { passive: false });
 
   /* ---------------- UI配線 ---------------- */
-  function setYear(i) {
-    state.yearIdx = Math.min(YEARS.length - 1, Math.max(0, i));
-    renderYear();
+
+  function setYearValue(y) {
+    y = Math.min(YEAR_MAX, Math.max(YEAR_MIN, Math.round(y)));
+    state.year = y;
+    var idx = ckptIndexForYear(y);
+    var changed = idx !== state.ckptIdx || !state.current;
+    state.ckptIdx = idx;
+    if (changed) state.current = resolveYear(idx);
+    renderYear(changed);
+  }
+  function gotoCkpt(idx) {
+    idx = Math.min(TIMELINE.length - 1, Math.max(0, idx));
+    setYearValue(TIMELINE[idx].year);
+  }
+
+  function buildTicks() {
+    var ticks = document.getElementById('year-ticks');
+    ticks.innerHTML = '';
+    TIMELINE.forEach(function (y) {
+      var pct = (y.year - YEAR_MIN) / (YEAR_MAX - YEAR_MIN) * 100;
+      var s = document.createElement('button');
+      s.type = 'button';
+      s.className = 'tick';
+      s.style.left = pct + '%';
+      s.innerHTML = '<span class="tick-dot"></span><span class="tick-label">' + y.year + '</span>';
+      s.addEventListener('click', function () { setYearValue(y.year); });
+      ticks.appendChild(s);
+    });
+    declutterTicks();
+  }
+
+  // 目盛りラベルが密集して重なる場合、はみ出す分のラベル文字だけを間引く
+  // （マーク自体は常に残るので、タップして年代へジャンプすることは変わらず可能）
+  function declutterTicks() {
+    var els = Array.prototype.slice.call(document.querySelectorAll('.tick'));
+    if (!els.length) return;
+    els.forEach(function (t) { t.classList.remove('label-hidden'); });
+    var lastRight = -Infinity;
+    els.forEach(function (t, i) {
+      var label = t.querySelector('.tick-label');
+      var rect = label.getBoundingClientRect();
+      if (i > 0 && rect.left < lastRight + 6) {
+        t.classList.add('label-hidden');
+      } else {
+        lastRight = rect.right;
+      }
+    });
   }
 
   function init() {
     buildMap();
+    buildTicks();
+    buildChronicle();
 
-    range.min = 0; range.max = YEARS.length - 1; range.step = 1;
-    var ticks = document.getElementById('year-ticks');
-    YEARS.forEach(function (y, i) {
-      var s = document.createElement('button');
-      s.type = 'button';
-      s.className = 'tick';
-      s.textContent = y.year;
-      s.addEventListener('click', function () { setYear(i); });
-      ticks.appendChild(s);
-    });
+    range.min = YEAR_MIN; range.max = YEAR_MAX; range.step = 1;
 
-    range.addEventListener('input', function () { setYear(+range.value); });
-    document.getElementById('btn-prev').addEventListener('click', function () { setYear(state.yearIdx - 1); });
-    document.getElementById('btn-next').addEventListener('click', function () { setYear(state.yearIdx + 1); });
+    range.addEventListener('input', function () { setYearValue(+range.value); });
+    document.getElementById('btn-prev').addEventListener('click', function () { gotoCkpt(state.ckptIdx - 1); });
+    document.getElementById('btn-next').addEventListener('click', function () { gotoCkpt(state.ckptIdx + 1); });
     document.getElementById('btn-zoom-in').addEventListener('click', function () { zoomCenter(1.4); });
     document.getElementById('btn-zoom-out').addEventListener('click', function () { zoomCenter(1 / 1.4); });
     document.getElementById('btn-reset').addEventListener('click', resetView);
@@ -1742,15 +4595,37 @@ window.SENGOKU_YEARS = [
     document.getElementById('help-close').addEventListener('click', function () {
       document.getElementById('help').close();
     });
+    document.getElementById('btn-chronicle').addEventListener('click', function () {
+      console.log('[診断] 年表を開くボタンがクリックされました');
+      document.getElementById('chronicle').showModal();
+      console.log('[診断] showModal実行後の open =', document.getElementById('chronicle').open);
+    });
+    function closeChronicle(from) {
+      console.log('[診断] closeChronicle呼び出し元:', from);
+      var dlg = document.getElementById('chronicle');
+      try {
+        dlg.close();
+        console.log('[診断] dlg.close() 実行完了。 open =', dlg.open);
+      } catch (err) {
+        console.log('[診断] dlg.close() でエラー:', err);
+        dlg.removeAttribute('open');
+      }
+    }
+    document.getElementById('chronicle-close').addEventListener('click', function () { closeChronicle('ヘッダー×ボタン'); });
+    document.getElementById('chronicle-close-bottom').addEventListener('click', function () { closeChronicle('下部の閉じるボタン'); });
+    // ダイアログの背景（内容の外側）をクリックしても閉じる
+    document.getElementById('chronicle').addEventListener('click', function (e) {
+      if (e.target === e.currentTarget) closeChronicle('背景クリック');
+    });
 
-    window.addEventListener('resize', syncOverlay);
+    window.addEventListener('resize', function () { syncOverlay(); declutterTicks(); });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowRight') setYear(state.yearIdx + 1);
-      if (e.key === 'ArrowLeft') setYear(state.yearIdx - 1);
+      if (e.key === 'ArrowRight') setYearValue(state.year + 1);
+      if (e.key === 'ArrowLeft') setYearValue(state.year - 1);
       if (e.key === 'Escape') closeSheet();
     });
 
-    renderYear();
+    setYearValue(1575);
     applyTransform();
     setTimeout(syncOverlay, 60);
   }
